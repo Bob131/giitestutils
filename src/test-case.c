@@ -32,8 +32,18 @@ static TestCaseContext* _current_tc_context = NULL;
 } G_STMT_END
 
 
-void gtu_assert_not_reached (void) {
+void _gtu_assertion_message (const char* file,
+                             const char* line,
+                             const char* function,
+                             const char* message)
+{
   CURRENT_CONTEXT_CHECK ();
+
+  g_assert (file != NULL && line != NULL && function != NULL);
+  if (message == NULL)
+    message = "assert failed";
+
+  g_printerr ("**\nERROR:%s:%s:%s: %s\n", file, line, function, message);
 
   if (_gtu_get_debug_flags () & GTU_DEBUG_FATAL_ASSERTS)
     abort ();

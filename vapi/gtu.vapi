@@ -1,10 +1,26 @@
+[NoReturn]
+[CCode (cheader_filename = "gtu.h", cname = "gtu_assert_not_reached")]
+public void assert_not_reached ();
+
 [Assert]
 [CCode (cheader_filename = "gtu.h", cname = "gtu_assert")]
 public void assert (bool expr);
 
-[NoReturn]
-[CCode (cheader_filename = "gtu.h", cname = "gtu_assert_not_reached")]
-public void assert_not_reached ();
+[Assert]
+[CCode (cheader_filename = "gtu.h", cname = "gtu_assert")]
+public void assert_true (bool expr);
+
+[Assert]
+[CCode (cheader_filename = "gtu.h", cname = "gtu_assert")]
+public void assert_false (bool expr);
+
+[Assert]
+[CCode (cheader_filename = "gtu.h", cname = "gtu_assert")]
+public void assert_null (...);
+
+[Assert]
+[CCode (cheader_filename = "gtu.h", cname = "gtu_assert")]
+public void assert_nonnull (...);
 
 [CCode (cheader_filename = "gtu.h")]
 namespace Gtu {

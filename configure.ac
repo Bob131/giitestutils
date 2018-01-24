@@ -25,6 +25,14 @@ GTU_REQUIRED_PACKAGES=m4_flatten(["
 PKG_CHECK_MODULES(gtu_U, $GTU_REQUIRED_PACKAGES)
 AC_SUBST(gtu_U_REQUIRES, $GTU_REQUIRED_PACKAGES)
 
+m4_ifdef([GTK_DOC_CHECK], [
+GTK_DOC_CHECK([1.9], [--flavour no-tmpl])
+], [
+AM_CONDITIONAL([ENABLE_GTK_DOC], [false])
+])
+
+AM_COND_IF([ENABLE_GTK_DOC], [AC_CONFIG_FILES([docs/Makefile])])
+
 dnl ###########################################################################
 dnl Files to generate
 dnl ###########################################################################

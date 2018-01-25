@@ -66,6 +66,9 @@ bool gtu_has_initialized (void);
  * %TESTMODE for more information.
  *
  * Notes on valid flag combinations:
+ *  * The result of gtu_test_mode_flags_get_flags() should never be `0`; at
+ *    least one flag will always be set.
+ *
  *  * @GTU_TEST_MODE_FLAGS_SLOW/@GTU_TEST_MODE_FLAGS_THOROUGH should never
  *    be set with @GTU_TEST_MODE_FLAGS_QUICK.
  *

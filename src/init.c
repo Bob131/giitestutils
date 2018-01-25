@@ -18,12 +18,12 @@ void *alloca (size_t);
 #define GTU_DEBUG "GTU_DEBUG"
 
 static const GDebugKey _debug_keys[] = {
-  { "fatal-asserts", GTU_DEBUG_FATAL_ASSERTS }
+  { "fatal-asserts", GTU_DEBUG_FLAGS_FATAL_ASSERTS }
 };
 
-static GtuDebugFlags _debug_flags;
+static GtuDebugFlags _debug_flags = GTU_DEBUG_FLAGS_NONE;
 
-G_GNUC_INTERNAL GtuDebugFlags _gtu_get_debug_flags (void) {
+G_GNUC_INTERNAL GtuDebugFlags _gtu_debug_flags_get (void) {
   return _debug_flags;
 }
 
@@ -47,7 +47,7 @@ void gtu_init (char** args, int args_length) {
         G_N_ELEMENTS (_debug_keys)
     );
 
-    if (!(_debug_flags & GTU_DEBUG_FATAL_ASSERTS))
+    if (!(_debug_flags & GTU_DEBUG_FLAGS_FATAL_ASSERTS))
       g_test_set_nonfatal_assertions ();
 
     _has_initialized = true;

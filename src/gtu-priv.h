@@ -9,9 +9,10 @@
 #include "gtu.h"
 
 typedef enum {
-  GTU_DEBUG_FATAL_ASSERTS = 1 << 0
+  GTU_DEBUG_FLAGS_NONE = 0,
+  GTU_DEBUG_FLAGS_FATAL_ASSERTS = 1 << 0
 } GtuDebugFlags;
 
-G_GNUC_INTERNAL GtuDebugFlags _gtu_get_debug_flags (void);
+G_GNUC_INTERNAL GtuDebugFlags _gtu_debug_flags_get (void);
 
 #endif

@@ -45,7 +45,7 @@ void _gtu_assertion_message (const char* file,
 
   g_printerr ("**\nERROR:%s:%s:%s: %s\n", file, line, function, message);
 
-  if (_gtu_get_debug_flags () & GTU_DEBUG_FATAL_ASSERTS)
+  if (_gtu_debug_flags_get () & GTU_DEBUG_FLAGS_FATAL_ASSERTS)
     abort ();
 
   g_test_fail ();

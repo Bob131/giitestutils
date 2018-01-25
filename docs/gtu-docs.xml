@@ -5,14 +5,22 @@
   <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
   <!ENTITY % gtkdocentities SYSTEM "xml/gtkdocentities.ent">
   %gtkdocentities;
+  <!ENTITY % versionentities SYSTEM "version.ent">
+  %versionentities;
 ]>
 <book id="index">
   <bookinfo>
     <title>&package_name; Reference Manual</title>
     <releaseinfo>
-      for &package_string;.
-      The latest version of this documentation can be found on-line at
-      <ulink role="online-location" url="https://docs.bob131.so/&package_name;/index.html">https://docs.bob131.so/&package_name;/</ulink>.
+      <para>
+        for &package_name; <date>&package_git_date;</date>
+        (git: <ulink role="online-location" url="https://github.com/Bob131/&package_name;/commit/&package_git_commit;">&package_git_version;</ulink>).
+      </para>
+
+      <para>
+        The latest version of this documentation can be found on-line at
+        <ulink role="online-location" url="https://docs.bob131.so/&package_name;/index.html">https://docs.bob131.so/&package_name;/</ulink>.
+      </para>
     </releaseinfo>
   </bookinfo>
 

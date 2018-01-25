@@ -27,6 +27,7 @@ AC_SUBST(gtu_U_REQUIRES, $GTU_REQUIRED_PACKAGES)
 
 m4_ifdef([GTK_DOC_CHECK], [
 GTK_DOC_CHECK([1.9], [--flavour no-tmpl])
+AM_COND_IF([ENABLE_GTK_DOC], [AC_PROG_LN_S])
 ], [
 AM_CONDITIONAL([ENABLE_GTK_DOC], [false])
 ])

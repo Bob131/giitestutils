@@ -23,6 +23,13 @@ TESTS_ENVIRONMENT = \
 	SRCDIR=$(abs_srcdir) BUILDDIR=$(abs_builddir)
 TESTS = $(GTKDOC_CHECK)
 
+if GTK_DOC_BUILD_HTML
+# we can't use gtkdoc-rebase because it's enormously broken
+docs-rebase: html-build.stamp
+	-sed -i -e "s|$(shell grep -Poh "(?<=href=\")([^\"]+gtk-doc/html/glib)" html/*.html | head -n1)|https://developer.gnome.org/glib/stable|g" html/*.html
+	-sed -i -e "s|$(shell grep -Poh "(?<=href=\")([^\"]+gtk-doc/html/gobject)" html/*.html | head -n1)|https://developer.gnome.org/gobject/stable|g" html/*.html
+endif
+
 CLEANFILES += gtu-sections.txt gtu-overrides.txt
 endif
 

@@ -51,6 +51,7 @@ static void skip_test (void* data) {
   (void) data;
   gtu_skip_if_not_thorough ();
   gtu_skip_if_not_perf ();
+  gtu_skip_if_not_undefined ();
   gtu_skip_if (TRUE, NULL);
   g_assert_not_reached ();
 }

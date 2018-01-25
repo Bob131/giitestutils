@@ -16,6 +16,7 @@
 #include <glib-object.h>
 
 #include "gtu-asserts.h"
+#include "gtu-skips.h"
 
 G_BEGIN_DECLS
 
@@ -41,6 +42,62 @@ void gtu_init (char** args, int args_length);
  * Returns: %TRUE if gtu_init() has been called successfully, %FALSE otherwise.
  */
 bool gtu_has_initialized (void);
+
+/**
+ * GtuTestModeFlags:
+ * @GTU_TEST_MODE_FLAGS_PERF:       Enable performance tests.
+ * @GTU_TEST_MODE_FLAGS_SLOW:       Enable slow tests and repeat
+ *                                  non-deterministic tests more often.
+ *                                  Mutually exclusive with
+ *                                  @GTU_TEST_MODE_FLAGS_QUICK.
+ * @GTU_TEST_MODE_FLAGS_QUICK:      Disable slow tests and do fewer iterations
+ *                                  of non-deterministic tests.
+ *                                  Mutually exclusive with
+ *                                  @GTU_TEST_MODE_FLAGS_SLOW.
+ * @GTU_TEST_MODE_FLAGS_UNDEFINED:  Enable tests that provoke assertion
+ *                                  failures.
+ * @GTU_TEST_MODE_FLAGS_VERBOSE:    Enable verbose logging and disable
+ *                                  @GTU_TEST_MODE_FLAGS_QUIET.
+ * @GTU_TEST_MODE_FLAGS_QUIET:      Silence normal output and disable
+ *                                  @GTU_TEST_MODE_FLAGS_VERBOSE.
+ * @GTU_TEST_MODE_FLAGS_THOROUGH:   Alias of @GTU_TEST_MODE_FLAGS_SLOW.
+ *
+ * Represents the options a user running the test suite has requested. See
+ * %TESTMODE for more information.
+ *
+ * Notes on valid flag combinations:
+ *  * @GTU_TEST_MODE_FLAGS_SLOW/@GTU_TEST_MODE_FLAGS_THOROUGH should never
+ *    be set with @GTU_TEST_MODE_FLAGS_QUICK.
+ *
+ *  * One of @GTU_TEST_MODE_FLAGS_SLOW or @GTU_TEST_MODE_FLAGS_QUICK will
+ *    always be set in values returned from gtu_test_mode_flags_get_flags().
+ *
+ *  * @GTU_TEST_MODE_FLAGS_VERBOSE should never be set with
+ *    @GTU_TEST_MODE_FLAGS_QUIET.
+ *
+ *  * It's valid for neither @GTU_TEST_MODE_FLAGS_VERBOSE or
+ *    @GTU_TEST_MODE_FLAGS_QUIET to be set; this is the default.
+ */
+typedef enum {
+  GTU_TEST_MODE_FLAGS_PERF         = 1 << 0,
+  GTU_TEST_MODE_FLAGS_SLOW         = 1 << 1,
+  GTU_TEST_MODE_FLAGS_QUICK        = 1 << 2,
+  GTU_TEST_MODE_FLAGS_UNDEFINED    = 1 << 3,
+  GTU_TEST_MODE_FLAGS_VERBOSE      = 1 << 4,
+  GTU_TEST_MODE_FLAGS_QUIET        = 1 << 5,
+
+  GTU_TEST_MODE_FLAGS_THOROUGH = GTU_TEST_MODE_FLAGS_SLOW
+} GtuTestModeFlags;
+
+/**
+ * gtu_test_mode_flags_get_flags:
+ *
+ * Returns the #GtuTestModeFlags that the current test suite has been launched
+ * with.
+ *
+ * Returns: flags for the current test suite.
+ */
+GtuTestModeFlags gtu_test_mode_flags_get_flags (void);
 
 /**
  * GtuTestFunc:

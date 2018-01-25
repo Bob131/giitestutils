@@ -5,7 +5,8 @@ check_PROGRAMS = gtu-test
 
 libgtu_a_SOURCES = \
 	init.c \
-	test-case.c
+	test-case.c \
+	flags.c
 
 libgtu_a_CFLAGS = \
 	-I$(top_srcdir)/include \

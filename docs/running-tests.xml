@@ -16,7 +16,7 @@
   <refsect1>
     <title>Make Variables</title>
 
-    <formalpara>
+    <formalpara id="TESTMODE:CAPS">
       <title><envar>TESTMODE</envar></title>
       <para>
         Allows the set of enabled tests to be configured without running test
@@ -105,7 +105,7 @@
           <listitem>
             <para>
               Causes GTU to abort upon the failure of any GTU assertions. See
-              <xref linkend="gtu-Asserts-and-skips" endterm="gtu-Asserts-and-skips.top_of_page"/>
+              <xref linkend="gtu-Asserts" endterm="gtu-Asserts.top_of_page"/>
               for more information.
             </para>
           </listitem>

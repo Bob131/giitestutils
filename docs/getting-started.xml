@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+]>
+<refentry id="gtu-Getting-Started">
+  <refmeta>
+    <refentrytitle role="top_of_page" id="gtu-Getting-Started.top_of_page">Getting Started</refentrytitle>
+    <refmiscinfo>GTU Library</refmiscinfo>
+  </refmeta>
+
+  <refnamediv>
+    <refname>Getting GTU set up</refname>
+    <refpurpose>How to add GTU to your project</refpurpose>
+  </refnamediv>
+
+  <refsect1>
+    <para>
+      GTU is designed to be included in-tree and integrate with autotools.
+      Assuming unit tests are to be kept in a <filename>tests/</filename>
+      directory, getting GTU set up might look something like the following:
+    </para>
+
+    <procedure>
+      <title>Towards testing</title>
+
+      <step>
+        <para>
+          Set up the tree:
+        </para>
+
+        <literallayout>    <userinput>mkdir tests</userinput>
+    <userinput>touch tests/Makefile.am</userinput>
+    <userinput>git submodule add https://github.com/Bob131/giitestutils tests/utils</userinput>
+    <userinput>cp tests/utils/gtu_tests.m4 m4</userinput>
+    <userinput>cp tests/utils/gtu.mk build-aux</userinput>
+        </literallayout>
+      </step>
+
+      <step>
+        <para>
+          To initialise GTU's build system, add the following to your
+          <filename>configure.ac</filename>:
+        </para>
+
+        <informalexample>
+          <programlisting language="autoconf">GTU_TESTS([tests/utils])</programlisting>
+        </informalexample>
+
+        <note>
+          For more information, see the documentation in
+          <filename>gtu_tests.m4</filename>.
+        </note>
+      </step>
+
+      <step>
+        <para>
+          Fill your tests Makefile.
+        </para>
+
+        <example>
+          <title>An example <filename>tests/Makefile.am</filename></title>
+          <programlisting language="automake">
+            if ENABLE_GTU_TESTS
+            SUBDIRS = utils
+            include $(top_srcdir)/build-aux/gtu.mk
+
+            test_programs = tests
+
+            tests_SOURCES = \
+                    tests.vala
+
+            tests_VALAFLAGS = \
+                    $(gtu_U_VALAFLAGS)
+
+            tests_CFLAGS = \
+                    $(gtu_U_CFLAGS)
+
+            tests_LDADD = \
+                    $(gtu_U_LIBS)
+            endif</programlisting>
+        </example>
+      </step>
+    </procedure>
+
+
+    <para>
+      After this, you should have:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        A new <option>--enable-tests</option> flag in your project's
+        configure script. If a user omits this flag from a
+        <command>configure</command> invocation, they shouldn't need the GTU
+        submodule to be checked out for a successful build.
+      </listitem>
+
+      <listitem>
+        GLib's TAP testing facilities.
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      Running <userinput>make check</userinput> now has a few extra behaviours:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        Builds a static library, <filename>libgtu.a</filename>.
+      </listitem>
+
+      <listitem>
+        Builds a test suite binary, <filename>tests/tests</filename>, statically
+        linked with GTU.
+      </listitem>
+    </itemizedlist>
+  </refsect1>
+</refentry>

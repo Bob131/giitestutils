@@ -17,10 +17,16 @@
   </bookinfo>
 
   <chapter>
-    <title>LibGTU API Reference</title>
-        <xi:include href="xml/gtu.xml"/>
-        <xi:include href="xml/gtu-asserts.xml"/>
+    <title>GTU Overview</title>
+    <xi:include href="intro.xml"/>
+    <xi:include href="getting-started.xml"/>
+    <xi:include href="running-tests.xml"/>
+  </chapter>
 
+  <chapter>
+    <title>GTU API Reference</title>
+    <xi:include href="xml/gtu.xml"/>
+    <xi:include href="xml/gtu-asserts.xml"/>
   </chapter>
 
   <!-- we don't currently declare any object types

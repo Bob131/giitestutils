@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+]>
+<refentry id="gtu-Intro">
+  <refmeta>
+    <refentrytitle role="top_of_page" id="gtu-Intro.top_of_page">GTU Introduction</refentrytitle>
+    <refmiscinfo>GTU Library</refmiscinfo>
+  </refmeta>
+
+  <refnamediv>
+    <refname>Introduction to the GTU library</refname>
+  </refnamediv>
+
+  <refsect2>
+    <title>What and Why?</title>
+    <para>
+      Whilst enormously handy, GLib's testing framework can be somewhat
+      cumbersome:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        Building test suites with
+        <link linkend="GTestCase"><classname>GTestCase</classname></link>
+        involves a lot of boilerplate, which can be particularly frustrating
+        if most of your tests don't require complicated fixtures.
+      </listitem>
+
+      <listitem>
+        Test cases are required to use a separate (less flexible) asserts
+        API, as
+        <link linkend="g-assert"><function>g_assert()</function></link>
+        and
+        <link linkend="g-assert-not-reached"><function>g_assert_not_reached()</function></link>
+        always abort the program regardless of
+        <link linkend="g-test-set-nonfatal-assertions"><function>g_test_set_nonfatal_assertions()</function></link>
+        .
+      </listitem>
+
+      <listitem>
+        Test cases are required to check the results of assertions and
+        explicitly return on failure, making it easy to write buggy tests by
+        mistake.
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      Given that the testing framework is part of GLib proper and is designed
+      to be reasonably flexible, these are understandable issues to have; in
+      many testing-specific scenarios, however, it may be preferable to trade
+      in some flexibility and correctness for added convenience.
+    </para>
+
+    <para>
+      GTU aims to fill this gap: without the burden of being a general-purpose
+      batteries-included library, we can use mechanisms that might otherwise be
+      considered uncouth to make things simpler.
+    </para>
+  </refsect2>
+
+  <refsect2>
+    <title>The <emphasis>What</emphasis> Test Utilities?</title>
+    <para>
+      'GTU' is an abbreviation for 'Gii Test Utilities'. 'Gii' is pronounced
+      just like 'Gee' (the name from which it's derived); the only connection
+      between GTU and another
+      <ulink url="https://wiki.gnome.org/Projects/Libgee">GLib-based utility library</ulink>
+      is a common cute name.
+    </para>
+  </refsect2>
+</refentry>

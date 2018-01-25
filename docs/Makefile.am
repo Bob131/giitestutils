@@ -4,9 +4,16 @@ DOC_MAIN_SGML_FILE = $(DOC_MODULE)-docs.xml
 
 DOC_SOURCE_DIR = $(top_srcdir)/include
 
+SCAN_OPTIONS = --rebuild-types
+
+MKDB_OPTIONS = --xml-mode --output-format=xml
+
 HFILE_GLOB = $(top_srcdir)/include/gtu*.h
 
-SCAN_OPTIONS = --rebuild-types
+content_files = \
+	intro.xml \
+	getting-started.xml \
+	running-tests.xml
 
 if ENABLE_GTK_DOC
 include $(top_srcdir)/gtk-doc.make

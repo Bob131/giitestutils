@@ -44,6 +44,8 @@ AC_DEFUN([GTU_TESTS],
 [
 AC_REQUIRE([AM_CONDITIONAL])
 
+AC_MSG_CHECKING([whether to build tests])
+
 AC_SUBST([gtu_U_PATH], ["\[$](top_srcdir)/AS_ESCAPE([$1])"])
 
 m4_pushdef([ENABLED_DEFAULT], [no])
@@ -67,6 +69,7 @@ AC_SUBST(installed_test_metadir, [])
 AC_SUBST(installed_testdir, [])
 
 AS_IF(ENABLED_CHECK, [
+  AC_MSG_RESULT([yes])
   AC_REQUIRE([PKG_PROG_PKG_CONFIG])
   PKG_PROG_PKG_CONFIG
 
@@ -92,6 +95,8 @@ AS_IF(ENABLED_CHECK, [
   m4_popdef([GLIB_LIBS])
 
   AC_REQUIRE_AUX_FILE([tap-driver.sh])
+], [
+  AC_MSG_RESULT([no])
 ])
 
 m4_popdef([ENABLED_DEFAULT])

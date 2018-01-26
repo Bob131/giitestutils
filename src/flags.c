@@ -1,4 +1,4 @@
-#include "gtu.h"
+#include "gtu-priv.h"
 
 GtuTestModeFlags gtu_test_mode_flags_get_flags (void) {
   GtuTestModeFlags flags = 0;

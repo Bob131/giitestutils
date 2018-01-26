@@ -35,9 +35,9 @@ namespace Gtu {
 
     [NoReturn]
     public void skip_if_reached (string? message = null);
-    public void skip_if (bool condition, string? message = null);
-    public void skip_if_flags_unset (TestModeFlags flags,
-                                     string? message = null);
+    public void skip_if_fail (bool condition, string? message = null);
+    public void skip_if_not_flags (TestModeFlags flags,
+                                   string? message = null);
     public void skip_if_not_thorough ();
     public void skip_if_not_perf ();
     public void skip_if_not_undefined ();

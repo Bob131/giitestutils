@@ -119,7 +119,7 @@ typedef void (*GtuTestFunc) (void* target);
  * @func_target_destroy: (allow-none) (destroy): frees @func_target.
  *
  * Creates a new test case from which GTU flow control facilities (e.g.
- * gtu_skip_if(), gtu_assert()) can be used.
+ * gtu_skip_if_fail(), gtu_assert()) can be used.
  *
  * Returns: a new #GTestCase.
  */

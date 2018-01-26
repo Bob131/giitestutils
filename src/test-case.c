@@ -52,9 +52,25 @@ void _gtu_assertion_message (const char* file,
   PREEMPT_TEST ();
 }
 
-void gtu_skip_if_reached (const char* message) {
+void _gtu_skip_if_reached_message (const char* file,
+                                   const char* line,
+                                   const char* function,
+                                   const char* message)
+{
   CURRENT_CONTEXT_CHECK ();
-  g_test_skip (message != NULL ? message : "Test skipped");
+  g_assert ((file != NULL && line != NULL && function != NULL) ||
+            message != NULL);
+
+  if (message != NULL) {
+    g_test_skip (message);
+
+  } else {
+    char* location_message = g_strdup_printf ("Check failed at %s:%s:%s",
+                                              file, line, function);
+    g_test_skip (location_message);
+    g_free (location_message);
+  }
+
   PREEMPT_TEST ();
 }
 

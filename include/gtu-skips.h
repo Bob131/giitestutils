@@ -23,8 +23,26 @@
 G_BEGIN_DECLS
 
 /**
+ * _gtu_skip_if_reached_message: (skip)
+ * @file:       (allow-none): #__FILE__
+ * @line:       (allow-none): #__LINE__
+ * @function:   (allow-none): #G_STRFUNC
+ * @message:    (allow-none): assertion failure explanation.
+ *
+ * Skip and abort the current test.
+ *
+ * Either @message or all of (@file, @line, @function) must be non-%NULL.
+ *
+ * Do not call this function.
+ */
+void _gtu_skip_if_reached_message (const char* file,
+                                   const char* line,
+                                   const char* function,
+                                   const char* message) G_GNUC_NORETURN;
+
+/**
  * gtu_skip_if_reached:
- * @message: (allow-none): explanation of skip.
+ * @message: (allow-none): string containing an explanation of the skip.
  *
  * Skips and aborts the current test, with an optional message describing why
  * the test was skipped.
@@ -32,24 +50,37 @@ G_BEGIN_DECLS
  * This function doesn't return to the caller, instead proceeding onto the next
  * test.
  */
-void gtu_skip_if_reached (const char* message) G_GNUC_NORETURN;
-
-/**
- * gtu_skip_if:
- * @condition: %FALSE for a no-op, %TRUE if this test should be skipped.
- * @message:   (allow-none): explanation of skip.
- *
- * If @condition is truthy, this test is skipped and we abort execution.
- *
- * See gtu_skip_if_reached().
- */
-#define gtu_skip_if(condition, message) G_STMT_START { \
-  if (G_UNLIKELY (condition))                          \
-    gtu_skip_if_reached (message);                     \
+#define gtu_skip_if_reached(message) G_STMT_START {                            \
+  const char* __skir_message = (message);                                      \
+  if (__skir_message != NULL)                                                  \
+    _gtu_skip_if_reached_message (NULL, NULL, NULL, __skir_message);           \
+  else                                                                         \
+    _gtu_skip_if_reached_message (__FILE__, G_STRINGIFY (__LINE__), G_STRFUNC, \
+                                  NULL);                                       \
 } G_STMT_END
 
 /**
- * gtu_skip_if_flags_unset:
+ * gtu_skip_if_fail:
+ * @condition: %TRUE for a no-op, %FALSE if this test should be skipped.
+ * @message:   (allow-none): explanation of skip.
+ *
+ * If @condition is falsy, this test is skipped and we abort execution.
+ *
+ * See gtu_skip_if_reached().
+ */
+#define gtu_skip_if_fail(condition, message) G_STMT_START {  \
+  if (G_LIKELY (condition))                                  \
+    ;                                                        \
+  else {                                                     \
+    const char* __skif_message = (message);                  \
+    if (__skif_message == NULL)                              \
+      __skif_message = "Pre-test check failed: " #condition; \
+    gtu_skip_if_reached (__skif_message);                    \
+  }                                                          \
+} G_STMT_END
+
+/**
+ * gtu_skip_if_not_flags:
  * @flags:   OR'd combination of #GtuTestModeFlags to test.
  * @message: (allow-none): explanation of skip if test fails.
  *
@@ -57,9 +88,14 @@ void gtu_skip_if_reached (const char* message) G_GNUC_NORETURN;
  * flags are unset, this test is marked as skipped and aborted with an optional
  * message.
  */
-#define gtu_skip_if_flags_unset(flags, message)                         \
-  gtu_skip_if ((gtu_test_mode_flags_get_flags () & (flags)) != (flags), \
-               message)
+#define gtu_skip_if_not_flags(flags, message) G_STMT_START {     \
+  if ((gtu_test_mode_flags_get_flags () & (flags)) != (flags)) { \
+    const char* __skinf_message = (message);                     \
+    if (__skinf_message == NULL)                                 \
+      __skinf_message = "Missing prerequisite flags: " #flags;   \
+    gtu_skip_if_reached (__skinf_message);                       \
+  }                                                              \
+} G_STMT_END
 
 /**
  * gtu_skip_if_not_thorough:
@@ -69,9 +105,9 @@ void gtu_skip_if_reached (const char* message) G_GNUC_NORETURN;
  *
  * See #GtuTestModeFlags.
  */
-#define gtu_skip_if_not_thorough()                       \
-  gtu_skip_if_flags_unset (GTU_TEST_MODE_FLAGS_THOROUGH, \
-                           "Thorough tests disabled")
+#define gtu_skip_if_not_thorough()                     \
+  gtu_skip_if_not_flags (GTU_TEST_MODE_FLAGS_THOROUGH, \
+                         "Thorough tests disabled")
 
 /**
  * gtu_skip_if_not_perf:
@@ -80,9 +116,9 @@ void gtu_skip_if_reached (const char* message) G_GNUC_NORETURN;
  *
  * See #GtuTestModeFlags.
  */
-#define gtu_skip_if_not_perf()                       \
-  gtu_skip_if_flags_unset (GTU_TEST_MODE_FLAGS_PERF, \
-                           "Performance tests disabled")
+#define gtu_skip_if_not_perf()                     \
+  gtu_skip_if_not_flags (GTU_TEST_MODE_FLAGS_PERF, \
+                         "Performance tests disabled")
 
 /**
  * gtu_skip_if_not_undefined:
@@ -92,9 +128,9 @@ void gtu_skip_if_reached (const char* message) G_GNUC_NORETURN;
  *
  * See #GtuTestModeFlags.
  */
-#define gtu_skip_if_not_undefined()                       \
-  gtu_skip_if_flags_unset (GTU_TEST_MODE_FLAGS_UNDEFINED, \
-                           "Tests invoking undefined behaviour are disabled")
+#define gtu_skip_if_not_undefined()                     \
+  gtu_skip_if_not_flags (GTU_TEST_MODE_FLAGS_UNDEFINED, \
+                         "Tests invoking undefined behaviour are disabled")
 
 G_END_DECLS
 

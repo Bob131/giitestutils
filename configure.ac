@@ -31,6 +31,10 @@ m4_ifdef([GTK_DOC_CHECK], [GTK_DOC_CHECK([1.9], [--flavour no-tmpl])
 
 AM_COND_IF([ENABLE_GTK_DOC], [AC_CONFIG_FILES([docs/Makefile])])
 
+AC_ARG_ENABLE([tests],
+              AS_HELP_STRING([--enable-tests],
+                             [used for testing subproject builds. Do not use]))
+
 dnl ###########################################################################
 dnl Files to generate
 dnl ###########################################################################

@@ -25,15 +25,29 @@ GTU_REQUIRED_PACKAGES=m4_flatten(["
 PKG_CHECK_MODULES(gtu_U, $GTU_REQUIRED_PACKAGES)
 AC_SUBST(gtu_U_REQUIRES, $GTU_REQUIRED_PACKAGES)
 
-m4_ifdef([GTK_DOC_CHECK], [GTK_DOC_CHECK([1.9], [--flavour no-tmpl])
-                           AM_COND_IF([ENABLE_GTK_DOC], [AC_PROG_LN_S])],
-                          [AM_CONDITIONAL([ENABLE_GTK_DOC], [false])])
-
-AM_COND_IF([ENABLE_GTK_DOC], [AC_CONFIG_FILES([docs/Makefile])])
-
 AC_ARG_ENABLE([tests],
               AS_HELP_STRING([--enable-tests],
                              [used for testing subproject builds. Do not use]))
+
+dnl We can't make this work if tests are enabled by default. We just hope that
+dnl no user
+dnl     (a) enables tests by default; and
+dnl     (b) uses gtkdoc/can't afford to build gtu-test
+dnl at the same time.
+AM_CONDITIONAL([IS_SUBPROJECT], [test "x$enable_tests" = "xyes"])
+
+dnl Only consider building documentation if we're not part of a superproject.
+AM_COND_IF([IS_SUBPROJECT], [
+  AM_CONDITIONAL([ENABLE_GTK_DOC],      [false])
+  AM_CONDITIONAL([HAVE_GTK_DOC],        [false])
+  AM_CONDITIONAL([GTK_DOC_BUILD_HTML],  [false])
+  AM_CONDITIONAL([GTK_DOC_BUILD_PDF],   [false])
+  AM_CONDITIONAL([GTK_DOC_USE_LIBTOOL], [false])
+  AM_CONDITIONAL([GTK_DOC_USE_REBASE],  [false])
+], [
+  m4_ifdef([GTK_DOC_CHECK], [GTK_DOC_CHECK([1.9], [--flavour no-tmpl])])
+  AM_COND_IF([ENABLE_GTK_DOC], [AC_PROG_LN_S])
+])
 
 dnl ###########################################################################
 dnl Files to generate
@@ -42,5 +56,6 @@ dnl ###########################################################################
 AC_CONFIG_FILES([
 Makefile
 src/Makefile
+docs/Makefile
 ])
 AC_OUTPUT

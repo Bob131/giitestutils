@@ -29,7 +29,6 @@ set -e
 srcdir=`dirname $0`
 test -z "$srcdir" && srcdir=.
 
-gtkdocize || exit
 aclocal -I m4 --install
 autoreconf --force --install
 

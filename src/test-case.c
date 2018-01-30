@@ -37,16 +37,23 @@ void _gtu_assertion_message (const char* file,
                              const char* function,
                              const char* message)
 {
+  char* location_message;
   CURRENT_CONTEXT_CHECK ();
 
   g_assert (file != NULL && line != NULL && function != NULL);
   if (message == NULL)
     message = "assert failed";
 
-  g_printerr ("**\nERROR:%s:%s:%s: %s\n", file, line, function, message);
+  location_message = g_strdup_printf ("%s:%s:%s: %s",
+                                      file, line, function, message);
 
-  if (_gtu_debug_flags_get () & GTU_DEBUG_FLAGS_FATAL_ASSERTS)
+  if (_gtu_debug_flags_get () & GTU_DEBUG_FLAGS_FATAL_ASSERTS) {
+    g_printerr ("**\nERROR:%s\n", location_message);
     abort ();
+  } else {
+    g_message ("Aborting test due to failed assertion: %s", location_message);
+    g_free (location_message);
+  }
 
   g_test_fail ();
   PREEMPT_TEST ();

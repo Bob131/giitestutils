@@ -66,7 +66,9 @@ typedef void (*GtuTestCaseFunc) (void* target);
  * Creates a new #GtuTestCase with the given @name and a function implementing
  * the test.
  *
- * @name must not include '/'.
+ * @name must not be %NULL and must not have zero length. For the sake of log
+ * legibility, it's recommended that names stick to alphanumeric characters and
+ * hyphen/dash (`-`).
  *
  * Returns: a floating reference to the new #GtuTestCase.
  */

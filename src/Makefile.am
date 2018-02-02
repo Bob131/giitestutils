@@ -8,11 +8,12 @@ endif
 
 libgtu_a_SOURCES = \
 	init.c \
+	flags.c \
 	object.c \
-	test-case.c \
-	g-test-case.c \
-	test-suite.c \
-	flags.c
+	test-case/test-case.c \
+	test-case/run.c \
+	test-suite/test-suite.c \
+	test-suite/run.c
 
 libgtu_a_CFLAGS = \
 	-I$(top_srcdir)/include \

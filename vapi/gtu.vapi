@@ -44,6 +44,9 @@ namespace Gtu {
 
     [CCode (ref_sink_function = "gtu_test_object_ref")]
     public abstract class TestObject {
+        public string name {get;}
+        public TestSuite? parent_suite {get;}
+
         private TestObject ();
     }
 
@@ -55,6 +58,7 @@ namespace Gtu {
 
     public class TestSuite : TestObject {
         public void add (TestObject test_object);
+        [DestroysInstance]
         public int run ();
 
         public TestSuite (string name);

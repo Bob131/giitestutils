@@ -94,6 +94,33 @@ void gtu_test_object_unref (void* instance);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtuTestObject, gtu_test_object_unref)
 
+/**
+ * gtu_test_object_get_name:
+ * @self: an instance of a #GtuTestObject type.
+ *
+ * Returns the name that identifies @self in the test log.
+ *
+ * Returns: (transfer none): @self's name.
+ */
+const char* gtu_test_object_get_name (GtuTestObject* self);
+
+#include "gtu-suite.h"
+
+/**
+ * gtu_test_object_get_parent_suite:
+ * @self: an instance of a #GtuTestObject type.
+ *
+ * Returns the test suite to which @self has been added as a child.
+ * #GtuTestCase instances must be parented to a #GtuTestSuite to be executed,
+ * and #GtuTestSuite instances will typically have an ancestry ending in a root
+ * #GtuTestSuite. If @self has not yet been parented, this function returns
+ * %NULL instead.
+ *
+ * Returns: (allow-none) (transfer none): the parent of @self, or %NULL if no
+ *                                        parent has been set.
+ */
+GtuTestSuite* gtu_test_object_get_parent_suite (GtuTestObject* self);
+
 G_END_DECLS
 
 #endif

@@ -55,6 +55,10 @@ struct _GtuTestSuiteClass {
  * Creates a new test suite object and returns a floating reference to it. This
  * reference is sunk by the first call to gtu_test_object_ref().
  *
+ * @name must not be %NULL and must not have zero length. For the sake of log
+ * legibility, it's recommended that names stick to alphanumeric characters and
+ * hyphen/dash (`-`).
+ *
  * Returns: a floating reference to the new #GtuTestSuite.
  */
 GtuTestSuite* gtu_test_suite_new (const char* name);
@@ -99,7 +103,7 @@ void gtu_test_suite_add (GtuTestSuite* self, GtuTestObject* test_object);
 
 /**
  * gtu_test_suite_run:
- * @self: test suite to be executed.
+ * @self: (transfer full): test suite to be executed.
  *
  * Executes all the tests attached to @self (and #GtuTestSuite children),
  * taking care to communicate the test results and log messages to the test
@@ -108,6 +112,10 @@ void gtu_test_suite_add (GtuTestSuite* self, GtuTestObject* test_object);
  * This function may only be called once throughout a program's execution,
  * since many test harnesses require a test plan up-front; as such, any tests
  * that should be run must be added to @self before this function is called.
+ *
+ * The @self parameter should be an owned reference to the test suite. It's
+ * recommended that you drop all references to @self and its children before
+ * calling this function, to allow for post-run clean up.
  *
  * Returns: an exit value that should be returned from `main()`, signalling the
  *          overall result to the test runner.

@@ -1,18 +1,41 @@
-#include "gtu-priv.h"
+#include <string.h>
+#include "test-case/priv.h"
 
 typedef struct {
-  GTestCase* test_case;
+  GtuTestCaseFunc   func;
+  void*             func_target;
+  GDestroyNotify    func_target_destroy;
+  GtuTestResult     result;
 } GtuTestCasePrivate;
 
 #define PRIVATE(obj) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GTU_TYPE_TEST_CASE, GtuTestCasePrivate))
 G_DEFINE_TYPE (GtuTestCase, gtu_test_case, GTU_TYPE_TEST_OBJECT)
 
-GTestCase* _gtu_test_case_get_g_case (GtuTestCase* self) {
-  return PRIVATE (self)->test_case;
+GtuTestResult _gtu_test_case_run (GtuTestCase* self, char** message) {
+  GtuTestCasePrivate* priv = PRIVATE (self);
+
+  if (priv->result == GTU_TEST_RESULT_INVALID) {
+    priv->result =
+      _gtu_test_case_exec_inner (priv->func, priv->func_target, message);
+
+    if (priv->func_target_destroy)
+      priv->func_target_destroy (priv->func_target);
+
+    priv->func = NULL;
+    priv->func_target = NULL;
+    priv->func_target_destroy = NULL;
+  }
+
+  return priv->result;
 }
 
 static void gtu_test_case_finalize (GtuTestObject* self) {
+  GtuTestCasePrivate* priv = PRIVATE (self);
+
+  if (priv->func_target_destroy)
+    priv->func_target_destroy (priv->func_target);
+
   GTU_TEST_OBJECT_CLASS (gtu_test_case_parent_class)->finalize (self);
 }
 
@@ -22,7 +45,7 @@ static void gtu_test_case_class_init (GtuTestCaseClass* klass) {
 }
 
 static void gtu_test_case_init (GtuTestCase* self) {
-  (void) self;
+  PRIVATE (self)->result = GTU_TEST_RESULT_INVALID;
 }
 
 GtuTestCase* gtu_test_case_construct (GType type,
@@ -32,13 +55,20 @@ GtuTestCase* gtu_test_case_construct (GType type,
                                       GDestroyNotify func_target_destroy)
 {
   GtuTestCase* self;
+  GtuTestCasePrivate priv_init;
 
   g_return_val_if_fail (g_type_is_a (type, GTU_TYPE_TEST_CASE), NULL);
+  g_return_val_if_fail (name != NULL && func != NULL, NULL);
 
-  self = (GtuTestCase*) _gtu_test_object_construct (type);
+  priv_init = (GtuTestCasePrivate) {
+    func,
+    func_target,
+    func_target_destroy,
+    GTU_TEST_RESULT_INVALID
+  };
 
-  PRIVATE (self)->test_case =
-    _gtu_create_g_test_case (name, func, func_target, func_target_destroy);
+  self = (GtuTestCase*) _gtu_test_object_construct (type, name);
+  memcpy (PRIVATE (self), &priv_init, sizeof (GtuTestCasePrivate));
 
   return self;
 }

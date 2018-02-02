@@ -1,6 +1,10 @@
+#include <string.h>
 #include "gtu-priv.h"
 
 typedef struct {
+  char*         name;
+  GtuTestSuite* parent;
+
   volatile int ref_count;
   volatile int is_floating;
   bool has_finalized;       /* sanity checking */
@@ -71,9 +75,33 @@ void gtu_test_object_unref (void* instance) {
   }
 }
 
-GtuTestObject* _gtu_test_object_construct (GType type) {
-  g_return_val_if_fail (g_type_is_a (type, GTU_TYPE_TEST_OBJECT), NULL);
-  return (GtuTestObject*) g_type_create_instance (type);
+const char* gtu_test_object_get_name (GtuTestObject* self) {
+  GtuTestObjectPrivate* priv = PRIVATE (self);
+  g_assert (priv->name != NULL);
+  return priv->name;
+}
+
+GtuTestSuite* gtu_test_object_get_parent_suite (GtuTestObject* self) {
+  return PRIVATE (self)->parent;
+}
+
+void _gtu_test_object_set_parent_suite (GtuTestObject* self,
+                                        GtuTestSuite* suite)
+{
+  g_assert (PRIVATE (self)->parent == NULL);
+  PRIVATE (self)->parent = suite;
+}
+
+GtuTestObject* _gtu_test_object_construct (GType type, const char* name) {
+  GtuTestObject* ret;
+
+  g_assert (g_type_is_a (type, GTU_TYPE_TEST_OBJECT));
+  g_assert (name != NULL && strlen (name) > 0);
+
+  ret = (GtuTestObject*) g_type_create_instance (type);
+  PRIVATE (ret)->name = g_strdup (name);
+
+  return ret;
 }
 
 static void _gtu_test_object_class_init (void* klass, void* data) {
@@ -94,5 +122,11 @@ static void _gtu_test_object_init (GTypeInstance* instance, void* klass) {
 
 static void _gtu_test_object_finalize (GtuTestObject* self) {
   GtuTestObjectPrivate* priv = PRIVATE (self);
+
+  g_free (priv->name);
+  priv->name = NULL;
+
+  priv->parent = NULL;
+
   priv->has_finalized = true;
 }

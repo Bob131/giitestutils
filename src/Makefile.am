@@ -1,6 +1,10 @@
 AM_CPPFLAGS = -Wall -Wextra -std=c99 -Wpedantic
 
+if IS_SUBPROJECT
 check_LIBRARIES = libgtu.a
+else
+noinst_LIBRARIES = libgtu.a
+endif
 
 libgtu_a_SOURCES = \
 	init.c \
@@ -16,7 +20,7 @@ libgtu_a_CFLAGS = \
 
 if IS_SUBPROJECT
 else
-check_PROGRAMS = gtu-test
+noinst_PROGRAMS = gtu-test
 
 gtu_test_SOURCES = \
 	gtu-test.c

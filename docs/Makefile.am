@@ -15,6 +15,9 @@ content_files = \
 	getting-started.xml \
 	running-tests.xml
 
+GTKDOC_CFLAGS = -I$(top_srcdir)/include
+GTKDOC_LIBS = $(top_srcdir)/src/libgtu.a
+
 
 if ENABLE_GTK_DOC
 include $(top_srcdir)/gtk-doc.make

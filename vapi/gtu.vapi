@@ -42,10 +42,23 @@ namespace Gtu {
     public void skip_if_not_perf ();
     public void skip_if_not_undefined ();
 
-    public delegate void TestFunc ();
-    public GLib.TestCase create_test_case (string name, owned TestFunc func);
+    [CCode (ref_sink_function = "gtu_test_object_ref")]
+    public abstract class TestObject {
+        private TestObject ();
+    }
 
-    public int run_suite (GLib.TestSuite suite);
+    public class TestCase : TestObject {
+        public delegate void Func ();
+
+        public TestCase (string name, owned Func func);
+    }
+
+    public class TestSuite : TestObject {
+        public void add (TestObject test_object);
+        public int run ();
+
+        public TestSuite (string name);
+    }
 
     public void init (string[] args);
     public bool has_initialized ();

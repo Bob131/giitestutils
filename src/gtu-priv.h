@@ -15,4 +15,14 @@ typedef enum {
 
 G_GNUC_INTERNAL GtuDebugFlags _gtu_debug_flags_get (void);
 
+G_GNUC_INTERNAL GtuTestObject* _gtu_test_object_construct (GType type);
+
+G_GNUC_INTERNAL GTestCase* _gtu_test_case_get_g_case (GtuTestCase*);
+
+G_GNUC_INTERNAL GTestCase*
+_gtu_create_g_test_case (const char* name,
+                         GtuTestCaseFunc func,
+                         void* func_target,
+                         GDestroyNotify func_target_destroy);
+
 #endif

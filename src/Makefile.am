@@ -4,7 +4,10 @@ check_LIBRARIES = libgtu.a
 
 libgtu_a_SOURCES = \
 	init.c \
+	object.c \
 	test-case.c \
+	g-test-case.c \
+	test-suite.c \
 	flags.c
 
 libgtu_a_CFLAGS = \

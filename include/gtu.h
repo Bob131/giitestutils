@@ -3,17 +3,25 @@
 
 /**
  * SECTION:gtu
- * @short_description: utilities for the GLib test framework
- * @title: Gii Test Utilities
+ * @short_description: global library state
+ * @title: Initialisation
  * @include: gtu.h
  *
- * The Gii Test Utilities (or GTU) library provides some wrapper utilities atop
- * the GLib testing framework.
+ * Before GTU tests can be run, the library must be initialised. This involves
+ * passing the arguments from your test suite binary's `main()` to gtu_init(),
+ * which then sets up GTU's internal state ready for testing.
+ *
+ * Test flags passed to GTU can be queried with
+ * gtu_test_mode_flags_get_flags().
  */
 
 #include <stdbool.h>
 #include <glib.h>
 #include <glib-object.h>
+
+#include "gtu-object.h"
+#include "gtu-case.h"
+#include "gtu-suite.h"
 
 #include "gtu-asserts.h"
 #include "gtu-skips.h"
@@ -101,67 +109,6 @@ typedef enum {
  * Returns: flags for the current test suite.
  */
 GtuTestModeFlags gtu_test_mode_flags_get_flags (void);
-
-/**
- * GtuTestFunc:
- * @target: (closure): pointer to user data.
- *
- * A user-supplied function within which a test case is implemented.
- */
-typedef void (*GtuTestFunc) (void* target);
-
-/**
- * gtu_create_test_case:
- * @name:                the name of the new test case.
- * @func:                function implementing a test.
- * @func_target:         (allow-none) (transfer full) (closure):
- *                       pointer to user data, passed to @func.
- * @func_target_destroy: (allow-none) (destroy): frees @func_target.
- *
- * Creates a new test case from which GTU flow control facilities (e.g.
- * gtu_skip_if_fail(), gtu_assert()) can be used.
- *
- * Returns: a new #GTestCase.
- */
-GTestCase* gtu_create_test_case (const char* name,
-                                 GtuTestFunc func,
-                                 void* func_target,
-                                 GDestroyNotify func_target_destroy);
-
-#ifndef __GTK_DOC_IGNORE__
-static inline int gtu_run_suite (GTestSuite* suite) {
-  int ret;
-  static bool has_run = false;
-  g_return_val_if_fail (!has_run, 1);
-
-  g_test_suite_add_suite (g_test_get_root (), suite);
-  ret = g_test_run ();
-  has_run = true;
-  return ret;
-}
-#endif
-
-/* hack around gtk-doc */
-#define __NOT_GTK_DOC__
-#ifndef __NOT_GTK_DOC__
-
-/**
- * gtu_run_suite:
- * @suite: a GLib test suite to be executed.
- *
- * Convenience function that adds @suite to the global #GTestSuite and calls
- * g_test_run().
- *
- * No further tests may be run (since g_test_run() may only be called once), so
- * any tests that should be run must be added to @suite before calling this
- * function.
- *
- * Returns: result from g_test_run().
- */
-int gtu_run_suite (GTestSuite* suite);
-
-#endif
-#undef __NOT_GTK_DOC__
 
 G_END_DECLS
 

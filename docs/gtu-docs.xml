@@ -34,16 +34,17 @@
   <chapter>
     <title>GTU API Reference</title>
     <xi:include href="xml/gtu.xml"/>
+    <xi:include href="xml/gtu-object.xml"/>
+    <xi:include href="xml/gtu-case.xml"/>
+    <xi:include href="xml/gtu-suite.xml"/>
     <xi:include href="xml/gtu-asserts.xml"/>
     <xi:include href="xml/gtu-skips.xml"/>
   </chapter>
 
-  <!-- we don't currently declare any object types
   <chapter id="object-tree">
     <title>Object Hierarchy</title>
     <xi:include href="xml/tree_index.sgml"/>
   </chapter>
-  -->
 
   <index id="api-index-full">
     <title>API Index</title>

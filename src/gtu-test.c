@@ -2,9 +2,10 @@
 
 /* a little demo program */
 
-#define ASSERT_TEST(suite, test)                                            \
-  g_test_suite_add ((suite), gtu_create_test_case (#test, test ## _test,    \
-                                                   NULL, NULL))
+#define ASSERT_TEST(suite, test)                                     \
+  gtu_test_suite_add_obj ((suite), gtu_test_case_new (#test,         \
+                                                      test ## _test, \
+                                                      NULL, NULL))
 
 static void assert_test (void* data) {
   (void) data;
@@ -66,11 +67,11 @@ static void _destroy (void* data) {
 }
 
 int main (int argc, char* argv[]) {
-  GTestSuite* suite;
+  GtuTestSuite* suite;
 
   gtu_init (argv, argc);
 
-  suite = g_test_create_suite ("gtu-test");
+  suite = gtu_test_suite_new ("gtu-test");
 
   ASSERT_TEST (suite, assert);
   ASSERT_TEST (suite, assert_not_reached);
@@ -79,11 +80,11 @@ int main (int argc, char* argv[]) {
   ASSERT_TEST (suite, assert_null);
   ASSERT_TEST (suite, assert_nonnull);
 
-  g_test_suite_add (suite, gtu_create_test_case ("skip", skip_test,
-                                                 NULL, _destroy));
-  g_test_suite_add (suite, gtu_create_test_case ("destroy", destroy_test,
-                                                 GINT_TO_POINTER (42),
-                                                 _destroy));
+  gtu_test_suite_add_obj (suite, gtu_test_case_new ("skip", skip_test,
+                                                    NULL, _destroy));
+  gtu_test_suite_add_obj (suite, gtu_test_case_new ("destroy", destroy_test,
+                                                    GINT_TO_POINTER (42),
+                                                    _destroy));
 
-  return gtu_run_suite (suite);
+  return gtu_test_suite_run (suite);
 }

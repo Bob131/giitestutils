@@ -112,10 +112,10 @@ const char* gtu_test_object_get_name (GtuTestObject* self);
  * name of @self. As the ancestry of @self and its parents changes, this
  * function will return different results.
  *
- * Returns: @self's path. Free this string with g_free() when it's no longer
- *          required.
+ * Returns: a #GtuPath instance representing @self. Free this with
+ *          gtu_path_free() when it's no longer required.
  */
-char* gtu_test_object_get_path (GtuTestObject* self);
+GtuPath* gtu_test_object_get_path (GtuTestObject* self);
 
 #include "gtu-suite.h"
 

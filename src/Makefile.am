@@ -9,6 +9,7 @@ endif
 libgtu_a_SOURCES = \
 	init.c \
 	flags.c \
+	path.c \
 	object.c \
 	test-case/test-case.c \
 	test-case/run.c \

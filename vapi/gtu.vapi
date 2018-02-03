@@ -42,10 +42,30 @@ namespace Gtu {
     public void skip_if_not_perf ();
     public void skip_if_not_undefined ();
 
+    [Compact]
+    public class Path {
+        public bool is_valid {get;}
+        public unowned string to_string ();
+
+        public void prepend_element (string element);
+        public void append_element (string element);
+
+        public void prepend_path (Path path);
+        public void append_path (Path path);
+
+        public bool has_prefix (Path prefix);
+
+        public Path copy ();
+
+        public Path ();
+
+        public static Path? new_parse (string path);
+    }
+
     [CCode (ref_sink_function = "gtu_test_object_ref")]
     public abstract class TestObject {
         public string name {get;}
-        public string path {owned get;}
+        public Path path {owned get;}
         public TestSuite? parent_suite {get;}
 
         private TestObject ();

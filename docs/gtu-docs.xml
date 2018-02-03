@@ -34,6 +34,7 @@
   <chapter>
     <title>GTU API Reference</title>
     <xi:include href="xml/gtu.xml"/>
+    <xi:include href="xml/gtu-path.xml"/>
     <xi:include href="xml/gtu-object.xml"/>
     <xi:include href="xml/gtu-case.xml"/>
     <xi:include href="xml/gtu-suite.xml"/>

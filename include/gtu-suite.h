@@ -55,9 +55,8 @@ struct _GtuTestSuiteClass {
  * Creates a new test suite object and returns a floating reference to it. This
  * reference is sunk by the first call to gtu_test_object_ref().
  *
- * @name must not be %NULL and must not have zero length. For the sake of log
- * legibility, it's recommended that names stick to alphanumeric characters and
- * hyphen/dash (`-`).
+ * @name must not be %NULL and must be a valid #GtuPath element as per
+ * #Validity.
  *
  * Returns: a floating reference to the new #GtuTestSuite.
  */

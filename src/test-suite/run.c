@@ -11,7 +11,39 @@ static void run_test (GtuTestCase* test_case, GtuTestSuiteRunData* data) {
   GtuTestResult result;
   GtuPath* path = gtu_test_object_get_path (GTU_TEST_OBJECT (test_case));
 
-  result = _gtu_test_case_run (test_case, &message);
+  if (_gtu_get_test_mode ()->list_only) {
+    fprintf (stdout, "%s\n", gtu_path_to_string (path));
+    gtu_path_free (path);
+    return;
+  }
+
+  {
+    bool should_run = true;
+    GtuTestMode* test_mode = _gtu_get_test_mode ();
+    GList* cursor;
+
+    for (cursor = test_mode->path_selectors;
+         cursor != NULL && should_run;
+         cursor = cursor->next)
+    {
+      should_run = gtu_path_has_prefix (path, cursor->data);
+    }
+
+    for (cursor = test_mode->path_skippers;
+         cursor != NULL && should_run;
+         cursor = cursor->next)
+    {
+      should_run = !gtu_path_has_prefix (path, cursor->data);
+    }
+
+    if (should_run) {
+      result = _gtu_test_case_run (test_case, &message);
+
+    } else {
+      result = GTU_TEST_RESULT_SKIP;
+      message = g_strdup ("due to command line args");
+    }
+  }
 
   switch (result) {
     case GTU_TEST_RESULT_PASS:
@@ -141,7 +173,8 @@ int _gtu_test_suite_run_internal (GPtrArray* tests) {
     NULL
   );
 
-  fprintf (stdout, "1..%d\n", tests->len);
+  if (!_gtu_get_test_mode ()->list_only)
+    fprintf (stdout, "1..%d\n", tests->len);
 
   data.test_number = 1;
   g_ptr_array_foreach (tests, (GFunc) run_test, &data);

@@ -31,4 +31,12 @@ typedef enum {
 G_GNUC_INTERNAL GtuTestResult _gtu_test_case_run (GtuTestCase* self,
                                                   char** message);
 
+typedef struct {
+  GList* path_selectors;
+  GList* path_skippers;
+  bool list_only;
+} GtuTestMode;
+
+G_GNUC_INTERNAL GtuTestMode* _gtu_get_test_mode (void);
+
 #endif

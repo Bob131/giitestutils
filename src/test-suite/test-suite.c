@@ -25,8 +25,9 @@ static void collect_tests (GtuTestObject* object, GPtrArray* tests) {
                          (GFunc) collect_tests, tests);
 
   } else {
-    g_critical ("Unknown GtuTestObject type: %s",
-                g_type_name (G_TYPE_FROM_INSTANCE (object)));
+    g_log (GTU_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
+           "Unknown GtuTestObject type: %s",
+           g_type_name (G_TYPE_FROM_INSTANCE (object)));
   }
 }
 

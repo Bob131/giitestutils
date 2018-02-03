@@ -117,7 +117,8 @@ static bool parse_args (char** args, int args_length) {
                GET_ARG ("--GTestSkipCount") ||
                strcmp  ("--GTestSubprocess", args[i]) == 0)
     {
-      g_warning ("unsupported command line argument: %s", args[i]);
+      g_log (GTU_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+             "unsupported command line argument: %s", args[i]);
     }
   }
 

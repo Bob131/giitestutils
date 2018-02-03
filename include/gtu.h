@@ -30,6 +30,16 @@
 G_BEGIN_DECLS
 
 /**
+ * GTU_LOG_DOMAIN:
+ *
+ * GLib log domain for the GTU library. This shouldn't have a use for projects
+ * using GTU, it's exposed as "good practice".
+ *
+ * See g_log().
+ */
+#define GTU_LOG_DOMAIN ("GiiTestUtils")
+
+/**
  * gtu_init:
  * @args:        (array length=args_length): an array of arguments passed to
  *                                           main().

@@ -84,6 +84,10 @@ GtuTestSuite* gtu_test_suite_construct (GType type, const char* name);
  * tests will be given a path resulting from the concatenation of @self's
  * parents' names, @self's name, and the name of the tests themselves.
  *
+ * It is invalid to call this function with a @test_object parameter already
+ * belonging to a test suite (i.e., if it has been passed to this function
+ * already).
+ *
  * This function takes a new reference to @test_object, so you needn't worry
  * about holding a reference to @test_object after this function returns.
  */

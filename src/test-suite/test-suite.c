@@ -11,7 +11,11 @@ typedef struct {
 G_DEFINE_TYPE (GtuTestSuite, gtu_test_suite, GTU_TYPE_TEST_OBJECT)
 
 void gtu_test_suite_add (GtuTestSuite* self, GtuTestObject* test_object) {
-  GtuTestObject* child = gtu_test_object_ref (test_object);
+  GtuTestObject* child;
+
+  g_return_if_fail (gtu_test_object_get_parent_suite (test_object) == NULL);
+
+  child = gtu_test_object_ref (test_object);
   g_ptr_array_add (PRIVATE (self)->children, child);
   _gtu_test_object_set_parent_suite (child, self);
 }

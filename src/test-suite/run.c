@@ -9,8 +9,7 @@ typedef struct {
 static void run_test (GtuTestCase* test_case, GtuTestSuiteRunData* data) {
   char* message = NULL;
   GtuTestResult result;
-  GtuTestSuite* cursor;
-  char* path;
+  char* path = gtu_test_object_get_path (GTU_TEST_OBJECT (test_case));
 
   result = _gtu_test_case_run (test_case, &message);
 
@@ -31,24 +30,7 @@ static void run_test (GtuTestCase* test_case, GtuTestSuiteRunData* data) {
 
   fprintf (stdout, " %d ", data->test_number++);
 
-  cursor = gtu_test_object_get_parent_suite (GTU_TEST_OBJECT (test_case));
-  path = g_strdup (gtu_test_object_get_name (GTU_TEST_OBJECT (test_case)));
-
-  for (;
-       cursor != NULL;
-       cursor = gtu_test_object_get_parent_suite (GTU_TEST_OBJECT (cursor)))
-  {
-    char* new_path = g_strconcat (
-      gtu_test_object_get_name (GTU_TEST_OBJECT (cursor)),
-      "/",
-      path,
-      NULL
-    );
-    g_free (path);
-    path = new_path;
-  }
-
-  fprintf (stdout, "/%s", path);
+  fprintf (stdout, path);
   g_free (path);
 
   fprintf (stdout, " # ");

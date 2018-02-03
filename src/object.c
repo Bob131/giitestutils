@@ -81,6 +81,23 @@ const char* gtu_test_object_get_name (GtuTestObject* self) {
   return priv->name;
 }
 
+/* TODO: determine whether this will be a major performance bottleneck */
+char* gtu_test_object_get_path (GtuTestObject* self) {
+  GtuTestSuite* cursor;
+  char* ret = g_strconcat ("/", PRIVATE (self)->name, NULL);
+
+  for (cursor = PRIVATE (self)->parent;
+       cursor != NULL;
+       cursor = PRIVATE (cursor)->parent)
+  {
+    char* new_ret = g_strconcat ("/", PRIVATE (cursor)->name, ret, NULL);
+    g_free (ret);
+    ret = new_ret;
+  }
+
+  return ret;
+}
+
 GtuTestSuite* gtu_test_object_get_parent_suite (GtuTestObject* self) {
   return PRIVATE (self)->parent;
 }

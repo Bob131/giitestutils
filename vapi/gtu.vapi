@@ -45,6 +45,7 @@ namespace Gtu {
     [CCode (ref_sink_function = "gtu_test_object_ref")]
     public abstract class TestObject {
         public string name {get;}
+        public string path {owned get;}
         public TestSuite? parent_suite {get;}
 
         private TestObject ();

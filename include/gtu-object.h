@@ -104,6 +104,19 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtuTestObject, gtu_test_object_unref)
  */
 const char* gtu_test_object_get_name (GtuTestObject* self);
 
+/**
+ * gtu_test_object_get_path:
+ * @self: an instance of a #GtuTestObject type.
+ *
+ * Concatenates and returns the names of all @self's parents' names and the
+ * name of @self. As the ancestry of @self and its parents changes, this
+ * function will return different results.
+ *
+ * Returns: @self's path. Free this string with g_free() when it's no longer
+ *          required.
+ */
+char* gtu_test_object_get_path (GtuTestObject* self);
+
 #include "gtu-suite.h"
 
 /**

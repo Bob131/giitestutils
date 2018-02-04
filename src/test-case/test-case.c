@@ -17,7 +17,11 @@ typedef struct {
 G_DEFINE_TYPE (GtuTestCase, gtu_test_case, GTU_TYPE_TEST_OBJECT)
 
 static void test_case_dispose (GtuTestCase* self) {
-  GtuTestCasePrivate* priv = PRIVATE (self);
+  GtuTestCasePrivate* priv;
+
+  g_assert (GTU_IS_TEST_CASE (self));
+
+  priv = PRIVATE (self);
 
   if (priv->has_disposed)
     return;
@@ -40,7 +44,11 @@ static void test_case_dispose (GtuTestCase* self) {
 
 GtuTestResult _gtu_test_case_run (GtuTestCase* self, char** out_message) {
   char* message = NULL;
-  GtuTestCasePrivate* priv = PRIVATE (self);
+  GtuTestCasePrivate* priv;
+
+  g_assert (GTU_IS_TEST_CASE (self));
+
+  priv = PRIVATE (self);
 
   if (priv->result == GTU_TEST_RESULT_INVALID) {
     priv->result =
@@ -56,10 +64,12 @@ GtuTestResult _gtu_test_case_run (GtuTestCase* self, char** out_message) {
 }
 
 bool _gtu_test_case_has_run (GtuTestCase* self) {
+  g_assert (GTU_IS_TEST_CASE (self));
   return PRIVATE (self)->result != GTU_TEST_RESULT_INVALID;
 }
 
 GPtrArray* _gtu_test_case_get_deps (GtuTestCase* self) {
+  g_assert (GTU_IS_TEST_CASE (self));
   g_assert (!PRIVATE (self)->has_disposed);
   return PRIVATE (self)->dependencies;
 }
@@ -67,6 +77,9 @@ GPtrArray* _gtu_test_case_get_deps (GtuTestCase* self) {
 void gtu_test_case_add_dependency (GtuTestCase* self,
                                    GtuTestSuiteChild* child)
 {
+  g_return_if_fail (GTU_IS_TEST_CASE (self));
+  g_return_if_fail (GTU_IS_TEST_OBJECT (child));
+
   /* Defer sanity checking until suite execution, since `self' mightn't be
      parented yet. */
 

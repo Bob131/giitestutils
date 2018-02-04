@@ -24,12 +24,12 @@ static const GDebugKey _debug_keys[] = {
 };
 
 static GtuDebugFlags _debug_flags = GTU_DEBUG_FLAGS_NONE;
+static bool _has_initialized = false;
 
 G_GNUC_INTERNAL GtuDebugFlags _gtu_debug_flags_get (void) {
+  g_assert (_has_initialized);
   return _debug_flags;
 }
-
-static bool _has_initialized = false;
 
 bool gtu_has_initialized (void) {
   return _has_initialized;
@@ -135,6 +135,8 @@ static bool parse_args (char** args, int args_length) {
 }
 
 void gtu_init (char** args, int args_length) {
+  g_return_if_fail (args != NULL && args_length > 0);
+
   if (!g_test_initialized ()) {
     bool tap_set = parse_args (args, args_length);
 

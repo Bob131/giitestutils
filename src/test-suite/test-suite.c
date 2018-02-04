@@ -15,6 +15,8 @@ GtuTestSuiteChild* gtu_test_suite_add (GtuTestSuite* self,
 {
   GtuTestObject* child;
 
+  g_return_val_if_fail (GTU_IS_TEST_SUITE  (self),        NULL);
+  g_return_val_if_fail (GTU_IS_TEST_OBJECT (test_object), NULL);
   g_return_val_if_fail (gtu_test_object_get_parent_suite (test_object) == NULL,
                         NULL);
 
@@ -26,6 +28,8 @@ GtuTestSuiteChild* gtu_test_suite_add (GtuTestSuite* self,
 }
 
 void _gtu_test_object_collect_tests (GtuTestObject* object, GPtrArray* tests) {
+  g_assert (GTU_IS_TEST_OBJECT (object));
+
   if (GTU_IS_TEST_CASE (object)) {
     g_ptr_array_add (tests, GTU_TEST_CASE (object));
 
@@ -46,7 +50,9 @@ int gtu_test_suite_run (GtuTestSuite* self) {
 
   static bool has_run = false;
 
-  g_return_val_if_fail (gtu_has_initialized () && !has_run, TEST_ERROR);
+  g_return_val_if_fail (gtu_has_initialized (),   TEST_ERROR);
+  g_return_val_if_fail (!has_run,                 TEST_ERROR);
+  g_return_val_if_fail (GTU_IS_TEST_SUITE (self), TEST_ERROR);
 
   tests = g_ptr_array_new ();
   _gtu_test_object_collect_tests (GTU_TEST_OBJECT (self), tests);

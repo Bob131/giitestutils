@@ -55,8 +55,11 @@ GType gtu_test_object_get_type (void) {
 }
 
 void* gtu_test_object_ref (void* instance) {
-  GtuTestObject* self = GTU_TEST_OBJECT (instance);
-  GtuTestObjectPrivate* priv = PRIVATE (self);
+  GtuTestObjectPrivate* priv;
+
+  g_return_val_if_fail (GTU_IS_TEST_OBJECT (instance), NULL);
+
+  priv = PRIVATE (instance);
 
   if (!g_atomic_int_compare_and_exchange (&priv->is_floating, 1, 0))
     g_atomic_int_inc (&priv->ref_count);
@@ -65,8 +68,13 @@ void* gtu_test_object_ref (void* instance) {
 }
 
 void gtu_test_object_unref (void* instance) {
-  GtuTestObject* self = GTU_TEST_OBJECT (instance);
-  GtuTestObjectPrivate* priv = PRIVATE (instance);
+  GtuTestObject* self;
+  GtuTestObjectPrivate* priv;
+
+  g_return_if_fail (GTU_IS_TEST_OBJECT (instance));
+
+  self = GTU_TEST_OBJECT (instance);
+  priv = PRIVATE (instance);
 
   if (g_atomic_int_dec_and_test (&priv->ref_count)) {
     GTU_TEST_OBJECT_GET_CLASS (self)->finalize (self);
@@ -76,13 +84,22 @@ void gtu_test_object_unref (void* instance) {
 }
 
 const char* gtu_test_object_get_name (GtuTestObject* self) {
-  GtuTestObjectPrivate* priv = PRIVATE (self);
+  GtuTestObjectPrivate* priv;
+
+  g_return_val_if_fail (GTU_IS_TEST_OBJECT (self), NULL);
+
+  priv = PRIVATE (self);
+
   g_assert (priv->name != NULL);
   return priv->name;
 }
 
 GtuPath* gtu_test_object_get_path (GtuTestObject* self) {
-  GtuPath* ret = gtu_path_new ();
+  GtuPath* ret;
+
+  g_return_val_if_fail (GTU_IS_TEST_OBJECT (self), NULL);
+
+  ret = gtu_path_new ();
   gtu_path_append_element (ret, PRIVATE (self)->name);
 
   if (PRIVATE (self)->parent) {
@@ -103,12 +120,15 @@ char* gtu_test_object_get_path_string (GtuTestObject* self) {
 }
 
 GtuTestSuite* gtu_test_object_get_parent_suite (GtuTestObject* self) {
+  g_return_val_if_fail (GTU_IS_TEST_OBJECT (self), NULL);
   return PRIVATE (self)->parent;
 }
 
 void _gtu_test_object_set_parent_suite (GtuTestObject* self,
                                         GtuTestSuite* suite)
 {
+  g_assert (GTU_IS_TEST_OBJECT (self));
+  g_assert (GTU_IS_TEST_SUITE (suite));
   g_assert (PRIVATE (self)->parent == NULL);
   PRIVATE (self)->parent = suite;
 }

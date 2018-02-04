@@ -65,10 +65,17 @@ ret:
   return self;
 }
 
+static bool path_is_valid_pointer (GtuPath* path) {
+  return path != NULL && path->elements != NULL;
+}
+
 GtuPath* gtu_path_copy (GtuPath* path) {
   unsigned i;
-  GtuPath* ret = gtu_path_new ();
+  GtuPath* ret;
 
+  g_return_val_if_fail (path_is_valid_pointer (path), NULL);
+
+  ret = gtu_path_new ();
   g_ptr_array_set_size (ret->elements, path->elements->len);
 
   for (i = 0; i < ret->elements->len; i++)
@@ -78,6 +85,8 @@ GtuPath* gtu_path_copy (GtuPath* path) {
 }
 
 void gtu_path_free (GtuPath* path) {
+  g_return_if_fail (path_is_valid_pointer (path));
+
   g_ptr_array_free (path->elements, true);
   path->elements = NULL;
 
@@ -93,6 +102,7 @@ void gtu_path_free (GtuPath* path) {
    that's by making an empty path with gtu_path_new(). So just testing the
    length of `elements' should be enough. */
 bool gtu_path_is_valid (GtuPath* path) {
+  g_return_val_if_fail (path_is_valid_pointer (path), false);
   return path->elements->len > 0;
 }
 
@@ -119,6 +129,10 @@ const char* gtu_path_to_string (GtuPath* path) {
 
 static bool element_is_valid (const char* element) {
   int i;
+
+  if (element == NULL)
+    return false;
+
   for (i = 0; element[i] != '\0'; i++)
     if (element[i] == '/' || g_ascii_isspace (element[i]))
       return false;
@@ -127,17 +141,22 @@ static bool element_is_valid (const char* element) {
 }
 
 void gtu_path_prepend_element (GtuPath* path, const char* element) {
+  g_return_if_fail (path_is_valid_pointer (path));
   g_return_if_fail (element_is_valid (element));
   g_ptr_array_insert (path->elements, 0, g_strdup (element));
 }
 
 void gtu_path_append_element (GtuPath* path, const char* element) {
+  g_return_if_fail (path_is_valid_pointer (path));
   g_return_if_fail (element_is_valid (element));
   g_ptr_array_add (path->elements, g_strdup (element));
 }
 
 void gtu_path_prepend_path (GtuPath* path, GtuPath* to_prepend) {
   unsigned i;
+
+  g_return_if_fail (path_is_valid_pointer (path));
+  g_return_if_fail (path_is_valid_pointer (to_prepend));
 
   for (i = 0; i < to_prepend->elements->len; i++)
     g_ptr_array_insert (path->elements,
@@ -148,12 +167,18 @@ void gtu_path_prepend_path (GtuPath* path, GtuPath* to_prepend) {
 void gtu_path_append_path (GtuPath* path, GtuPath* to_append) {
   unsigned i;
 
+  g_return_if_fail (path_is_valid_pointer (path));
+  g_return_if_fail (path_is_valid_pointer (to_append));
+
   for (i = 0; i < to_append->elements->len; i++)
     g_ptr_array_add (path->elements, g_strdup (to_append->elements->pdata[i]));
 }
 
 bool gtu_path_has_prefix (GtuPath* path, GtuPath* prefix) {
   unsigned i;
+
+  g_return_val_if_fail (path_is_valid_pointer (path),   false);
+  g_return_val_if_fail (path_is_valid_pointer (prefix), false);
 
   if (path->elements->len < prefix->elements->len)
     return false;

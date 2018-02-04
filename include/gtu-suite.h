@@ -23,6 +23,13 @@
 G_BEGIN_DECLS
 
 /**
+ * GtuTestSuiteChild:
+ *
+ * An opaque reference to a child #GtuTestObject.
+ */
+typedef void GtuTestSuiteChild;
+
+/**
  * GTU_TYPE_TEST_SUITE:
  *
  * #GType for #GtuTestSuite objects.
@@ -90,8 +97,11 @@ GtuTestSuite* gtu_test_suite_construct (GType type, const char* name);
  *
  * This function takes a new reference to @test_object, so you needn't worry
  * about holding a reference to @test_object after this function returns.
+ *
+ * Returns: (transfer none): handle for @test_object as a child of @self.
  */
-void gtu_test_suite_add (GtuTestSuite* self, GtuTestObject* test_object);
+GtuTestSuiteChild* gtu_test_suite_add (GtuTestSuite*  self,
+                                       GtuTestObject* test_object);
 
 /**
  * gtu_test_suite_add_obj:
@@ -100,6 +110,8 @@ void gtu_test_suite_add (GtuTestSuite* self, GtuTestObject* test_object);
  *
  * Convenience macro that casts @obj to #GtuTestObject before calling
  * gtu_test_suite_add().
+ *
+ * Returns: (transfer none): handle for @obj as a child of @self.
  */
 #define gtu_test_suite_add_obj(self, obj) \
   (gtu_test_suite_add ((self), GTU_TEST_OBJECT ((obj))))

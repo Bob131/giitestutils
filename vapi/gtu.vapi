@@ -78,7 +78,12 @@ namespace Gtu {
     }
 
     public class TestSuite : TestObject {
-        public void add (TestObject test_object);
+        [Compact]
+        public class Child {
+            private Child (); // doesn't exist
+        }
+
+        public unowned Child add (TestObject test_object);
         [DestroysInstance]
         public int run ();
 

@@ -95,6 +95,13 @@ GtuPath* gtu_test_object_get_path (GtuTestObject* self) {
   return ret;
 }
 
+char* gtu_test_object_get_path_string (GtuTestObject* self) {
+  GtuPath* path = gtu_test_object_get_path (self);
+  char* ret = g_strdup (gtu_path_to_string (path));
+  gtu_path_free (path);
+  return ret;
+}
+
 GtuTestSuite* gtu_test_object_get_parent_suite (GtuTestObject* self) {
   return PRIVATE (self)->parent;
 }

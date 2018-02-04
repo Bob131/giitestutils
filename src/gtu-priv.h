@@ -21,6 +21,10 @@ G_GNUC_INTERNAL void _gtu_test_object_set_parent_suite (GtuTestObject* self,
 G_GNUC_INTERNAL GtuTestObject* _gtu_test_object_construct (GType type,
                                                            const char* name);
 
+/* defined in test-suite.c for access to test suite private data */
+G_GNUC_INTERNAL void _gtu_test_object_collect_tests (GtuTestObject* object,
+                                                     GPtrArray* tests);
+
 typedef enum {
   GTU_TEST_RESULT_INVALID,
   GTU_TEST_RESULT_PASS,
@@ -28,8 +32,14 @@ typedef enum {
   GTU_TEST_RESULT_FAIL
 } GtuTestResult;
 
+/* message may be NULL */
 G_GNUC_INTERNAL GtuTestResult _gtu_test_case_run (GtuTestCase* self,
                                                   char** message);
+
+G_GNUC_INTERNAL bool _gtu_test_case_has_run (GtuTestCase* self);
+
+/* returns array of GtuTestObject */
+G_GNUC_INTERNAL GPtrArray* _gtu_test_case_get_deps (GtuTestCase* self);
 
 typedef struct {
   GList* path_selectors;

@@ -96,6 +96,46 @@ GtuTestCase* gtu_test_case_construct (GType type,
                                       void* func_target,
                                       GDestroyNotify func_target_destroy);
 
+/**
+ * gtu_test_case_add_dependency:
+ * @self:        #GtuTestCase that will depend on @test_object.
+ * @test_object: #GtuTestSuiteChild that needs to pass for @self to be
+ *               executed.
+ *
+ * Ensure @test_object runs before @self, skipping @self if @test_object had
+ * aborted early or had children that aborted early (i.e. by a failed assert or
+ * skipping). This is intended to specify that @self becomes meaningless if
+ * @test_object has failed; for example, testing the `foreach` method of a data
+ * structure implementation doesn't make sense if elements cannot be inserted
+ * with the broken `add` method.
+ *
+ * This shouldn't be used to implement test cases that depend on the effects of
+ * prior test cases, e.g. re-using objects created in a prior test case. As in
+ * GLib, this is discouraged in GTU as it can lead to fragile and/or incorrect
+ * test cases.
+ *
+ * The result of this function is undefined if @self and @test_object do not
+ * share the same parent. It is an error to construct circular dependencies; if
+ * such dependencies occur, the order in which tests are executed is
+ * unspecified.
+ */
+void gtu_test_case_add_dependency (GtuTestCase* self,
+                                   GtuTestSuiteChild* test_object);
+
+/**
+ * gtu_test_case_with_dep:
+ * @self:        #GtuTestCase that will depend on @test_object.
+ * @test_object: #GtuTestSuiteChild that needs to pass for @self to be
+ *               executed.
+ *
+ * Convenience function that adds @test_object as a dependency of @self and
+ * returns @self. See gtu_test_case_add_dependency() for more information.
+ *
+ * Returns: (transfer none): @self.
+ */
+GtuTestCase* gtu_test_case_with_dep (GtuTestCase* self,
+                                     GtuTestSuiteChild* test_object);
+
 G_END_DECLS
 
 #endif

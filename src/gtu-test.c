@@ -66,8 +66,20 @@ static void _destroy (void* data) {
   g_message ("Destroy data %p", data);
 }
 
+static void run_first (void* data) {
+  (void) data;
+  g_message ("run first");
+  gtu_assert_not_reached ();
+}
+
+static void run_second (void* data) {
+  (void) data;
+  g_message ("run second");
+}
+
 int main (int argc, char* argv[]) {
   GtuTestSuite* suite;
+  GtuTestSuiteChild* child;
 
   gtu_init (argv, argc);
 
@@ -85,6 +97,14 @@ int main (int argc, char* argv[]) {
   gtu_test_suite_add_obj (suite, gtu_test_case_new ("destroy", destroy_test,
                                                     GINT_TO_POINTER (42),
                                                     _destroy));
+
+  child = gtu_test_suite_add_obj (suite, gtu_test_case_new ("first", run_first,
+                                                            NULL, NULL));
+
+  gtu_test_suite_add_obj (suite, gtu_test_case_with_dep (
+    gtu_test_case_new ("second", run_second, NULL, NULL),
+    child
+  ));
 
   return gtu_test_suite_run (suite);
 }

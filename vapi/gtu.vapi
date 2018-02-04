@@ -74,6 +74,9 @@ namespace Gtu {
     public class TestCase : TestObject {
         public delegate void Func ();
 
+        public void add_dependency (TestSuite.Child test_object);
+        public unowned TestCase with_dep (TestSuite.Child test_object);
+
         public TestCase (string name, owned Func func);
     }
 

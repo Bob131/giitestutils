@@ -25,13 +25,13 @@ GtuTestSuiteChild* gtu_test_suite_add (GtuTestSuite* self,
   return child;
 }
 
-static void collect_tests (GtuTestObject* object, GPtrArray* tests) {
+void _gtu_test_object_collect_tests (GtuTestObject* object, GPtrArray* tests) {
   if (GTU_IS_TEST_CASE (object)) {
     g_ptr_array_add (tests, GTU_TEST_CASE (object));
 
   } else if (GTU_IS_TEST_SUITE (object)) {
     g_ptr_array_foreach (PRIVATE (object)->children,
-                         (GFunc) collect_tests, tests);
+                         (GFunc) _gtu_test_object_collect_tests, tests);
 
   } else {
     g_log (GTU_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
@@ -49,7 +49,7 @@ int gtu_test_suite_run (GtuTestSuite* self) {
   g_return_val_if_fail (gtu_has_initialized () && !has_run, TEST_ERROR);
 
   tests = g_ptr_array_new ();
-  collect_tests (GTU_TEST_OBJECT (self), tests);
+  _gtu_test_object_collect_tests (GTU_TEST_OBJECT (self), tests);
 
   ret = _gtu_test_suite_run_internal (tests);
 

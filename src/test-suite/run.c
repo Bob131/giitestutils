@@ -92,94 +92,19 @@ static void run_test (GtuTestCase* test_case, GtuTestSuiteRunData* data) {
   fprintf (stdout, "\n");
 }
 
-static bool should_log (GLogLevelFlags log_level) {
-  if (log_level & G_LOG_FLAG_FATAL)
-    return true;
-
-  switch (log_level & G_LOG_LEVEL_MASK) {
-    case G_LOG_LEVEL_ERROR:
-    case G_LOG_LEVEL_CRITICAL:
-    case G_LOG_LEVEL_WARNING:
-    case G_LOG_LEVEL_MESSAGE:
-      return true;
-
-    case G_LOG_LEVEL_INFO:
-    case G_LOG_LEVEL_DEBUG:
-      return gtu_test_mode_flags_get_flags () & GTU_TEST_MODE_FLAGS_VERBOSE;
-
-    default:
-      g_assert_not_reached ();
-  }
-}
-
-static const char* level_to_string (GLogLevelFlags log_level) {
-#define ret(str) {                    \
-  if (log_level & G_LOG_FLAG_FATAL) { \
-    return "FATAL-" str;              \
-  } else {                            \
-    return str;                       \
-  }                                   \
-}
-
-  switch (log_level & G_LOG_LEVEL_MASK) {
-    case G_LOG_LEVEL_ERROR:
-      ret ("ERROR");
-
-    case G_LOG_LEVEL_CRITICAL:
-      ret ("CRITICAL");
-
-    case G_LOG_LEVEL_WARNING:
-      ret ("WARNING");
-
-    case G_LOG_LEVEL_MESSAGE:
-      ret ("MESSAGE");
-
-    case G_LOG_LEVEL_INFO:
-      ret ("INFO");
-
-    case G_LOG_LEVEL_DEBUG:
-      ret ("DEBUG");
-
-    default:
-      g_assert_not_reached ();
-  }
-
-#undef ret
-}
-
-static void glib_test_logger (const char* log_domain, GLogLevelFlags log_level,
-                              const char* message, void* data)
-{
-  (void) log_domain;
-  (void) data;
-
-  if (should_log (log_level))
-    fprintf (stdout, "# %s: %s\n", level_to_string (log_level), message);
-}
-
 int _gtu_test_suite_run_internal (GPtrArray* tests) {
   GtuTestSuiteRunData data;
-  unsigned log_handler;
 
   if (tests->len == 0) {
     fprintf (stdout, "0..0\n");
     return 0;
   }
 
-  log_handler = g_log_set_handler (
-    NULL,
-    G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION,
-    glib_test_logger,
-    NULL
-  );
-
   if (!_gtu_get_test_mode ()->list_only)
     fprintf (stdout, "1..%d\n", tests->len);
 
   data.test_number = 1;
   g_ptr_array_foreach (tests, (GFunc) run_test, &data);
-
-  g_log_remove_handler (NULL, log_handler);
 
   return data.n_failed;
 }

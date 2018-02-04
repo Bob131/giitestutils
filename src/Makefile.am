@@ -8,6 +8,7 @@ endif
 
 libgtu_a_SOURCES = \
 	init.c \
+	log.c \
 	flags.c \
 	path.c \
 	object.c \

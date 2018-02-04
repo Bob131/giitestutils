@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "gtu-priv.h"
+#include "log.h"
 
 #ifdef HAVE_ALLOCA_H
 # include <alloca.h>
@@ -169,6 +170,8 @@ void gtu_init (char** args, int args_length) {
 
     if (!(_debug_flags & GTU_DEBUG_FLAGS_FATAL_ASSERTS))
       g_test_set_nonfatal_assertions ();
+
+    _gtu_install_glib_loggers ();
 
     _has_initialized = true;
   }

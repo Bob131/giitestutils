@@ -36,17 +36,25 @@ dnl     (b) uses gtkdoc/can't afford to build gtu-test
 dnl at the same time.
 AM_CONDITIONAL([IS_SUBPROJECT], [test "x$enable_tests" = "xyes"])
 
-dnl Only consider building documentation if we're not part of a superproject.
 AM_COND_IF([IS_SUBPROJECT], [
+dnl Only consider building documentation if we're not part of a superproject.
   AM_CONDITIONAL([ENABLE_GTK_DOC],      [false])
   AM_CONDITIONAL([HAVE_GTK_DOC],        [false])
   AM_CONDITIONAL([GTK_DOC_BUILD_HTML],  [false])
   AM_CONDITIONAL([GTK_DOC_BUILD_PDF],   [false])
   AM_CONDITIONAL([GTK_DOC_USE_LIBTOOL], [false])
   AM_CONDITIONAL([GTK_DOC_USE_REBASE],  [false])
+
+dnl Ditto for check programs
+  AM_CONDITIONAL([ENABLE_CHECK_PROGS], [false])
 ], [
   m4_ifdef([GTK_DOC_CHECK], [GTK_DOC_CHECK([1.9], [--flavour no-tmpl])])
   AM_COND_IF([ENABLE_GTK_DOC], [AC_PROG_LN_S])
+
+  AC_ARG_ENABLE([check-progs],
+                AS_HELP_STRING([--disable-check-progs]),
+                ["don't build sanity check binaries"])
+  AM_CONDITIONAL([ENABLE_CHECK_PROGS], [test "x$enable_check_progs" != "xno"])
 ])
 
 dnl ###########################################################################
@@ -56,6 +64,7 @@ dnl ###########################################################################
 AC_CONFIG_FILES([
 Makefile
 src/Makefile
+src/gtu-test/Makefile
 docs/Makefile
 ])
 AC_OUTPUT

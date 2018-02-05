@@ -137,6 +137,9 @@ static bool parse_args (char** args, int args_length) {
 void gtu_init (char** args, int args_length) {
   g_return_if_fail (args != NULL && args_length > 0);
 
+  /* something has gone wrong if either is initialised without the other */
+  g_assert (g_test_initialized () == _has_initialized);
+
   if (!g_test_initialized ()) {
     bool tap_set = parse_args (args, args_length);
 

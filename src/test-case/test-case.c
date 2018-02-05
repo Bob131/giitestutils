@@ -98,9 +98,14 @@ static void gtu_test_case_finalize (GtuTestObject* self) {
   GTU_TEST_OBJECT_CLASS (gtu_test_case_parent_class)->finalize (self);
 }
 
+static void dummy_test_impl (GtuTestCase* self) {
+  (void) self;
+}
+
 static void gtu_test_case_class_init (GtuTestCaseClass* klass) {
   g_type_class_add_private (klass, sizeof (GtuTestCasePrivate));
   GTU_TEST_OBJECT_CLASS (klass)->finalize = gtu_test_case_finalize;
+  klass->test_impl = dummy_test_impl;
 }
 
 static void gtu_test_case_init (GtuTestCase* self) {
@@ -112,24 +117,47 @@ static void gtu_test_case_init (GtuTestCase* self) {
   PRIVATE (self)->has_disposed = false;
 }
 
-GtuTestCase* gtu_test_case_construct (GType type,
-                                      const char* name,
-                                      GtuTestCaseFunc func,
-                                      void* func_target,
-                                      GDestroyNotify func_target_destroy)
+static bool _gtu_test_case_construct_internal (GType type,
+                                               const char* name,
+                                               GtuTestCase** out_self,
+                                               GtuTestCasePrivate** out_priv)
 {
+  g_assert (out_self != NULL);
+  g_assert (out_priv != NULL);
+
+  if (!g_type_is_a (type, GTU_TYPE_TEST_CASE) || name == NULL)
+    return false;
+
+  *out_self = (GtuTestCase*) _gtu_test_object_construct (type, name);
+
+  if (*out_self == NULL) /* if the base ctor failed */
+    return false;
+
+  *out_priv = PRIVATE (*out_self);
+  return true;
+}
+
+GtuTestCase* gtu_test_case_construct (GType type, const char* name) {
   GtuTestCase* self;
   GtuTestCasePrivate* priv;
+  GtuTestCaseClass* klass;
 
-  g_return_val_if_fail (g_type_is_a (type, GTU_TYPE_TEST_CASE), NULL);
-  g_return_val_if_fail (name != NULL && func != NULL, NULL);
+  g_return_val_if_fail (_gtu_test_case_construct_internal (type, name,
+                                                           &self, &priv),
+                        NULL);
 
-  self = (GtuTestCase*) _gtu_test_object_construct (GTU_TYPE_TEST_CASE, name);
-  priv = PRIVATE (self);
+  klass = GTU_TEST_CASE_GET_CLASS (self);
+  if (klass->test_impl == dummy_test_impl) {
+    g_log (GTU_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
+           "GtuTestCase subtype %s fails to override test_impl()",
+           g_type_name (type));
+    gtu_test_object_unref (self);
+    return NULL;
+  }
 
-  priv->func = func;
-  priv->func_target = func_target;
-  priv->func_target_destroy = func_target_destroy;
+  priv->func = (GtuTestCaseFunc) klass->test_impl;
+  priv->func_target = self;
+  priv->func_target_destroy = NULL;
 
   return self;
 }
@@ -139,7 +167,19 @@ GtuTestCase* gtu_test_case_new (const char* name,
                                 void* func_target,
                                 GDestroyNotify func_target_destroy)
 {
-  return gtu_test_case_construct (
-    GTU_TYPE_TEST_CASE, name, func, func_target, func_target_destroy
-  );
+  GtuTestCase* self;
+  GtuTestCasePrivate* priv;
+
+  g_return_val_if_fail (name != NULL, NULL);
+  g_return_val_if_fail (func != NULL, NULL);
+
+  g_return_val_if_fail (_gtu_test_case_construct_internal (GTU_TYPE_TEST_CASE,
+                                                           name, &self, &priv),
+                        NULL);
+
+  priv->func = func;
+  priv->func_target = func_target;
+  priv->func_target_destroy = func_target_destroy;
+
+  return self;
 }

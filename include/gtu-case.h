@@ -12,7 +12,8 @@
  * representation of an individual test case and its state.
  *
  * Projects are free to subclass #GtuTestCase, allowing a neat encapsulation of
- * various project-specific testing utilities.
+ * various project-specific testing utilities. Derivative subclasses should
+ * override #GtuTestCaseClass.test_impl.
  */
 
 #ifndef __GII_TEST_UTILS_H__
@@ -39,12 +40,17 @@ G_DECLARE_DERIVABLE_TYPE (GtuTestCase, gtu_test_case, GTU, TEST_CASE,
 
 /**
  * GtuTestCaseClass:
+ * @test_impl: function implementing the test case. This is only relevant for
+ *             types deriving from #GtuTestCase, which should override this
+ *             method; otherwise, use gtu_test_case_new().
  *
  * Class for #GtuTestCase objects.
  */
 struct _GtuTestCaseClass {
   /*< private >*/
   GtuTestObjectClass parent_class;
+  /*< public >*/
+  void (*test_impl) (GtuTestCase* self);
 };
 
 /**
@@ -80,21 +86,13 @@ GtuTestCase* gtu_test_case_new (const char* name,
  * gtu_test_case_construct:
  * @type:                subtype of %GTU_TYPE_TEST_CASE.
  * @name:                the name of the new test case.
- * @func:                function implementing a test.
- * @func_target:         (allow-none) (transfer full) (closure):
- *                       pointer to user data, passed to @func.
- * @func_target_destroy: (allow-none) (destroy): frees @func_target.
  *
  * Base constructor for types deriving from #GtuTestCase. For creating a plain
  * new test case, see gtu_test_case_new() instead.
  *
  * Returns: a floating reference to the new instance of @type.
  */
-GtuTestCase* gtu_test_case_construct (GType type,
-                                      const char* name,
-                                      GtuTestCaseFunc func,
-                                      void* func_target,
-                                      GDestroyNotify func_target_destroy);
+GtuTestCase* gtu_test_case_construct (GType type, const char* name);
 
 /**
  * gtu_test_case_add_dependency:

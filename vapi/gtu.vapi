@@ -74,10 +74,16 @@ namespace Gtu {
     public class TestCase : TestObject {
         public delegate void Func ();
 
+        protected virtual void test_impl ();
+
         public void add_dependency (TestSuite.Child test_object);
         public unowned TestCase with_dep (TestSuite.Child test_object);
 
+        [CCode (has_construct_function = false)]
         public TestCase (string name, owned Func func);
+
+        [CCode (has_new_function = false, construct_function = "gtu_test_case_construct")]
+        protected TestCase.@construct (string name);
     }
 
     public class TestSuite : TestObject {

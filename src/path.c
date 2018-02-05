@@ -127,7 +127,7 @@ const char* gtu_path_to_string (GtuPath* path) {
   return path->cached_string;
 }
 
-static bool element_is_valid (const char* element) {
+bool _gtu_path_element_is_valid (const char* element) {
   int i;
 
   if (element == NULL)
@@ -142,13 +142,13 @@ static bool element_is_valid (const char* element) {
 
 void gtu_path_prepend_element (GtuPath* path, const char* element) {
   g_return_if_fail (path_is_valid_pointer (path));
-  g_return_if_fail (element_is_valid (element));
+  g_return_if_fail (_gtu_path_element_is_valid (element));
   g_ptr_array_insert (path->elements, 0, g_strdup (element));
 }
 
 void gtu_path_append_element (GtuPath* path, const char* element) {
   g_return_if_fail (path_is_valid_pointer (path));
-  g_return_if_fail (element_is_valid (element));
+  g_return_if_fail (_gtu_path_element_is_valid (element));
   g_ptr_array_add (path->elements, g_strdup (element));
 }
 

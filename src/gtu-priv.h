@@ -51,4 +51,6 @@ typedef struct {
 
 G_GNUC_INTERNAL GtuTestMode* _gtu_get_test_mode (void);
 
+G_GNUC_INTERNAL bool _gtu_path_element_is_valid (const char* element);
+
 #endif

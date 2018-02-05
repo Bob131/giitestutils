@@ -142,6 +142,8 @@ GtuTestCase* gtu_test_case_construct (GType type, const char* name) {
   GtuTestCasePrivate* priv;
   GtuTestCaseClass* klass;
 
+  g_return_val_if_fail (_gtu_path_element_is_valid (name), NULL);
+
   g_return_val_if_fail (_gtu_test_case_construct_internal (type, name,
                                                            &self, &priv),
                         NULL);
@@ -170,7 +172,7 @@ GtuTestCase* gtu_test_case_new (const char* name,
   GtuTestCase* self;
   GtuTestCasePrivate* priv;
 
-  g_return_val_if_fail (name != NULL, NULL);
+  g_return_val_if_fail (_gtu_path_element_is_valid (name), NULL);
   g_return_val_if_fail (func != NULL, NULL);
 
   g_return_val_if_fail (_gtu_test_case_construct_internal (GTU_TYPE_TEST_CASE,

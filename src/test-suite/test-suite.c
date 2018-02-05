@@ -103,6 +103,7 @@ static void gtu_test_suite_init (GtuTestSuite* self) {
 
 GtuTestSuite* gtu_test_suite_construct (GType type, const char* name) {
   g_return_val_if_fail (g_type_is_a (type, GTU_TYPE_TEST_SUITE), NULL);
+  g_return_val_if_fail (_gtu_path_element_is_valid (name), NULL);
   return (GtuTestSuite*) _gtu_test_object_construct (type, name);
 }
 

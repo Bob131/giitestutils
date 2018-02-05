@@ -242,7 +242,7 @@ GtuTestObject* _gtu_test_object_construct (GType type, const char* name) {
   GtuTestObject* ret;
 
   g_assert (g_type_is_a (type, GTU_TYPE_TEST_OBJECT));
-  g_assert (name != NULL && strlen (name) > 0);
+  g_assert (_gtu_path_element_is_valid (name));
 
   ret = (GtuTestObject*) g_type_create_instance (type);
   PRIVATE (ret)->name = g_strdup (name);

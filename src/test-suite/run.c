@@ -107,7 +107,6 @@ static void run_test (GtuTestCase* test_case, GtuTestSuiteRunData* data) {
 
   if (_gtu_get_test_mode ()->list_only) {
     fprintf (stdout, "%s\n", gtu_path_to_string (path));
-    gtu_path_free (path);
     return;
   }
 
@@ -152,8 +151,6 @@ static void run_test (GtuTestCase* test_case, GtuTestSuiteRunData* data) {
         message =
           g_strdup_printf ("prerequisite test aborted: %s",
                            gtu_path_to_string (abort_data.aborted_path));
-        gtu_path_free (abort_data.aborted_path);
-
         result = abort_data.aborted_result;
 
       } else {
@@ -184,10 +181,7 @@ static void run_test (GtuTestCase* test_case, GtuTestSuiteRunData* data) {
   }
 
   fprintf (stdout, " %d ", data->test_number++);
-
   fprintf (stdout, gtu_path_to_string (path));
-  gtu_path_free (path);
-
   fprintf (stdout, " # ");
 
   switch (result) {

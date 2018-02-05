@@ -65,7 +65,7 @@ namespace Gtu {
     [CCode (ref_sink_function = "gtu_test_object_ref")]
     public abstract class TestObject {
         public string name {get;}
-        public Path path {owned get;}
+        public Path path {get;}
         public TestSuite? parent_suite {get;}
 
         public signal void ancestry_changed ();

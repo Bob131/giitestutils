@@ -112,8 +112,7 @@ const char* gtu_test_object_get_name (GtuTestObject* self);
  * name of @self. As the ancestry of @self and its parents changes, this
  * function will return different results.
  *
- * Returns: a #GtuPath instance representing @self. Free this with
- *          gtu_path_free() when it's no longer required.
+ * Returns: (transfer none): a #GtuPath instance representing @self.
  */
 GtuPath* gtu_test_object_get_path (GtuTestObject* self);
 

@@ -5,6 +5,7 @@
 typedef struct {
   char*         name;
   GtuTestSuite* parent;
+  GtuPath*      path;
 
   volatile int ref_count;
   volatile int is_floating;
@@ -192,28 +193,29 @@ const char* gtu_test_object_get_name (GtuTestObject* self) {
 }
 
 GtuPath* gtu_test_object_get_path (GtuTestObject* self) {
-  GtuPath* ret;
+  GtuTestObjectPrivate* priv;
 
   g_return_val_if_fail (GTU_IS_TEST_OBJECT (self), NULL);
 
-  ret = gtu_path_new ();
-  gtu_path_append_element (ret, PRIVATE (self)->name);
+  priv = PRIVATE (self);
 
-  if (PRIVATE (self)->parent) {
-    GtuPath* parent_path =
-      gtu_test_object_get_path (GTU_TEST_OBJECT (PRIVATE (self)->parent));
-    gtu_path_prepend_path (ret, parent_path);
-    gtu_path_free (parent_path);
+  if (priv->path == NULL) {
+    priv->path = gtu_path_new ();
+    gtu_path_append_element (priv->path, priv->name);
+
+    if (priv->parent)
+      gtu_path_prepend_path (
+        priv->path,
+        gtu_test_object_get_path (GTU_TEST_OBJECT (priv->parent))
+      );
   }
 
-  return ret;
+  return priv->path;
 }
 
 char* gtu_test_object_get_path_string (GtuTestObject* self) {
-  GtuPath* path = gtu_test_object_get_path (self);
-  char* ret = g_strdup (gtu_path_to_string (path));
-  gtu_path_free (path);
-  return ret;
+  g_return_val_if_fail (GTU_IS_TEST_OBJECT (self), NULL);
+  return g_strdup (gtu_path_to_string (gtu_test_object_get_path (self)));
 }
 
 GtuTestSuite* gtu_test_object_get_parent_suite (GtuTestObject* self) {
@@ -231,8 +233,8 @@ void _gtu_test_object_set_parent_suite (GtuTestObject* self,
   g_assert (GTU_IS_TEST_OBJECT (self));
   g_assert (GTU_IS_TEST_SUITE (suite));
   g_assert (PRIVATE (self)->parent == NULL);
-  PRIVATE (self)->parent = suite;
 
+  PRIVATE (self)->parent = suite;
   _gtu_test_object_emit_ancestry_signal (self);
 }
 
@@ -266,6 +268,18 @@ static void _gtu_test_object_class_init (void* klass, void* data) {
                                 0     /* n_params */);
 }
 
+static void dirty_path (GtuTestObject* self, void* data) {
+  GtuTestObjectPrivate* priv;
+
+  (void) data;
+
+  priv = PRIVATE (self);
+  if (priv->path) {
+    gtu_path_free (priv->path);
+    priv->path = NULL;
+  }
+}
+
 static void _gtu_test_object_init (GTypeInstance* instance, void* klass) {
   GtuTestObject* self = GTU_TEST_OBJECT (instance);
   GtuTestObjectPrivate* priv = PRIVATE (self);
@@ -274,6 +288,10 @@ static void _gtu_test_object_init (GTypeInstance* instance, void* klass) {
   priv->ref_count = 1;
   priv->is_floating = 1;
   priv->has_finalized = false;
+
+  g_signal_connect (instance,
+                    "ancestry-changed",
+                    (GCallback) &dirty_path, NULL);
 }
 
 static void _gtu_test_object_finalize (GtuTestObject* self) {
@@ -283,6 +301,11 @@ static void _gtu_test_object_finalize (GtuTestObject* self) {
   priv->name = NULL;
 
   priv->parent = NULL;
+
+  if (priv->path) {
+    gtu_path_free (priv->path);
+    priv->path = NULL;
+  }
 
   /* The type annotation in GLib is wrong: this function is for all GTypes with
      signals, not just GObject. */

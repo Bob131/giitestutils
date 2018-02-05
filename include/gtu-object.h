@@ -74,18 +74,18 @@ struct _GtuTestObjectClass {
 
 /**
  * gtu_test_object_ref:
- * @instance: an instance of a #GtuTestObject type.
+ * @instance: (type Gtu.TestObject): an instance of a #GtuTestObject type.
  *
  * Creates a new owned reference to @instance, either sinking @instance if it's
  * floating or incrementing its reference count.
  *
- * Returns: a new owned reference to @instance.
+ * Returns: (type Gtu.TestObject): a new owned reference to @instance.
  */
 void* gtu_test_object_ref (void* instance);
 
 /**
  * gtu_test_object_unref:
- * @instance: an instance of a #GtuTestObject type.
+ * @instance: (type Gtu.TestObject): an instance of a #GtuTestObject type.
  *
  * Destroys a reference to @instance. If @instance's ref-count drops to zero,
  * it will be finalized and freed.

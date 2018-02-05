@@ -145,6 +145,14 @@ char* gtu_test_object_get_path_string (GtuTestObject* self);
  */
 GtuTestSuite* gtu_test_object_get_parent_suite (GtuTestObject* self);
 
+/**
+ * GtuTestObject::ancestry-changed:
+ * @self: #GtuTestObject instance on which ::ancestry-changed was emitted.
+ *
+ * Emitted when @self's parent (or its parent's parent, etc) has been
+ * (re-)parented.
+ */
+
 G_END_DECLS
 
 #endif

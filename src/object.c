@@ -15,6 +15,13 @@ typedef struct {
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GTU_TYPE_TEST_OBJECT, \
                                 GtuTestObjectPrivate))
 
+enum {
+  ANCESTRY_CHANGED,
+  LAST_SIGNAL
+};
+
+static unsigned long object_signals[LAST_SIGNAL] = {0};
+
 static void _gtu_test_object_class_init (void* klass, void* data);
 static void _gtu_test_object_init       (GTypeInstance* self, void* klass);
 static void _gtu_test_object_finalize   (GtuTestObject* self);
@@ -214,6 +221,10 @@ GtuTestSuite* gtu_test_object_get_parent_suite (GtuTestObject* self) {
   return PRIVATE (self)->parent;
 }
 
+void _gtu_test_object_emit_ancestry_signal (GtuTestObject* self) {
+  g_signal_emit (self, object_signals[ANCESTRY_CHANGED], 0);
+}
+
 void _gtu_test_object_set_parent_suite (GtuTestObject* self,
                                         GtuTestSuite* suite)
 {
@@ -221,6 +232,8 @@ void _gtu_test_object_set_parent_suite (GtuTestObject* self,
   g_assert (GTU_IS_TEST_SUITE (suite));
   g_assert (PRIVATE (self)->parent == NULL);
   PRIVATE (self)->parent = suite;
+
+  _gtu_test_object_emit_ancestry_signal (self);
 }
 
 GtuTestObject* _gtu_test_object_construct (GType type, const char* name) {
@@ -237,8 +250,20 @@ GtuTestObject* _gtu_test_object_construct (GType type, const char* name) {
 
 static void _gtu_test_object_class_init (void* klass, void* data) {
   (void) data;
+
   g_type_class_add_private (klass, sizeof (GtuTestObjectPrivate));
   GTU_TEST_OBJECT_CLASS (klass)->finalize = _gtu_test_object_finalize;
+
+  object_signals[ANCESTRY_CHANGED] =
+    g_signal_new_class_handler ("ancestry-changed",
+                                G_TYPE_FROM_CLASS (klass),
+                                G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                NULL, /* class handler */
+                                NULL, /* accumulator */
+                                NULL, /* accumulator data */
+                                NULL, /* C marshaller */
+                                G_TYPE_NONE,
+                                0     /* n_params */);
 }
 
 static void _gtu_test_object_init (GTypeInstance* instance, void* klass) {
@@ -258,6 +283,10 @@ static void _gtu_test_object_finalize (GtuTestObject* self) {
   priv->name = NULL;
 
   priv->parent = NULL;
+
+  /* The type annotation in GLib is wrong: this function is for all GTypes with
+     signals, not just GObject. */
+  g_signal_handlers_destroy (self);
 
   priv->has_finalized = true;
 }

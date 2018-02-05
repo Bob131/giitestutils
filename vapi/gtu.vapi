@@ -68,6 +68,8 @@ namespace Gtu {
         public Path path {owned get;}
         public TestSuite? parent_suite {get;}
 
+        public signal void ancestry_changed ();
+
         private TestObject ();
     }
 

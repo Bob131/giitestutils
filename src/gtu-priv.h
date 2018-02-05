@@ -25,6 +25,8 @@ G_GNUC_INTERNAL GtuTestObject* _gtu_test_object_construct (GType type,
 G_GNUC_INTERNAL void _gtu_test_object_collect_tests (GtuTestObject* object,
                                                      GPtrArray* tests);
 
+G_GNUC_INTERNAL void _gtu_test_object_emit_ancestry_signal (GtuTestObject* obj);
+
 typedef enum {
   GTU_TEST_RESULT_INVALID,
   GTU_TEST_RESULT_PASS,

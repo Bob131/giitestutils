@@ -79,9 +79,26 @@ static void gtu_test_suite_class_init (GtuTestSuiteClass* klass) {
   GTU_TEST_OBJECT_CLASS (klass)->finalize = gtu_test_suite_finalize;
 }
 
+static void propagate_signal (GtuTestSuite* self, void* data) {
+  unsigned i;
+  GtuTestSuitePrivate* priv;
+
+  (void) data;
+
+  priv = PRIVATE (self);
+  for (i = 0; i < priv->children->len; i++)
+    _gtu_test_object_emit_ancestry_signal (
+      GTU_TEST_OBJECT (priv->children->pdata[i])
+    );
+}
+
 static void gtu_test_suite_init (GtuTestSuite* self) {
   PRIVATE (self)->children =
     g_ptr_array_new_with_free_func (gtu_test_object_unref);
+
+  g_signal_connect (self,
+                    "ancestry-changed",
+                    (GCallback) &propagate_signal, NULL);
 }
 
 GtuTestSuite* gtu_test_suite_construct (GType type, const char* name) {

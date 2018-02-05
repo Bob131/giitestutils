@@ -9,6 +9,10 @@ class TestCase : Gtu.TestCase {
 
     public TestCase (string name) {
         base.@construct (name);
+
+        this.ancestry_changed.connect (() => {
+            message (@"$(this.name) says: new parent!");
+        });
     }
 }
 

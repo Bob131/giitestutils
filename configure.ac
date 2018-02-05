@@ -55,6 +55,7 @@ dnl Ditto for check programs
                 AS_HELP_STRING([--disable-check-progs]),
                 ["don't build sanity check binaries"])
   AM_CONDITIONAL([ENABLE_CHECK_PROGS], [test "x$enable_check_progs" != "xno"])
+  AM_COND_IF([ENABLE_CHECK_PROGS], [AM_PROG_VALAC])
 ])
 
 dnl ###########################################################################

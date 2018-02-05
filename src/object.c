@@ -1,5 +1,6 @@
 #include <string.h>
 #include "gtu-priv.h"
+#include <gobject/gvaluecollector.h>
 
 typedef struct {
   char*         name;
@@ -18,10 +19,99 @@ static void _gtu_test_object_class_init (void* klass, void* data);
 static void _gtu_test_object_init       (GTypeInstance* self, void* klass);
 static void _gtu_test_object_finalize   (GtuTestObject* self);
 
+static inline void** _value_ptr (const GValue* value) {
+  return (void**) &value->data[0].v_pointer;
+}
+
+static void _value_init (GValue* value) {
+  *_value_ptr (value) = NULL;
+}
+
+static void _value_free (GValue* value) {
+  g_return_if_fail (GTU_IS_TEST_OBJECT (*_value_ptr (value)));
+  gtu_test_object_unref (*_value_ptr (value));
+}
+
+static void _value_copy (const GValue* src_value, GValue* dest_value) {
+  g_return_if_fail (GTU_IS_TEST_OBJECT (*_value_ptr (src_value)));
+  *_value_ptr (dest_value) = gtu_test_object_ref (*_value_ptr (src_value));
+}
+
+static void* _value_peek (const GValue* value) {
+  return *_value_ptr (value);
+}
+
+static char* _value_collect (GValue* value,
+                             unsigned n_collect_values,
+                             GTypeCValue* collect_values,
+                             unsigned collect_flags)
+{
+  (void) n_collect_values;
+  (void) collect_flags;
+
+  if (collect_values[0].v_pointer) {
+    GtuTestObject* object = collect_values[0].v_pointer;
+
+    if (object->parent_instance.g_class == NULL) {
+      return g_strdup_printf (
+        "invalid unclassed object pointer for value type `%s'",
+        G_VALUE_TYPE_NAME (value)
+      );
+
+    } else if (!GTU_IS_TEST_OBJECT (object)) {
+      return g_strdup ("invalid GtuTestObject pointer");
+    }
+
+    *_value_ptr (value) = gtu_test_object_ref (collect_values[0].v_pointer);
+
+  } else {
+    *_value_ptr (value) = NULL;
+  }
+
+  return NULL;
+}
+
+static char* _value_lcopy (const GValue* value,
+                           unsigned n_collect_values,
+                           GTypeCValue* collect_values,
+                           unsigned collect_flags)
+{
+  GtuTestObject** object_ptr;
+
+  (void) n_collect_values;
+
+  object_ptr = collect_values[0].v_pointer;
+
+  if (object_ptr == NULL)
+    return g_strdup_printf ("value location for `%s' passed as NULL",
+                            G_VALUE_TYPE_NAME (value));
+
+  if (*_value_ptr (value) == NULL) {
+    *object_ptr = NULL;
+  } else if (collect_flags & G_VALUE_NOCOPY_CONTENTS) {
+    *object_ptr = *_value_ptr (value);
+  } else {
+    *object_ptr = gtu_test_object_ref (*_value_ptr (value));
+  }
+
+  return NULL;
+}
+
 GType gtu_test_object_get_type (void) {
   static volatile gsize type_id__volatile = 0;
 
   if (g_once_init_enter (&type_id__volatile)) {
+    static const GTypeValueTable value_table = {
+      &_value_init,
+      &_value_free,
+      &_value_copy,
+      &_value_peek,
+      "p",
+      &_value_collect,
+      "p",
+      &_value_lcopy
+    };
+
     static const GTypeInfo type_info = {
       sizeof (GtuTestObjectClass),
       (GBaseInitFunc) NULL,
@@ -32,7 +122,7 @@ GType gtu_test_object_get_type (void) {
       sizeof (GtuTestObject),
       0,                            /* n_preallocs */
       &_gtu_test_object_init,
-      NULL                          /* value_table */
+      &value_table
     };
 
     static const GTypeFundamentalInfo fundamental_info = {

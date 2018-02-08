@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE variablelist PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+]>
+<variablelist>
+  <varlistentry>
+    <term>perf</term>
+    <listitem>
+      <para>
+        run performance tests
+      </para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>slow</term>
+    <term>thorough</term>
+    <listitem>
+      <para>
+        run slow tests, or repeat non-deterministic tests more often
+      </para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>quick</term>
+    <listitem>
+      <para>
+        do not run slow tests, or do extra repeats of non-deterministic tests
+        (default)
+      </para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>undefined</term>
+    <listitem>
+      <para>
+        run test cases that deliberately provoke checks or assertion failures
+        (default)
+      </para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>no-undefined</term>
+    <listitem>
+      <para>
+        do not run test cases that deliberately provoke checks or assertion
+        failures
+      </para>
+    </listitem>
+  </varlistentry>
+</variablelist>

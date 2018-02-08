@@ -1,0 +1,181 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
+]>
+<refentry id="gtu-Args">
+  <refmeta>
+    <refentrytitle>Test binaries</refentrytitle>
+  </refmeta>
+
+  <refnamediv>
+    <refname>
+      Interfacing with programs that call
+      <link linkend="gtu-init"><function>gtu_init()</function></link>
+    </refname>
+    <refpurpose>Command-line interface</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>&lt;test-binary&gt;</command>
+      <arg rep="repeat"><replaceable req="opt">OPTION</replaceable></arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+  <refsect1>
+    <title>Options</title>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>--tap</option>
+        </term>
+        <listitem>
+          <para>
+            Specifies that test log output should conform to the
+            <ulink url="http://testanything.org/">Test Anything Protocol</ulink>.
+            This option is provided for compatibility with GLib; GTU doesn't
+            support anything other than TAP.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-k</option>
+        </term>
+        <term>
+          <option>--keep-going</option>
+        </term>
+        <listitem>
+          <para>
+            Specifies whether the program should abort when a test fails.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-m <replaceable>MODE</replaceable></option>
+        </term>
+        <listitem>
+          <para>
+            Controls the types of tests to be run and their behaviour. This
+            option may be used multiple times to (de)select more than one
+            category of test.
+          </para>
+
+          <para>
+            Acceptable values for <literal>MODE</literal>:
+
+            <xi:include href="mode-list.xml"/>
+          </para>
+
+          <para>
+            See also: <link linkend="TESTMODE:CAPS"><envar>TESTMODE</envar></link>.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-p <replaceable>test-path</replaceable></option>
+        </term>
+        <listitem>
+          <para>
+            Only run tests that match <literal>test-path</literal>. This
+            includes tests whose path matches <literal>test-path</literal>
+            exactly or who share the same stemmed prefix.
+          </para>
+
+          <para>
+            This option may be used multiple times to specify more than one
+            test selector.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-s <replaceable>test-path</replaceable></option>
+        </term>
+        <listitem>
+          <para>
+            Skip tests that match <literal>test-path</literal>. This includes
+            tests whose path matches <literal>test-path</literal> exactly or
+            who share the same stemmed prefix.
+          </para>
+
+          <para>
+            This option may be used multiple times to specify more than one
+            skip selector.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-l</option>
+        </term>
+        <listitem>
+          <para>
+            Don't execute any tests; instead, list all the test paths that
+            would be run.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--quiet</option>
+          |
+          <option>--verbose</option>
+        </term>
+        <listitem>
+          <para>
+            Controls the level of logging used by test cases. There are
+            actually three levels of logging: quiet, the default and verbose.
+          </para>
+
+          <para>
+            <option>--quiet</option> and <option>--verbose</option> are
+            mutually exclusive. The logging level used if either are specified
+            together (or more than once) is unspecified.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--g-fatal-warnings</option>
+        </term>
+        <listitem>
+          <para>
+            Specifies that the program should abort if a warning is logged.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--seed <replaceable>SEED</replaceable></option>
+        </term>
+        <listitem>
+          <para>
+            Seeds the random number generator with <literal>SEED</literal>.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+  </refsect1>
+
+  <refsect1>
+    <title>Exit Status</title>
+
+    <literal>0</literal> if all tests successfully passed, otherwise the number
+    of failing tests. In the case of a fatal error, the exit status will be
+    <literal>99</literal>.
+  </refsect1>
+</refentry>

@@ -9,6 +9,10 @@
     <sectpurpose>Differences from standard GLib TAP</sectpurpose>
   </sectioninfo>
 
+  <toc></toc>
+
+  <xi:include href="args.xml"/>
+
   <xi:include href="make-vars.xml"/>
   <xi:include href="env-vars.xml"/>
 

@@ -14,6 +14,8 @@ content_files = \
 	intro.xml \
 	getting-started.xml \
 	running-tests/main.xml \
+	running-tests/mode-list.xml \
+	running-tests/args.xml \
 	running-tests/make-vars.xml \
 	running-tests/env-vars.xml
 

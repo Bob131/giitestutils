@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+]>
+<section>
+  <title>Environment variables</title>
+
+  <formalpara id="GTU-DEBUG:CAPS">
+    <title><envar>GTU_DEBUG</envar></title>
+    <para>
+      Options altering the behaviour of GTU code.
+    </para>
+
+    <variablelist>
+      <varlistentry>
+        <term>fatal-asserts</term>
+        <listitem>
+          <para>
+            Causes GTU to abort upon the failure of any GTU assertions. See
+            <xref linkend="gtu-Asserts" endterm="gtu-Asserts.top_of_page"/>
+            for more information.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </formalpara>
+</section>

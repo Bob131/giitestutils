@@ -1,0 +1,6 @@
+import os
+from glob import glob
+from gtkdoc import config
+
+if __name__ == '__main__':
+    print (os.path.join (config.datadir, 'gtk-doc/data'))

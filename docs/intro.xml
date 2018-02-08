@@ -1,18 +1,13 @@
 <?xml version="1.0"?>
-<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
                "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 ]>
-<refentry id="gtu-Intro">
-  <refmeta>
-    <refentrytitle role="top_of_page" id="gtu-Intro.top_of_page">GTU Introduction</refentrytitle>
-    <refmiscinfo>GTU Library</refmiscinfo>
-  </refmeta>
+<section id="gtu-Intro">
+  <sectioninfo>
+    <title role="top_of_page" id="gtu-Intro.top_of_page">Introduction to the GTU library</title>
+  </sectioninfo>
 
-  <refnamediv>
-    <refname>Introduction to the GTU library</refname>
-  </refnamediv>
-
-  <refsect2>
+  <section>
     <title>What and Why?</title>
     <para>
       Whilst enormously handy, GLib's testing framework can be somewhat
@@ -57,9 +52,9 @@
       batteries-included library, we can use mechanisms that might otherwise be
       considered uncouth to make things simpler.
     </para>
-  </refsect2>
+  </section>
 
-  <refsect2>
+  <section>
     <title>The <emphasis>What</emphasis> Test Utilities?</title>
     <para>
       'GTU' is an abbreviation for 'Gii Test Utilities'. 'Gii' is pronounced
@@ -68,5 +63,5 @@
       <ulink url="https://wiki.gnome.org/Projects/Libgee">GLib-based utility library</ulink>
       is a common cute name.
     </para>
-  </refsect2>
-</refentry>
+  </section>
+</section>

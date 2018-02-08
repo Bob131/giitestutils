@@ -1,19 +1,15 @@
 <?xml version="1.0"?>
-<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
                "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 ]>
-<refentry id="gtu-Getting-Started">
-  <refmeta>
-    <refentrytitle role="top_of_page" id="gtu-Getting-Started.top_of_page">Getting Started</refentrytitle>
-    <refmiscinfo>GTU Library</refmiscinfo>
-  </refmeta>
+<section id="gtu-Getting-Started">
+  <sectioninfo>
+    <title role="top_of_page" id="gtu-Getting-Started.top_of_page">Getting Started</title>
+  </sectioninfo>
 
-  <refnamediv>
-    <refname>Getting GTU set up</refname>
-    <refpurpose>How to add GTU to your project</refpurpose>
-  </refnamediv>
+  <section>
+    <title>Adding GTU to your project</title>
 
-  <refsect1>
     <para>
       GTU is designed to be included in-tree and integrate with autotools.
       Assuming unit tests are to be kept in a <filename>tests/</filename>
@@ -114,5 +110,5 @@
         linked with GTU.
       </listitem>
     </itemizedlist>
-  </refsect1>
-</refentry>
+  </section>
+</section>

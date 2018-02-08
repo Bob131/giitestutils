@@ -24,14 +24,14 @@
     </releaseinfo>
   </bookinfo>
 
-  <chapter>
+  <chapter id="gtu-Overview">
     <title>GTU Overview</title>
     <xi:include href="intro.xml"/>
     <xi:include href="getting-started.xml"/>
-    <xi:include href="running-tests.xml"/>
+    <xi:include href="running-tests/main.xml"/>
   </chapter>
 
-  <chapter>
+  <chapter id="gtu-ApiRef">
     <title>GTU API Reference</title>
     <xi:include href="xml/gtu.xml"/>
     <xi:include href="xml/gtu-path.xml"/>

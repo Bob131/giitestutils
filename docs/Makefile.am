@@ -13,7 +13,9 @@ HFILE_GLOB = $(top_srcdir)/include/gtu*.h
 content_files = \
 	intro.xml \
 	getting-started.xml \
-	running-tests.xml
+	running-tests/main.xml \
+	running-tests/make-vars.xml \
+	running-tests/env-vars.xml
 
 GTKDOC_CFLAGS = -I$(top_srcdir)/include
 GTKDOC_LIBS = $(top_srcdir)/src/libgtu.a
@@ -56,7 +58,35 @@ xml/version.ent:
 CLEANFILES += xml/version.ent version.ent
 
 
+gtkdoc-config.py.tmp:
+	$(AM_V_GEN) ( \
+		echo '#!/usr/bin/env python3' > $@; \
+		echo 'import sys' >> $@; \
+		grep sys.path.append $(GTKDOC_CHECK_PATH) >> $@; \
+	)
+
+CLEANFILES += gtkdoc-config.py.tmp
+
+
+html-build.stamp: gtk-doc.xsl style
+
 if GTK_DOC_BUILD_HTML
+gtkdoc-xslpath.py: gtkdoc-xslpath.py.in gtkdoc-config.py.tmp
+	$(AM_V_GEN) ( \
+		cat gtkdoc-config.py.tmp > $@; \
+		cat $< >> $@; \
+		chmod +x $@; \
+	)
+
+gtk-doc.xsl: gtk-doc.xsl.in gtkdoc-xslpath.py
+	$(AM_V_GEN) sed "s|[@]GTKDOC_XSL[@]|$(shell ./gtkdoc-xslpath.py)/gtk-doc.xsl|g" < $< > $@
+
+style: gtkdoc-xslpath.py
+	$(AM_V_GEN) rm -f $@; $(LN_S) $(shell ./gtkdoc-xslpath.py) $@
+
+CLEANFILES += gtkdoc-xslpath.py gtk-doc.xsl style
+
+
 # we can't use gtkdoc-rebase because it's enormously broken
 docs-rebase: html-build.stamp
 	-sed -i -e "s|$(shell grep -Poh "(?<=href=\")([^\"]+gtk-doc/html/glib)" html/*.html | head -n1)|https://developer.gnome.org/glib/stable|g" html/*.html

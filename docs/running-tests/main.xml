@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
+]>
+<section id="gtu-Running-Tests">
+  <sectioninfo>
+    <title role="top_of_page" id="gtu-Running-Tests.top_of_page">Running Tests</title>
+    <sectpurpose>Differences from standard GLib TAP</sectpurpose>
+  </sectioninfo>
+
+  <xi:include href="make-vars.xml"/>
+  <xi:include href="env-vars.xml"/>
+
+</section>

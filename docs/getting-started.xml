@@ -111,4 +111,155 @@
       </listitem>
     </itemizedlist>
   </section>
+
+  <section>
+    <title>Testing your project</title>
+
+    <para>
+      There are several important pieces to GTU:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        <link linkend="GtuTestObject">GtuTestObject</link> is a generic test
+        container. It's a reference-counted object that carries one or more
+        test case implementations, metadata about those tests and manages the
+        life cycle of whatever test-related data your test suite needs. There
+        are two types of test object:
+
+        <itemizedlist>
+          <listitem>
+            <para>
+              <link linkend="GtuTestCase">GtuTestCase</link> contains the
+              implementation of a single test case, as provided by your
+              project's test suite. Depending on your taste, you can either
+              pass your test case function to
+              <link linkend="gtu-test-case-new"><function>gtu_test_case_new()</function></link>
+              or create a new subclass and override the
+              <link linkend="GtuTestCaseClass.test-impl">test_impl()</link>
+              virtual method.
+            </para>
+          </listitem>
+
+          <listitem>
+            <para>
+              <link linkend="GtuTestSuite">GtuTestSuite</link> allows you to
+              organise collections of related test cases, describe dependent
+              relationships between them, and provides the mechanism for
+              executing the test cases you've supplied. Test case scheduling,
+              memory management and communication with the test harness are all
+              managed by this object.
+            </para>
+
+            <para>
+              Test suites may be subclassed to provide reusable template suites
+              within your project.
+            </para>
+          </listitem>
+        </itemizedlist>
+      </listitem>
+
+      <listitem>
+        <para>
+          Every test object is identified by a unique
+          <link linkend="GtuPath">GtuPath</link>, which is written to the test
+          log alongside the result of each test.
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          A test case that runs to completion is considered to have passed
+          successfully. Test cases can be failed or skipped by aborting the
+          test mid-execution, using the
+          <link linkend="gtu-Asserts">assert</link>
+          or
+          <link linkend="gtu-Skips">skip</link>
+          APIs. When a test is aborted, execution automatically returns to the
+          test execution loop; you should ensure that any memory allocated for
+          a test is managed by its
+          <link linkend="GtuTestCase">GtuTestCase</link>
+          instance to prevent memory leaks.
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <example>
+      <title>Writing a test suite in C</title>
+      <programlisting language="c">
+        #include &lt;gtu.h&gt;
+
+        struct MyObject {
+          int some_field;
+        };
+
+        static void test_field_value (struct MyObject *object) {
+          gtu_assert (object != NULL &amp;&amp; object->some_field == 42);
+        }
+
+        int main (int argc, char *argv[]) {
+          gtu_init (argv, argc);
+          GtuTestSuite *root_suite = gtu_test_suite_new ("my-project");
+          GtuTestSuite *object_suite = gtu_test_suite_new ("my-object");
+
+          MyObject* object = g_malloc (sizeof (MyObject));
+          object->some_field = 42;
+          GtuTestCase* field_test =
+            gtu_test_case_new ("field",
+                               (GtuTestCaseFunc) &amp;test_field_value,
+                               object,
+                               (GDestroyNotify) g_free);
+
+          gtu_test_suite_add_obj (object_suite, field_test);
+          gtu_test_suite_add_obj (root_suite, object_suite);
+
+          return gtu_test_suite_run (root_suite);
+        }
+      </programlisting>
+    </example>
+
+    <example>
+      <title>Writing a test suite in Vala</title>
+      <programlisting language="vala">
+        class MyObject {
+          public int some_field;
+        }
+
+        class MyObjectTestSuite : Gtu.TestSuite {
+          class FieldTest : Gtu.TestCase {
+            public MyObject object;
+
+            protected override void test_impl () {
+              assert (object.some_field == 42);
+            }
+
+            public FieldTest () {
+              base.@construct ("field");
+
+              object = new MyObject ();
+              object.some_field = 42;
+            }
+          }
+
+          public MyObjectTestSuite () {
+            base ("my-object");
+            this.add (new FieldTest ());
+          }
+        }
+
+        class RootTestSuite : Gtu.TestSuite {
+          RootTestSuite () {
+            base ("my-project");
+            this.add (new MyObjectTestSuite ());
+          }
+
+          static int main (string[] args) {
+            Gtu.init (args);
+            var suite = new RootTestSuite ();
+            return suite.run ();
+          }
+        }
+      </programlisting>
+    </example>
+  </section>
 </section>

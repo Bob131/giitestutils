@@ -112,7 +112,16 @@ ret:
   return G_LOG_WRITER_HANDLED;
 }
 
+static void log_empty_test_plan (void) {
+  if (_gtu_test_plan_logged)
+    return;
+
+  fprintf (stdout, "1..0 # Skipped: no tests to run\n");
+}
+
 void _gtu_install_glib_loggers (void) {
   g_log_set_default_handler (glib_test_logger, NULL);
   g_log_set_writer_func (glib_structured_logger, NULL, NULL);
+
+  atexit (&log_empty_test_plan);
 }

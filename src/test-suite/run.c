@@ -11,6 +11,8 @@ typedef struct {
   GtuTestResult aborted_result;
 } GtuTestSuiteAbortData;
 
+bool _gtu_test_plan_logged = false;
+
 static bool result_is_abort (GtuTestResult result) {
   switch (result) {
     case GTU_TEST_RESULT_INVALID:
@@ -212,13 +214,12 @@ static void run_test (GtuTestCase* test_case, GtuTestSuiteRunData* data) {
 int _gtu_test_suite_run_internal (GPtrArray* tests) {
   GtuTestSuiteRunData data;
 
-  if (tests->len == 0) {
-    fprintf (stdout, "0..0\n");
+  if (tests->len == 0)
     return 0;
-  }
 
   if (!_gtu_get_test_mode ()->list_only)
     fprintf (stdout, "1..%d\n", tests->len);
+  _gtu_test_plan_logged = true;
 
   data.test_number = 1;
   g_ptr_array_foreach (tests, (GFunc) run_test, &data);

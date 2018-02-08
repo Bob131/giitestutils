@@ -1,5 +1,5 @@
 if ENABLE_CHECK_PROGS
-noinst_PROGRAMS = testc testvala
+noinst_PROGRAMS = testc testvala testempty
 
 testc_SOURCES = \
 	testc.c
@@ -24,6 +24,13 @@ testvala_CFLAGS = \
 testvala_LDADD = \
 	$(top_srcdir)/src/libgtu.a \
 	$(gtu_U_LIBS)
+
+testempty_SOURCES = \
+	testempty.c
+
+testempty_CFLAGS = $(testc_CFLAGS)
+
+testempty_LDADD = $(testc_LDADD)
 endif
 
 CLEANFILES = \

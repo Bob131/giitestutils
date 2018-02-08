@@ -2,7 +2,8 @@
 #include "test-suite/priv.h"
 
 typedef struct {
-  GPtrArray* children;
+  GPtrArray*  children;
+  GHashTable* child_names; /* set containing unowned strings */
 } GtuTestSuitePrivate;
 
 #define PRIVATE(obj) \
@@ -13,6 +14,7 @@ G_DEFINE_TYPE (GtuTestSuite, gtu_test_suite, GTU_TYPE_TEST_OBJECT)
 GtuTestSuiteChild* gtu_test_suite_add (GtuTestSuite* self,
                                        GtuTestObject* test_object)
 {
+  GtuTestSuitePrivate* priv;
   GtuTestObject* child;
 
   g_return_val_if_fail (GTU_IS_TEST_SUITE  (self),        NULL);
@@ -20,8 +22,17 @@ GtuTestSuiteChild* gtu_test_suite_add (GtuTestSuite* self,
   g_return_val_if_fail (gtu_test_object_get_parent_suite (test_object) == NULL,
                         NULL);
 
+  priv = PRIVATE (self);
+
+  /* ght_add returns TRUE if the insertion is unique */
+  g_return_val_if_fail (
+    g_hash_table_add (priv->child_names,
+                      (void*) gtu_test_object_get_name (test_object)),
+    NULL
+  );
+
   child = gtu_test_object_ref (test_object);
-  g_ptr_array_add (PRIVATE (self)->children, child);
+  g_ptr_array_add (priv->children, child);
   _gtu_test_object_set_parent_suite (child, self);
 
   return child;
@@ -68,8 +79,13 @@ int gtu_test_suite_run (GtuTestSuite* self) {
 }
 
 static void gtu_test_suite_finalize (GtuTestObject* self) {
-  g_ptr_array_free (PRIVATE (self)->children, true);
-  PRIVATE (self)->children = NULL;
+  GtuTestSuitePrivate* priv = PRIVATE (self);
+
+  g_ptr_array_free (priv->children, true);
+  priv->children = NULL;
+
+  g_hash_table_destroy (priv->child_names);
+  priv->child_names = NULL;
 
   GTU_TEST_OBJECT_CLASS (gtu_test_suite_parent_class)->finalize (self);
 }
@@ -95,6 +111,8 @@ static void propagate_signal (GtuTestSuite* self, void* data) {
 static void gtu_test_suite_init (GtuTestSuite* self) {
   PRIVATE (self)->children =
     g_ptr_array_new_with_free_func (gtu_test_object_unref);
+
+  PRIVATE (self)->child_names = g_hash_table_new (&g_str_hash, &g_str_equal);
 
   g_signal_connect (self,
                     "ancestry-changed",

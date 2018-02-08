@@ -11,8 +11,10 @@ static bool should_log (GLogLevelFlags log_level) {
     case G_LOG_LEVEL_ERROR:
     case G_LOG_LEVEL_CRITICAL:
     case G_LOG_LEVEL_WARNING:
-    case G_LOG_LEVEL_MESSAGE:
       return true;
+
+    case G_LOG_LEVEL_MESSAGE:
+      return !(gtu_test_mode_flags_get_flags () & GTU_TEST_MODE_FLAGS_QUIET);
 
     case G_LOG_LEVEL_INFO:
     case G_LOG_LEVEL_DEBUG:

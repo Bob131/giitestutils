@@ -56,9 +56,8 @@
       Test cases wishing to log additional information should do so via
       <link linkend="g-message"><function>g_message()</function></link> or
       <link linkend="g-log"><function>g_log()</function></link>; GTU installs
-      default log handlers to emit messages to the test log correctly. Using
-      the structured logging API is currently unsupported.  Test suites should
-      avoid installing their own default log handlers.
+      default log handlers to emit messages to the test log correctly. Test
+      suites should avoid installing their own default log handlers.
     </para>
 
     <para>

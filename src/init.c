@@ -47,6 +47,9 @@ GtuTestMode* _gtu_get_test_mode (void) {
 }
 
 static char* get_arg (char** args, int args_length, int i, const char* arg) {
+  if (args[i] == NULL)
+    return NULL;
+
   if (strncmp (args[i], arg, strlen (arg)) != 0)
     return NULL;
 
@@ -83,6 +86,8 @@ static bool parse_args (char** args, int args_length) {
   bool tap_set = false;
 
   for (i = 0; i < args_length; i++) {
+    g_assert (args[i] != NULL);
+
     if (strcmp (args[i], "--keep-going") == 0 ||
         strcmp (args[i], "-k") == 0)
     {

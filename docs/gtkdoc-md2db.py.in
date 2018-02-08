@@ -1,0 +1,16 @@
+from gtkdoc import md_to_db
+
+if __name__ == '__main__':
+    print ("""<?xml version="1.0"?>
+<!DOCTYPE para PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" []>
+<para>
+""")
+
+    with open (sys.argv[1], 'r') as f:
+        contents = f.read (-1)
+
+    md_to_db.Init ()
+    print (md_to_db.MarkDownParse (contents, ''))
+
+    print ("</para>")

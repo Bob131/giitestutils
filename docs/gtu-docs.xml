@@ -29,6 +29,7 @@
     <xi:include href="intro.xml"/>
     <xi:include href="getting-started.xml"/>
     <xi:include href="running-tests/main.xml"/>
+    <xi:include href="considerations/main.xml"/>
   </chapter>
 
   <chapter id="gtu-ApiRef">

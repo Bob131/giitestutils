@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
+]>
+<section id="gtu-Considerations">
+  <sectioninfo>
+    <title role="top_of_page" id="gtu-Considerations.top_of_page">Important Considerations</title>
+    <sectpurpose>Gotchas to look out for</sectpurpose>
+  </sectioninfo>
+
+  <toc></toc>
+
+  <section>
+    <title>Interoperation with the GLib test framework</title>
+    <para>
+      To minimise the amount of code (and the opportunity for bugs), GTU
+      depends on GLib test APIs for providing certain functionality. However,
+      we also rewrite functionality or hack around GLib's implementation when
+      it isn't sufficiently flexible for our purposes. The end result is that
+      much of GLib's test API cannot be used alongside GTU.
+    </para>
+
+    <para>
+      This is a list of GLib test functions that should work as normal:
+    </para>
+
+    <xi:include href="gfuncs-okay.xml"/>
+
+    <para>
+      The following is a (possibly incomplete) list of GLib functionality that
+      will provoke undefined behaviour if used in tandem with GTU:
+    </para>
+
+    <xi:include href="gfuncs-avoid.xml"/>
+
+    <para>
+      Additionally, test suites using GTU are incompatible with GLib's
+      <command>gtester</command> utility.
+    </para>
+  </section>
+
+  <section>
+    <title>Logging</title>
+    <para>
+      Test suites/cases should be careful not to write arbitrary data to
+      <varname>stdout</varname>, as this is the mechanism by which GTU
+      communicates with the test harness. Whilst writing to
+      <varname>stderr</varname> should be safe (as per the
+      <ulink url="http://testanything.org/tap-specification.html">TAP specification</ulink>),
+      it's recommended that this is avoided for the sake of test log legibility
+      and (potentially) compatibility with buggy test harnesses.
+    </para>
+
+    <para>
+      Test cases wishing to log additional information should do so via
+      <link linkend="g-message"><function>g_message()</function></link> or
+      <link linkend="g-log"><function>g_log()</function></link>; GTU installs
+      default log handlers to emit messages to the test log correctly. Using
+      the structured logging API is currently unsupported.  Test suites should
+      avoid installing their own default log handlers.
+    </para>
+
+    <para>
+      Test case writers are encouraged (but not required) to consider whether
+      some logged information is essential to the test log. Most test case
+      output can likely be hidden behind a check for
+      <link linkend="GTU-TEST-MODE-FLAGS-VERBOSE:CAPS"><constant>GTU_TEST_MODE_FLAGS_VERBOSE</constant></link>.
+      No such consideration is required for
+      <link linkend="GTU-TEST-MODE-FLAGS-QUIET:CAPS"><constant>GTU_TEST_MODE_FLAGS_QUIET</constant></link>,
+      as this is handled automatically by GTU.
+    </para>
+  </section>
+</section>

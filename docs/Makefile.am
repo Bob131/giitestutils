@@ -10,6 +10,10 @@ MKDB_OPTIONS = --xml-mode --output-format=xml
 
 HFILE_GLOB = $(top_srcdir)/include/gtu*.h
 
+md2db_files = \
+	considerations/gfuncs-okay.xml \
+	considerations/gfuncs-avoid.xml
+
 content_files = \
 	intro.xml \
 	getting-started.xml \
@@ -17,7 +21,9 @@ content_files = \
 	running-tests/mode-list.xml \
 	running-tests/args.xml \
 	running-tests/make-vars.xml \
-	running-tests/env-vars.xml
+	running-tests/env-vars.xml \
+	considerations/main.xml \
+	$(md2db_files)
 
 GTKDOC_CFLAGS = -I$(top_srcdir)/include
 GTKDOC_LIBS = $(top_srcdir)/src/libgtu.a
@@ -67,7 +73,17 @@ gtkdoc-config.py.tmp:
 		grep sys.path.append $(GTKDOC_CHECK_PATH) >> $@; \
 	)
 
-CLEANFILES += gtkdoc-config.py.tmp
+gtkdoc-md2db.py: gtkdoc-md2db.py.in gtkdoc-config.py.tmp
+	$(AM_V_GEN) ( \
+		cat gtkdoc-config.py.tmp > $@; \
+		cat $< >> $@; \
+		chmod +x $@; \
+	)
+
+$(md2db_files): %.xml: %.md gtkdoc-md2db.py
+	$(AM_V_GEN) ./gtkdoc-md2db.py $< > $@
+
+CLEANFILES += $(md2db_files) gtkdoc-md2db.py gtkdoc-config.py.tmp
 
 
 html-build.stamp: gtk-doc.xsl style

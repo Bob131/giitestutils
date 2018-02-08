@@ -65,12 +65,18 @@ static void glib_test_logger (const char* log_domain, GLogLevelFlags log_level,
 {
   (void) data;
 
-  if (should_log (log_level))
-    fprintf (stdout, "# %s%s%s: %s\n",
+  if (should_log (log_level)) {
+    if (log_level & G_LOG_FLAG_FATAL)
+      fprintf (stdout, "Bail out!");
+    else
+      fprintf (stdout, "#");
+
+    fprintf (stdout, " %s%s%s: %s\n",
              log_domain != NULL ? log_domain : "",
              log_domain != NULL ? "-" : "",
              level_to_string (log_level),
              message);
+  }
 }
 
 static GLogWriterOutput glib_structured_logger (GLogLevelFlags log_level,

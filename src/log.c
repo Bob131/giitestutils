@@ -3,6 +3,8 @@
 
 /* TAP-compliant GLib message handling */
 
+static bool has_logged_plan = false;
+
 static bool should_log (GLogLevelFlags log_level) {
   if (log_level & G_LOG_FLAG_FATAL)
     return true;
@@ -113,7 +115,7 @@ ret:
 }
 
 static void log_empty_test_plan (void) {
-  if (_gtu_test_plan_logged)
+  if (has_logged_plan || _gtu_get_test_mode ()->list_only)
     return;
 
   fprintf (stdout, "1..0 # Skipped: no tests to run\n");
@@ -124,4 +126,90 @@ void _gtu_install_glib_loggers (void) {
   g_log_set_writer_func (glib_structured_logger, NULL, NULL);
 
   atexit (&log_empty_test_plan);
+}
+
+void _gtu_log_printf (const char* format, ...) {
+  char* message;
+  va_list args;
+  int i;
+  char buf;
+
+  va_start (args, format);
+  message = g_strdup_vprintf (format, args);
+
+  /* To be TAP-compliant, lines written to stdout that aren't test results must
+     be prefixed with '#'. We iterate through `message', printing "# " after
+     every newline unless it's a trailing newline. */
+  for (i = 0, buf = '\n'; message[i] != '\0'; fputc (buf, stdout), i++) {
+    if (buf == '\n')
+      fprintf (stdout, "# ");
+    buf = message[i];
+  }
+
+  if (buf != '\n')
+    fprintf (stdout, "\n");
+
+  g_free (message);
+}
+
+void _gtu_log_test_plan (unsigned n_tests) {
+  g_assert (!has_logged_plan);
+
+  if (!_gtu_get_test_mode ()->list_only) {
+    if (n_tests == 0)
+      log_empty_test_plan ();
+    else
+      fprintf (stdout, "1..%u\n", n_tests);
+  }
+
+  has_logged_plan = true;
+}
+
+void _gtu_log_test_result (GtuTestResult result,
+                           const char* path,
+                           const char* message)
+{
+  static unsigned test_number = 1;
+
+  g_assert (path != NULL);
+
+  switch (result) {
+    case GTU_TEST_RESULT_PASS:
+    case GTU_TEST_RESULT_SKIP:
+      fprintf (stdout, "ok");
+      break;
+
+    case GTU_TEST_RESULT_FAIL:
+      fprintf (stdout, "not ok");
+      break;
+
+    default:
+      g_assert_not_reached ();
+  }
+
+  fprintf (stdout, " %d ", test_number++);
+  fprintf (stdout, path);
+  fprintf (stdout, " # ");
+
+  switch (result) {
+    case GTU_TEST_RESULT_PASS:
+      fprintf (stdout, "PASS");
+      break;
+
+    case GTU_TEST_RESULT_SKIP:
+      fprintf (stdout, "SKIP");
+      break;
+
+    case GTU_TEST_RESULT_FAIL:
+      fprintf (stdout, "FAIL");
+      break;
+
+    default:
+      g_assert_not_reached ();
+  }
+
+  if (message != NULL)
+    fprintf (stdout, " %s", message);
+
+  fprintf (stdout, "\n");
 }

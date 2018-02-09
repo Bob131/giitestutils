@@ -131,10 +131,10 @@ static bool parse_args (char** args, int args_length) {
   if (!keep_going_set)
     _debug_flags |= GTU_DEBUG_FLAGS_FATAL_ASSERTS;
 
-  /* this shouldn't necessarily be fatal, so just printf TAP-style */
+  /* this shouldn't necessarily be fatal, so just log */
   if (!tap_set && !_test_mode.list_only)
-    fprintf (stdout, "# WARNING: non-TAP test logging is unsupported. %s\n",
-             "Run with --tap");
+    _gtu_log_printf ("WARNING: non-TAP test logging is unsupported. %s\n",
+                     "Run with --tap");
 
   return tap_set;
 }

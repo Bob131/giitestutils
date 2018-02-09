@@ -53,6 +53,4 @@ G_GNUC_INTERNAL GtuTestMode* _gtu_get_test_mode (void);
 
 G_GNUC_INTERNAL bool _gtu_path_element_is_valid (const char* element);
 
-G_GNUC_INTERNAL extern bool _gtu_test_plan_logged;
-
 #endif

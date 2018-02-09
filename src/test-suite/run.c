@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "test-suite/priv.h"
+#include "log.h"
 
 typedef struct {
   int test_number;
@@ -10,8 +11,6 @@ typedef struct {
   GtuPath*      aborted_path;
   GtuTestResult aborted_result;
 } GtuTestSuiteAbortData;
-
-bool _gtu_test_plan_logged = false;
 
 static bool result_is_abort (GtuTestResult result) {
   switch (result) {
@@ -167,59 +166,16 @@ static void run_test (GtuTestCase* test_case, GtuTestSuiteRunData* data) {
     }
   }
 
-  switch (result) {
-    case GTU_TEST_RESULT_PASS:
-    case GTU_TEST_RESULT_SKIP:
-      fprintf (stdout, "ok");
-      break;
+  _gtu_log_test_result (result, gtu_path_to_string (path), message);
 
-    case GTU_TEST_RESULT_FAIL:
-      fprintf (stdout, "not ok");
-      data->n_failed++;
-      break;
-
-    default:
-      g_assert_not_reached ();
-  }
-
-  fprintf (stdout, " %d ", data->test_number++);
-  fprintf (stdout, gtu_path_to_string (path));
-  fprintf (stdout, " # ");
-
-  switch (result) {
-    case GTU_TEST_RESULT_PASS:
-      fprintf (stdout, "PASS");
-      break;
-
-    case GTU_TEST_RESULT_SKIP:
-      fprintf (stdout, "SKIP");
-      break;
-
-    case GTU_TEST_RESULT_FAIL:
-      fprintf (stdout, "FAIL");
-      break;
-
-    default:
-      g_assert_not_reached ();
-  }
-
-  if (message != NULL) {
-    fprintf (stdout, " %s", message);
+  if (message != NULL)
     g_free (message);
-  }
-
-  fprintf (stdout, "\n");
 }
 
 int _gtu_test_suite_run_internal (GPtrArray* tests) {
   GtuTestSuiteRunData data;
 
-  if (tests->len == 0)
-    return 0;
-
-  if (!_gtu_get_test_mode ()->list_only)
-    fprintf (stdout, "1..%d\n", tests->len);
-  _gtu_test_plan_logged = true;
+  _gtu_log_test_plan (tests->len);
 
   data.test_number = 1;
   g_ptr_array_foreach (tests, (GFunc) run_test, &data);

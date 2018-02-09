@@ -61,9 +61,9 @@ int gtu_test_suite_run (GtuTestSuite* self) {
 
   static bool has_run = false;
 
-  g_return_val_if_fail (gtu_has_initialized (),   TEST_ERROR);
-  g_return_val_if_fail (!has_run,                 TEST_ERROR);
-  g_return_val_if_fail (GTU_IS_TEST_SUITE (self), TEST_ERROR);
+  g_return_val_if_fail (gtu_has_initialized (),   1);
+  g_return_val_if_fail (!has_run,                 1);
+  g_return_val_if_fail (GTU_IS_TEST_SUITE (self), 1);
 
   gtu_test_object_sink (self);
 

@@ -3,6 +3,9 @@
 
 /* TAP-compliant GLib message handling */
 
+/* exit status to signal an error to the automake harness */
+#define TEST_ERROR ((int) 99)
+
 static bool has_logged_plan = false;
 
 static bool should_log (GLogLevelFlags log_level) {
@@ -78,6 +81,9 @@ static void glib_test_logger (const char* log_domain, GLogLevelFlags log_level,
              log_domain != NULL ? "-" : "",
              level_to_string (log_level),
              message);
+
+    if (log_level & G_LOG_FLAG_FATAL)
+      exit (TEST_ERROR);
   }
 }
 
@@ -108,6 +114,11 @@ static GLogWriterOutput glib_structured_logger (GLogLevelFlags log_level,
 
     if (value != NULL)
       g_free (value);
+  }
+
+  if (log_level & G_LOG_FLAG_FATAL) {
+    fprintf (stdout, "Bail out!\n");
+    exit (TEST_ERROR);
   }
 
 ret:

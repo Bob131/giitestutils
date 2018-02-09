@@ -265,36 +265,6 @@ distclean-local:
 maintainer-clean-local:
 	@rm -rf xml html
 
-install-data-local:
-	@installfiles=`echo $(builddir)/html/*`; \
-	if test "$$installfiles" = '$(builddir)/html/*'; \
-	then echo 1>&2 'Nothing to install' ; \
-	else \
-	  if test -n "$(DOC_MODULE_VERSION)"; then \
-	    installdir="$(DESTDIR)$(TARGET_DIR)-$(DOC_MODULE_VERSION)"; \
-	  else \
-	    installdir="$(DESTDIR)$(TARGET_DIR)"; \
-	  fi; \
-	  $(mkinstalldirs) $${installdir} ; \
-	  for i in $$installfiles; do \
-	    echo ' $(INSTALL_DATA) '$$i ; \
-	    $(INSTALL_DATA) $$i $${installdir}; \
-	  done; \
-	  if test -n "$(DOC_MODULE_VERSION)"; then \
-	    mv -f $${installdir}/$(DOC_MODULE).devhelp2 \
-	      $${installdir}/$(DOC_MODULE)-$(DOC_MODULE_VERSION).devhelp2; \
-	  fi; \
-	  $(GTKDOC_REBASE) --relative --dest-dir=$(DESTDIR) --html-dir=$${installdir}; \
-	fi
-
-uninstall-local:
-	@if test -n "$(DOC_MODULE_VERSION)"; then \
-	  installdir="$(DESTDIR)$(TARGET_DIR)-$(DOC_MODULE_VERSION)"; \
-	else \
-	  installdir="$(DESTDIR)$(TARGET_DIR)"; \
-	fi; \
-	rm -rf $${installdir}
-
 #
 # Require gtk-doc when making dist
 #

@@ -16,9 +16,8 @@
         <term>fatal-asserts</term>
         <listitem>
           <para>
-            Causes GTU to abort upon the failure of any GTU assertions. See
-            <xref linkend="gtu-Asserts" endterm="gtu-Asserts.top_of_page"/>
-            for more information.
+            Causes GTU to abort upon the failure of any GTU assertions. This is
+            useful for getting a coredump when debugging test cases.
           </para>
         </listitem>
       </varlistentry>

@@ -47,6 +47,10 @@ void _gtu_assertion_message (const char* file,
   if (_gtu_debug_flags_get () & GTU_DEBUG_FLAGS_FATAL_ASSERTS) {
     g_printerr ("**\nERROR:%s\n", location_message);
     abort ();
+  } else if (!_gtu_keep_going) {
+    g_log (GTU_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE | G_LOG_FLAG_FATAL,
+           location_message);
+    g_assert_not_reached ();
   }
 
   _current_tr_context->message = location_message;

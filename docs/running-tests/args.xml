@@ -50,7 +50,7 @@
         </term>
         <listitem>
           <para>
-            Specifies whether the program should abort when a test fails.
+            Specifies whether the test suite should bail out when a test fails.
           </para>
         </listitem>
       </varlistentry>

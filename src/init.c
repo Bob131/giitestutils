@@ -26,6 +26,8 @@ static const GDebugKey _debug_keys[] = {
 static GtuDebugFlags _debug_flags = GTU_DEBUG_FLAGS_NONE;
 static bool _has_initialized = false;
 
+bool _gtu_keep_going;
+
 G_GNUC_INTERNAL GtuDebugFlags _gtu_debug_flags_get (void) {
   g_assert (_has_initialized);
   return _debug_flags;
@@ -82,8 +84,9 @@ static char* get_arg (char** args, int args_length, int i, const char* arg) {
 
 static bool parse_args (char** args, int args_length) {
   int i;
-  bool keep_going_set = false;
   bool tap_set = false;
+
+  _gtu_keep_going = false;
 
   for (i = 0; i < args_length; i++) {
     g_assert (args[i] != NULL);
@@ -91,7 +94,7 @@ static bool parse_args (char** args, int args_length) {
     if (strcmp (args[i], "--keep-going") == 0 ||
         strcmp (args[i], "-k") == 0)
     {
-      keep_going_set = true;
+      _gtu_keep_going = true;
 
     } else if (strcmp (args[i], "--tap") == 0) {
       tap_set = true;
@@ -127,9 +130,6 @@ static bool parse_args (char** args, int args_length) {
              "unsupported command line argument: %s", args[i]);
     }
   }
-
-  if (!keep_going_set)
-    _debug_flags |= GTU_DEBUG_FLAGS_FATAL_ASSERTS;
 
   /* this shouldn't necessarily be fatal, so just log */
   if (!tap_set && !_test_mode.list_only)
@@ -171,15 +171,11 @@ void gtu_init (char** args, int args_length) {
   }
 
   if (!_has_initialized) {
-    /* or-eq so we don't overwrite the -k argument */
-    _debug_flags |= g_parse_debug_string (
+    _debug_flags = g_parse_debug_string (
         getenv (GTU_DEBUG),
         _debug_keys,
         G_N_ELEMENTS (_debug_keys)
     );
-
-    if (!(_debug_flags & GTU_DEBUG_FLAGS_FATAL_ASSERTS))
-      g_test_set_nonfatal_assertions ();
 
     _gtu_install_glib_loggers ();
 

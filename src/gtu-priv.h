@@ -15,6 +15,9 @@ typedef enum {
 
 G_GNUC_INTERNAL GtuDebugFlags _gtu_debug_flags_get (void);
 
+/* whether we should bail out if a test fails */
+G_GNUC_INTERNAL extern bool _gtu_keep_going;
+
 G_GNUC_INTERNAL void _gtu_test_object_set_parent_suite (GtuTestObject* self,
                                                         GtuTestSuite* parent);
 

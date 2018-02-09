@@ -181,6 +181,17 @@ void gtu_test_object_unref (void* instance) {
   }
 }
 
+void* gtu_test_object_sink (void* instance) {
+  GtuTestObjectPrivate* priv;
+
+  g_return_val_if_fail (GTU_IS_TEST_OBJECT (instance), NULL);
+
+  priv = PRIVATE (instance);
+  g_atomic_int_set (&priv->is_floating, 0);
+
+  return instance;
+}
+
 const char* gtu_test_object_get_name (GtuTestObject* self) {
   GtuTestObjectPrivate* priv;
 

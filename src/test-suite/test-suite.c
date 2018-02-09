@@ -65,6 +65,8 @@ int gtu_test_suite_run (GtuTestSuite* self) {
   g_return_val_if_fail (!has_run,                 TEST_ERROR);
   g_return_val_if_fail (GTU_IS_TEST_SUITE (self), TEST_ERROR);
 
+  gtu_test_object_sink (self);
+
   tests = g_ptr_array_new ();
   _gtu_test_object_collect_tests (GTU_TEST_OBJECT (self), tests);
 

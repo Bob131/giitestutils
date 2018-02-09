@@ -95,6 +95,16 @@ void gtu_test_object_unref (void* instance);
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtuTestObject, gtu_test_object_unref)
 
 /**
+ * gtu_test_object_sink:
+ * @instance: (type Gtu.TestObject): an instance of a #GtuTestObject type.
+ *
+ * If @instance is floating, sink the reference. Otherwise, do nothing.
+ *
+ * Returns: (type Gtu.TestObject): a sunken reference to @instance.
+ */
+void* gtu_test_object_sink (void* instance);
+
+/**
  * gtu_test_object_get_name:
  * @self: an instance of a #GtuTestObject type.
  *

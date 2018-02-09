@@ -71,19 +71,22 @@ static void glib_test_logger (const char* log_domain, GLogLevelFlags log_level,
   (void) data;
 
   if (should_log (log_level)) {
-    if (log_level & G_LOG_FLAG_FATAL)
-      fprintf (stdout, "Bail out!");
-    else
-      fprintf (stdout, "#");
+    char* fmtmsg;
 
-    fprintf (stdout, " %s%s%s: %s\n",
-             log_domain != NULL ? log_domain : "",
-             log_domain != NULL ? "-" : "",
-             level_to_string (log_level),
-             message);
+    fmtmsg = g_strdup_printf ("%s%s%s: %s\n",
+                              log_domain != NULL ? log_domain : "",
+                              log_domain != NULL ? "-" : "",
+                              level_to_string (log_level),
+                              message);
 
-    if (log_level & G_LOG_FLAG_FATAL)
+    if (log_level & G_LOG_FLAG_FATAL) {
+      fprintf (stdout, "Bail out! %s", fmtmsg);
       exit (TEST_ERROR);
+
+    } else {
+      _gtu_log_printf (fmtmsg);
+      g_free (fmtmsg);
+    }
   }
 }
 
@@ -99,8 +102,8 @@ static GLogWriterOutput glib_structured_logger (GLogLevelFlags log_level,
   if (!should_log (log_level))
     goto ret;
 
-  fprintf (stdout, "# %s: new structured message:\n",
-           level_to_string (log_level));
+  _gtu_log_printf ("%s: new structured message:\n",
+                   level_to_string (log_level));
 
   for (i = 0; i < n_fields; i++) {
     char* value = NULL;
@@ -108,9 +111,9 @@ static GLogWriterOutput glib_structured_logger (GLogLevelFlags log_level,
     if (fields[i].length == -1)
       value = g_strescape ((const char*) fields[i].value, "\t'\"");
 
-    fprintf (stdout, "#   '%s': %s\n",
-             fields[i].key,
-             value != NULL ? value : "<binary data>");
+    _gtu_log_printf ("  '%s': %s\n",
+                     fields[i].key,
+                     value != NULL ? value : "<binary data>");
 
     if (value != NULL)
       g_free (value);

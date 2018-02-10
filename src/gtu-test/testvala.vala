@@ -16,6 +16,19 @@ class TestCase : Gtu.TestCase {
     }
 }
 
+class ExpectCase : Gtu.TestCase {
+    protected override void test_impl () {
+        var handle = this.expect_message ("asdf", LogLevelFlags.LEVEL_CRITICAL,
+                                          /klasdf/);
+        log ("asdf", LogLevelFlags.LEVEL_CRITICAL, "klasdf");
+        assert (this.expect_check (handle));
+    }
+
+    public ExpectCase (string name) {
+        base.@construct (name);
+    }
+}
+
 class TestSuite : Gtu.TestSuite {
     public TestCase a {set; get;}
     public TestCase b {set; get;}
@@ -28,6 +41,8 @@ class TestSuite : Gtu.TestSuite {
 
         this.add (a);
         this.add (b);
+
+        this.add (new ExpectCase ("regex"));
     }
 }
 

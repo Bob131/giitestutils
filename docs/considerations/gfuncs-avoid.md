@@ -105,7 +105,7 @@
 
       <row>
         <entry>g_test_log_set_fatal_handler()</entry>
-        <entry><emphasis role="bold">NONE</emphasis></entry>
+        <entry>None: see gtu_test_case_expect_message().</entry>
       </row>
 
       <row>
@@ -134,7 +134,10 @@
           <para>g_test_expect_message()</para>
           <para>g_test_assert_expected_messages()</para>
         </entry>
-        <entry><emphasis role="bold">NONE</emphasis></entry>
+        <entry>
+          <para>gtu_test_case_expect_message()</para>
+          <para>gtu_test_case_expect_check()</para>
+        </entry>
       </row>
 
       <row>

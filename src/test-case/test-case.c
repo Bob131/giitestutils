@@ -5,16 +5,41 @@ typedef struct {
   GtuTestCaseFunc   func;
   void*             func_target;
   GDestroyNotify    func_target_destroy;
-  GPtrArray*        dependencies; /* array of GtuTestObject */
+  GPtrArray*        dependencies;  /* array of GtuTestObject */
+  GArray*           expected_msgs; /* array of ExpectedMessage */
   GtuTestResult     result;
-  bool              has_disposed; /* FALSE if we're valid, TRUE if we've been
-                                     executed and subsequently freed all
-                                     internally held resources. */
+  bool              has_disposed;  /* FALSE if we're valid, TRUE if we've been
+                                      executed and subsequently freed all
+                                      internally held resources. */
 } GtuTestCasePrivate;
 
 #define PRIVATE(obj) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GTU_TYPE_TEST_CASE, GtuTestCasePrivate))
 G_DEFINE_TYPE (GtuTestCase, gtu_test_case, GTU_TYPE_TEST_OBJECT)
+
+typedef struct {
+  char*          domain;
+  GRegex*        regex;
+  volatile int   match_count;
+  GLogLevelFlags flags;
+} ExpectedMessage;
+
+GtuTestCase* _gtu_current_test = NULL;
+
+static void expected_message_dispose (ExpectedMessage* expected) {
+  if (expected->domain) {
+    g_free (expected->domain);
+    expected->domain = NULL;
+  }
+
+  if (expected->regex) {
+    g_regex_unref (expected->regex);
+    expected->regex = NULL;
+  }
+
+  expected->match_count = 0;
+  expected->flags = 0;
+}
 
 static void test_case_dispose (GtuTestCase* self) {
   GtuTestCasePrivate* priv;
@@ -34,10 +59,15 @@ static void test_case_dispose (GtuTestCase* self) {
   priv->func_target = NULL;
   priv->func_target_destroy = NULL;
 
-  if (priv->dependencies)
+  if (priv->dependencies) {
     g_ptr_array_free (priv->dependencies, true);
+    priv->dependencies = NULL;
+  }
 
-  priv->dependencies = NULL;
+  if (priv->expected_msgs) {
+    g_array_free (priv->expected_msgs, true);
+    priv->expected_msgs = NULL;
+  }
 
   priv->has_disposed = true;
 }
@@ -51,8 +81,13 @@ GtuTestResult _gtu_test_case_run (GtuTestCase* self, char** out_message) {
   priv = PRIVATE (self);
 
   if (priv->result == GTU_TEST_RESULT_INVALID) {
+    g_assert (_gtu_current_test == NULL);
+    _gtu_current_test = self;
+
     priv->result =
       _gtu_test_case_exec_inner (priv->func, priv->func_target, &message);
+
+    _gtu_current_test = NULL;
 
     test_case_dispose (self);
   }
@@ -93,6 +128,80 @@ GtuTestCase* gtu_test_case_with_dep (GtuTestCase* self,
   return self;
 }
 
+GtuExpectHandle gtu_test_case_expect_message (GtuTestCase* self,
+                                              const char* domain,
+                                              GLogLevelFlags level,
+                                              GRegex* regex)
+{
+  GtuTestCasePrivate* priv;
+  GtuExpectHandle ret;
+  ExpectedMessage* msg;
+
+  g_return_val_if_fail (GTU_IS_TEST_CASE (self),              -1);
+  g_return_val_if_fail (domain != NULL && domain[0] != '\0',  -1);
+  g_return_val_if_fail (strcmp (GTU_LOG_DOMAIN, domain) != 0, -1);
+
+  priv = PRIVATE (self);
+  ret = priv->expected_msgs->len;
+
+  g_array_set_size (priv->expected_msgs, ret + 1);
+  msg = &g_array_index (priv->expected_msgs, ExpectedMessage, ret);
+
+  msg->domain = g_strdup (domain);
+  msg->regex = regex;
+  msg->flags = level;
+
+  return ret;
+}
+
+bool gtu_test_case_expect_check (GtuTestCase* self, GtuExpectHandle handle) {
+  GtuTestCasePrivate* priv;
+  ExpectedMessage* msg;
+
+  g_return_val_if_fail (GTU_IS_TEST_CASE (self), false);
+  priv = PRIVATE (self);
+
+  g_return_val_if_fail (handle < priv->expected_msgs->len, false);
+  msg = &g_array_index (priv->expected_msgs, ExpectedMessage, handle);
+
+  return msg->match_count > 0;
+}
+
+bool _gtu_test_case_handle_message (GtuTestCase* self,
+                                    const char* domain,
+                                    GLogLevelFlags level,
+                                    const char* message)
+{
+  unsigned i;
+  GtuTestCasePrivate* priv;
+
+  g_assert (GTU_IS_TEST_CASE (self));
+  g_assert (message != NULL);
+
+  if (domain == NULL || strcmp (domain, GTU_LOG_DOMAIN) == 0)
+    return false;
+
+  priv = PRIVATE (self);
+
+  for (i = 0; i < priv->expected_msgs->len; i++) {
+    ExpectedMessage* expect =
+      &g_array_index (priv->expected_msgs, ExpectedMessage, i);
+
+    if (strcmp (expect->domain, domain) != 0)
+      continue;
+
+    if ((level & expect->flags) == 0)
+      continue;
+
+    if (g_regex_match (expect->regex, message, G_REGEX_MATCH_NOTEMPTY, NULL)) {
+      g_atomic_int_inc (&expect->match_count);
+      return true;
+    }
+  }
+
+  return false;
+}
+
 static void gtu_test_case_finalize (GtuTestObject* self) {
   test_case_dispose (GTU_TEST_CASE (self));
   GTU_TEST_OBJECT_CLASS (gtu_test_case_parent_class)->finalize (self);
@@ -109,12 +218,17 @@ static void gtu_test_case_class_init (GtuTestCaseClass* klass) {
 }
 
 static void gtu_test_case_init (GtuTestCase* self) {
-  PRIVATE (self)->dependencies =
-    g_ptr_array_new_with_free_func (gtu_test_object_unref);
+  GtuTestCasePrivate* priv = PRIVATE (self);
 
-  PRIVATE (self)->result = GTU_TEST_RESULT_INVALID;
+  priv->dependencies = g_ptr_array_new_with_free_func (gtu_test_object_unref);
 
-  PRIVATE (self)->has_disposed = false;
+  priv->expected_msgs = g_array_new (false, true, sizeof (ExpectedMessage));
+  g_array_set_clear_func (priv->expected_msgs,
+                          (GDestroyNotify) &expected_message_dispose);
+
+  priv->result = GTU_TEST_RESULT_INVALID;
+
+  priv->has_disposed = false;
 }
 
 static bool _gtu_test_case_construct_internal (GType type,

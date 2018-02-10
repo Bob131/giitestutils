@@ -84,8 +84,8 @@ GtuTestCase* gtu_test_case_new (const char* name,
 
 /**
  * gtu_test_case_construct:
- * @type:                subtype of %GTU_TYPE_TEST_CASE.
- * @name:                the name of the new test case.
+ * @type: subtype of %GTU_TYPE_TEST_CASE.
+ * @name: the name of the new test case.
  *
  * Base constructor for types deriving from #GtuTestCase. For creating a plain
  * new test case, see gtu_test_case_new() instead.
@@ -133,6 +133,63 @@ void gtu_test_case_add_dependency (GtuTestCase* self,
  */
 GtuTestCase* gtu_test_case_with_dep (GtuTestCase* self,
                                      GtuTestSuiteChild* test_object);
+
+/**
+ * GtuExpectHandle:
+ *
+ * Handle representing a log match expression.
+ */
+typedef unsigned GtuExpectHandle;
+
+/**
+ * gtu_test_case_expect_message:
+ * @self:   #GtuTestCase that's expected to generate a message.
+ * @domain: log domain expecting message.
+ * @level:  flags to check messages against.
+ * @regex:  (transfer full): regular expression we expect the message will
+ *          match.
+ *
+ * Indicates to the test runner that we're expecting a message from g_log() or
+ * g_log_structured() matching the provided parameters. If a message is from
+ * @domain, has a log level with bits in common with @level and has text
+ * matching @regex, the message will be considered a match.
+ *
+ * Matching messages will be omitted from the test log, unless
+ * %GTU_TEST_MODE_FLAGS_VERBOSE is set. If an otherwise fatal message matching
+ * the parameters has been logged, the test suite won't be aborted but will
+ * continue as normal instead.
+ *
+ * The @domain parameter mustn't be %NULL or empty; this mechanism does not
+ * support matching messages from the default log domain. The result of
+ * attempting to match messages from %GTU_LOG_DOMAIN is undefined.
+ *
+ * @level is treated as a mask. If any common bits between a message and @level
+ * are set, the message may be a match.
+ *
+ * The contents of the message are checked against @regex. If the regex
+ * matches, the message may be a match. This function takes the caller's
+ * reference to @regex; you should not unref the object after the call
+ * completes.
+ *
+ * Returns: a handle that can be used to query the match state.
+ */
+GtuExpectHandle gtu_test_case_expect_message (GtuTestCase* self,
+                                              const char* domain,
+                                              GLogLevelFlags level,
+                                              GRegex* regex);
+
+/**
+ * gtu_test_case_expect_check:
+ * @self:   a #GtuTestCase instance.
+ * @handle: a #GtuExpectHandle whose status will be queried.
+ *
+ * Checks whether any messages have been logged that match @handle.
+ *
+ * See gtu_test_case_expect_message().
+ *
+ * Returns: %TRUE if a matching message has been logged, %FALSE otherwise.
+ */
+bool gtu_test_case_expect_check (GtuTestCase* self, GtuExpectHandle handle);
 
 G_END_DECLS
 

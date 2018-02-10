@@ -73,6 +73,9 @@ namespace Gtu {
         private TestObject ();
     }
 
+    [SimpleType]
+    public struct ExpectHandle {}
+
     public class TestCase : TestObject {
         public delegate void Func ();
 
@@ -80,6 +83,11 @@ namespace Gtu {
 
         public void add_dependency (TestSuite.Child test_object);
         public unowned TestCase with_dep (TestSuite.Child test_object);
+
+        public ExpectHandle expect_message (string domain,
+                                            GLib.LogLevelFlags level,
+                                            owned GLib.Regex regex);
+        public bool expect_check (ExpectHandle handle);
 
         [CCode (has_construct_function = false)]
         public TestCase (string name, owned Func func);

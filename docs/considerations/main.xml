@@ -64,7 +64,10 @@
       Test case writers are encouraged (but not required) to consider whether
       some logged information is essential to the test log. Most test case
       output can likely be hidden behind a check for
-      <link linkend="GTU-TEST-MODE-FLAGS-VERBOSE:CAPS"><constant>GTU_TEST_MODE_FLAGS_VERBOSE</constant></link>.
+      <link linkend="GTU-TEST-MODE-FLAGS-VERBOSE:CAPS"><constant>GTU_TEST_MODE_FLAGS_VERBOSE</constant></link>
+      (done automatically for messages logged with
+      <link linkend="g-info"><function>g_info()</function></link> and
+      <link linkend="g-debug"><function>g_debug()</function></link>).
       No such consideration is required for
       <link linkend="GTU-TEST-MODE-FLAGS-QUIET:CAPS"><constant>GTU_TEST_MODE_FLAGS_QUIET</constant></link>,
       as this is handled automatically by GTU.

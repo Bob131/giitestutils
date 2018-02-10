@@ -22,6 +22,8 @@ class ExpectCase : Gtu.TestCase {
                                           /klasdf/);
         log ("asdf", LogLevelFlags.LEVEL_CRITICAL, "klasdf");
         assert (this.expect_check (handle));
+        assert (this.expect_count (handle) == 1);
+        assert (!this.expect_check (handle));
     }
 
     public ExpectCase (string name) {

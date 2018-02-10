@@ -88,6 +88,7 @@ namespace Gtu {
                                             GLib.LogLevelFlags level,
                                             owned GLib.Regex regex);
         public bool expect_check (ExpectHandle handle);
+        public uint expect_count (ExpectHandle handle);
 
         [CCode (has_construct_function = false)]
         public TestCase (string name, owned Func func);

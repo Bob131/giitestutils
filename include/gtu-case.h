@@ -191,6 +191,18 @@ GtuExpectHandle gtu_test_case_expect_message (GtuTestCase* self,
  */
 bool gtu_test_case_expect_check (GtuTestCase* self, GtuExpectHandle handle);
 
+/**
+ * gtu_test_case_expect_count:
+ * @self:   a #GtuTestCase instance.
+ * @handle: a #GtuExpectHandle whose status will be queried.
+ *
+ * Gets how many messages matching @handle have been logged and resets the
+ * counter.
+ *
+ * Returns: the number of logged messages matching @handle.
+ */
+unsigned gtu_test_case_expect_count (GtuTestCase* self, GtuExpectHandle handle);
+
 G_END_DECLS
 
 #endif

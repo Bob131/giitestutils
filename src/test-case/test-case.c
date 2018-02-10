@@ -20,7 +20,12 @@ G_DEFINE_TYPE (GtuTestCase, gtu_test_case, GTU_TYPE_TEST_OBJECT)
 typedef struct {
   char*          domain;
   GRegex*        regex;
-  volatile int   match_count;
+
+  union {
+    volatile int s;
+    volatile unsigned u;
+  } match_count;
+
   GLogLevelFlags flags;
 } ExpectedMessage;
 
@@ -37,7 +42,7 @@ static void expected_message_dispose (ExpectedMessage* expected) {
     expected->regex = NULL;
   }
 
-  expected->match_count = 0;
+  expected->match_count.s = 0;
   expected->flags = 0;
 }
 
@@ -164,7 +169,22 @@ bool gtu_test_case_expect_check (GtuTestCase* self, GtuExpectHandle handle) {
   g_return_val_if_fail (handle < priv->expected_msgs->len, false);
   msg = &g_array_index (priv->expected_msgs, ExpectedMessage, handle);
 
-  return msg->match_count > 0;
+  return msg->match_count.u > 0;
+}
+
+unsigned gtu_test_case_expect_count (GtuTestCase* self,
+                                     GtuExpectHandle handle)
+{
+  GtuTestCasePrivate* priv;
+  ExpectedMessage* msg;
+
+  g_return_val_if_fail (GTU_IS_TEST_CASE (self), false);
+  priv = PRIVATE (self);
+
+  g_return_val_if_fail (handle < priv->expected_msgs->len, false);
+  msg = &g_array_index (priv->expected_msgs, ExpectedMessage, handle);
+
+  return g_atomic_int_and (&msg->match_count.u, 0);
 }
 
 bool _gtu_test_case_handle_message (GtuTestCase* self,
@@ -194,7 +214,7 @@ bool _gtu_test_case_handle_message (GtuTestCase* self,
       continue;
 
     if (g_regex_match (expect->regex, message, G_REGEX_MATCH_NOTEMPTY, NULL)) {
-      g_atomic_int_inc (&expect->match_count);
+      g_atomic_int_inc (&expect->match_count.s);
       return true;
     }
   }

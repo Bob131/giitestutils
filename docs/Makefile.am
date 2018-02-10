@@ -15,7 +15,7 @@ md2db_files = \
 	considerations/gfuncs-avoid.xml
 
 content_files = \
-	css.xml \
+	gtu.css.xml \
 	intro.xml \
 	getting-started.xml \
 	running-tests/main.xml \

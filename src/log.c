@@ -128,6 +128,20 @@ ret:
   return G_LOG_WRITER_HANDLED;
 }
 
+static gboolean fatal_log_handler (const char* log_domain,
+                                   GLogLevelFlags log_level,
+                                   const char* message,
+                                   void* data)
+{
+  (void) log_domain;
+  (void) log_level;
+  (void) message;
+  (void) data;
+
+  /* never abort, we want to handle this ourselves */
+  return false;
+}
+
 static void log_empty_test_plan (void) {
   if (has_logged_plan || _gtu_get_test_mode ()->list_only)
     return;
@@ -138,6 +152,7 @@ static void log_empty_test_plan (void) {
 void _gtu_install_glib_loggers (void) {
   g_log_set_default_handler (glib_test_logger, NULL);
   g_log_set_writer_func (glib_structured_logger, NULL, NULL);
+  g_test_log_set_fatal_handler (&fatal_log_handler, NULL);
 
   atexit (&log_empty_test_plan);
 }

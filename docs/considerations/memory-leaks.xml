@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+]>
+<section>
+  <title>Memory leaks</title>
+  <para>
+    The mechanism used by GTU to automatically back out of test execution is
+    somewhat crude; test cases are not given the opportunity to free any
+    memory they might have allocated, and function
+    <literal>__cleanup__</literal>s won't be executed (which precludes the
+    correct functioning of
+    <link linkend="g-autoptr"><function>g_autoptr()</function></link>
+    declarations).
+  </para>
+
+  <para>
+    For this reason, the life cycle of any dynamically allocated memory
+    should be tied to that of the relevant
+    <link linkend="GtuTestCase"><type>GtuTestCase</type></link> instance, by
+    freeing memory either in <parameter>func_destroy_target</parameter> (if
+    created with
+    <link linkend="gtu-test-case-new"><function>gtu_test_case_new()</function></link>)
+    or in the overridden
+    <link linkend="GtuTestObjectClass.finalize"><function>GtuTestObjectClass.finalize()</function></link>
+    method (if subclassing from
+    <link linkend="GtuTestCase"><type>GtuTestCase</type></link>).
+  </para>
+
+  <para>
+    Unfortunately, this advice applies to Vala code. The fix is to move all
+    variable declarations with owned types to the scope above the test case
+    implementation. Variable declarations with unowned types can be used as
+    usual.
+  </para>
+
+  <!-- using tables for layout :( -->
+
+  <example>
+    <title>Preventing memory leaks in Vala tests: delegate test cases</title>
+
+    <informaltable frame="none">
+      <tgroup cols="3">
+        <thead>
+          <row>
+            <entry>Don't</entry>
+            <entry></entry>
+            <entry>Do</entry>
+          </row>
+        </thead>
+
+        <tbody valign="middle">
+          <row>
+            <entry>
+              <informalexample>
+                <programlisting language="vala">
+                  new Gtu.TestCase ("some-test", () => {
+                    var test_object = new MyObject ();
+                    Gtu.skip_if_reached (); // leaks memory!
+                  });
+                </programlisting>
+              </informalexample>
+            </entry>
+
+            <entry>vs.</entry>
+
+            <entry>
+              <informalexample>
+                <programlisting language="vala">
+                  MyObject test_object;
+                  new Gtu.TestCase ("some-test", () => {
+                    test_object = new MyObject ();
+                    ...
+                  });
+                </programlisting>
+              </informalexample>
+            </entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </informaltable>
+  </example>
+
+  <example>
+    <title>Preventing memory leaks in Vala tests: classed test cases</title>
+
+    <informaltable frame="none">
+      <tgroup cols="3">
+        <thead>
+          <row>
+            <entry>Don't</entry>
+            <entry></entry>
+            <entry>Do</entry>
+          </row>
+        </thead>
+
+        <tbody valign="middle">
+          <row>
+            <entry>
+              <informalexample>
+                <programlisting language="vala">
+                  class SomeTest : Gtu.TestCase {
+                    protected override void test_impl () {
+                      var test_object = new MyObject ();
+                      Gtu.skip_if_reached (); // leaks memory!
+                    }
+                  }
+                </programlisting>
+              </informalexample>
+            </entry>
+
+            <entry>vs.</entry>
+
+            <entry>
+              <informalexample>
+                <programlisting language="vala">
+                  class SomeTest : Gtu.TestCase {
+                    MyObject test_object;
+
+                    protected override void test_impl () {
+                      test_object = new MyObject ();
+                      ...
+                    }
+                  }
+                </programlisting>
+              </informalexample>
+            </entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </informaltable>
+  </example>
+</section>

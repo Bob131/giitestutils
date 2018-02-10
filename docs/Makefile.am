@@ -15,6 +15,7 @@ md2db_files = \
 	considerations/gfuncs-avoid.xml
 
 content_files = \
+	css.xml \
 	intro.xml \
 	getting-started.xml \
 	running-tests/main.xml \
@@ -23,6 +24,7 @@ content_files = \
 	running-tests/make-vars.xml \
 	running-tests/env-vars.xml \
 	considerations/main.xml \
+	considerations/memory-leaks.xml \
 	$(md2db_files)
 
 GTKDOC_CFLAGS = -I$(top_srcdir)/include

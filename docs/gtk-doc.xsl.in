@@ -6,6 +6,8 @@
 
   <xsl:include href="@GTKDOC_XSL@"/>
 
+  <xsl:param name="custom.css.source">css.xml</xsl:param>
+
   <xsl:template match="sectpurpose">
     <xsl:if test="node()">
       <xsl:text> </xsl:text>

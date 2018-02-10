@@ -1,0 +1,6 @@
+<?xml version='1.0'?>
+<style>
+  div.informaltable table td[valign="middle"] {
+    vertical-align: middle;
+  }
+</style>

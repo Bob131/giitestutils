@@ -6,27 +6,33 @@
 <section>
   <title>Make variables</title>
 
-  <formalpara id="TESTMODE:CAPS">
-    <title><envar>TESTMODE</envar></title>
-    <para>
-      Allows the set of enabled tests to be configured without running test
-      binaries explicitly.
-    </para>
+  <variablelist>
+    <varlistentry id="TESTMODE:CAPS">
+      <term>
+        <envar>TESTMODE</envar>
+      </term>
+      <listitem>
+        <para>
+          Allows the set of enabled tests to be configured without running test
+          binaries explicitly.
+        </para>
 
-    <xi:include href="mode-list.xml"/>
+        <xi:include href="mode-list.xml"/>
 
-    <example>
-      <title>Make invocation</title>
-      <userinput>make check TESTMODE=perf,thorough</userinput>
-    </example>
+        <example>
+          <title>Make invocation specifying <envar>TESTMODE</envar></title>
+          <userinput>make check TESTMODE=perf,thorough</userinput>
+        </example>
 
-    <example>
-      <title>Convenience Make rule</title>
-      <programlisting language="make">
-        check-all:
-                $(MAKE) check TESTMODE=perf,thorough
+        <example>
+          <title>Convenience Make rule specifying <envar>TESTMODE</envar></title>
+          <programlisting language="make">
+            check-all:
+                    $(MAKE) check TESTMODE=perf,thorough
 
-        .PHONY: check-all</programlisting>
-    </example>
-  </formalpara>
+            .PHONY: check-all</programlisting>
+        </example>
+      </listitem>
+    </varlistentry>
+  </variablelist>
 </section>

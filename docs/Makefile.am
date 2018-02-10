@@ -23,9 +23,15 @@ content_files = \
 	running-tests/args.xml \
 	running-tests/make-vars.xml \
 	running-tests/env-vars.xml \
-	considerations/main.xml \
+	considerations/considerations.xml \
 	considerations/memory-leaks.xml \
 	$(md2db_files)
+
+expand_content_files = \
+	intro.xml \
+	getting-started.xml \
+	considerations/considerations.xml \
+	considerations/memory-leaks.xml
 
 GTKDOC_CFLAGS = -I$(top_srcdir)/include
 GTKDOC_LIBS = $(top_srcdir)/src/libgtu.a
@@ -83,7 +89,7 @@ gtkdoc-md2db.py: gtkdoc-md2db.py.in gtkdoc-config.py.tmp
 	)
 
 $(md2db_files): %.xml: %.md gtkdoc-md2db.py
-	$(AM_V_GEN) ./gtkdoc-md2db.py $< > $@
+	$(AM_V_GEN) ./gtkdoc-md2db.py $< > $@; cp $@ xml/
 
 CLEANFILES += $(md2db_files) gtkdoc-md2db.py gtkdoc-config.py.tmp
 

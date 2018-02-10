@@ -121,34 +121,30 @@
 
     <itemizedlist>
       <listitem>
-        <link linkend="GtuTestObject">GtuTestObject</link> is a generic test
-        container. It's a reference-counted object that carries one or more
-        test case implementations, metadata about those tests and manages the
-        life cycle of whatever test-related data your test suite needs. There
-        are two types of test object:
+        #GtuTestObject is a generic test container. It's a reference-counted
+        object that carries one or more test case implementations, metadata
+        about those tests and manages the life cycle of whatever test-related
+        data your test suite needs. There are two types of test object:
 
         <itemizedlist>
           <listitem>
             <para>
-              <link linkend="GtuTestCase">GtuTestCase</link> contains the
-              implementation of a single test case, as provided by your
-              project's test suite. Depending on your taste, you can either
-              pass your test case function to
-              <link linkend="gtu-test-case-new"><function>gtu_test_case_new()</function></link>
-              or create a new subclass and override the
-              <link linkend="GtuTestCaseClass.test-impl">test_impl()</link>
-              virtual method.
+              #GtuTestCase contains the implementation of a single test case,
+              as provided by your project's test suite. Depending on your
+              taste, you can either pass your test case function to
+              gtu_test_case_new() or create a new subclass and override the
+              #GtuTestCaseClass.test_impl() virtual method.
             </para>
           </listitem>
 
           <listitem>
             <para>
-              <link linkend="GtuTestSuite">GtuTestSuite</link> allows you to
-              organise collections of related test cases, describe dependent
-              relationships between them, and provides the mechanism for
-              executing the test cases you've supplied. Test case scheduling,
-              memory management and communication with the test harness are all
-              managed by this object.
+              #GtuTestSuite allows you to organise collections of related test
+              cases, describe dependent relationships between them, and
+              provides the mechanism for executing the test cases you've
+              supplied. Test case scheduling, memory management and
+              communication with the test harness are all managed by this
+              object.
             </para>
 
             <para>
@@ -161,9 +157,8 @@
 
       <listitem>
         <para>
-          Every test object is identified by a unique
-          <link linkend="GtuPath">GtuPath</link>, which is written to the test
-          log alongside the result of each test.
+          Every test object is identified by a unique #GtuPath, which is
+          written to the test log alongside the result of each test.
         </para>
       </listitem>
 
@@ -177,9 +172,8 @@
           <link linkend="gtu-Skips">skip</link>
           APIs. When a test is aborted, execution automatically returns to the
           test execution loop; you should ensure that any memory allocated for
-          a test is managed by its
-          <link linkend="GtuTestCase">GtuTestCase</link>
-          instance to prevent memory leaks.
+          a test is managed by its #GtuTestCase instance to prevent memory
+          leaks.
         </para>
       </listitem>
     </itemizedlist>
@@ -230,14 +224,14 @@
             public MyObject object;
 
             protected override void test_impl () {
+              object = new MyObject ();
+              object.some_field = 42;
+
               assert (object.some_field == 42);
             }
 
             public FieldTest () {
               base.@construct ("field");
-
-              object = new MyObject ();
-              object.some_field = 42;
             }
           }
 

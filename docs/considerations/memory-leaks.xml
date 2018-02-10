@@ -9,22 +9,15 @@
     somewhat crude; test cases are not given the opportunity to free any
     memory they might have allocated, and function
     <literal>__cleanup__</literal>s won't be executed (which precludes the
-    correct functioning of
-    <link linkend="g-autoptr"><function>g_autoptr()</function></link>
-    declarations).
+    correct functioning of g_autoptr() declarations).
   </para>
 
   <para>
-    For this reason, the life cycle of any dynamically allocated memory
-    should be tied to that of the relevant
-    <link linkend="GtuTestCase"><type>GtuTestCase</type></link> instance, by
-    freeing memory either in <parameter>func_destroy_target</parameter> (if
-    created with
-    <link linkend="gtu-test-case-new"><function>gtu_test_case_new()</function></link>)
-    or in the overridden
-    <link linkend="GtuTestObjectClass.finalize"><function>GtuTestObjectClass.finalize()</function></link>
-    method (if subclassing from
-    <link linkend="GtuTestCase"><type>GtuTestCase</type></link>).
+    For this reason, the life cycle of any dynamically allocated memory should
+    be tied to that of the relevant #GtuTestCase instance, by freeing memory
+    either in <parameter>func_destroy_target</parameter> (if created with
+    gtu_test_case_new()) or in the overridden #GtuTestObjectClass.finalize()
+    method (if subclassing from #GtuTestCase).
   </para>
 
   <para>

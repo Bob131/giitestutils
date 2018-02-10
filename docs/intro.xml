@@ -16,21 +16,15 @@
 
     <itemizedlist>
       <listitem>
-        Building test suites with
-        <link linkend="GTestCase"><classname>GTestCase</classname></link>
-        involves a lot of boilerplate, which can be particularly frustrating
-        if most of your tests don't require complicated fixtures.
+        Building test suites with #GTestCase involves a lot of boilerplate,
+        which can be particularly frustrating if most of your tests don't
+        require complicated fixtures.
       </listitem>
 
       <listitem>
-        Test cases are required to use a separate (less flexible) asserts
-        API, as
-        <link linkend="g-assert"><function>g_assert()</function></link>
-        and
-        <link linkend="g-assert-not-reached"><function>g_assert_not_reached()</function></link>
-        always abort the program regardless of
-        <link linkend="g-test-set-nonfatal-assertions"><function>g_test_set_nonfatal_assertions()</function></link>
-        .
+        Test cases are required to use a separate (less flexible) asserts API,
+        as g_assert() and g_assert_not_reached() always abort the program
+        regardless of g_test_set_nonfatal_assertions() .
       </listitem>
 
       <listitem>

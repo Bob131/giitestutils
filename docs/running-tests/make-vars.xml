@@ -34,5 +34,23 @@
         </example>
       </listitem>
     </varlistentry>
+
+    <varlistentry id="TESTFLAGS:CAPS">
+      <term>
+        <envar>TESTFLAGS</envar>
+      </term>
+      <listitem>
+        <para>
+          Allows passing extra arguments to the test binary. Any
+          <parameter>-m</parameter> flags override
+          <link linkend="TESTMODE:CAPS"><envar>TESTMODE</envar></link>.
+        </para>
+
+        <example>
+          <title>Make invocation specifying <envar>TESTFLAGS</envar></title>
+          <userinput>make check TESTFLAGS=--verbose</userinput>
+        </example>
+      </listitem>
+    </varlistentry>
   </variablelist>
 </section>

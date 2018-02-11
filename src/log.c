@@ -4,9 +4,6 @@
 
 /* TAP-compliant GLib message handling */
 
-/* exit status to signal an error to the automake harness */
-#define TEST_ERROR ((int) 99)
-
 static bool has_logged_plan = false;
 
 static bool should_log (GLogLevelFlags log_level) {
@@ -66,6 +63,28 @@ static const char* level_to_string (GLogLevelFlags log_level) {
 #undef ret
 }
 
+/* `message' may be NULL. If non-NULL, it should contain a trailing new line */
+static void bail_out (GLogLevelFlags level, const char* message) {
+  GtuDebugFlags debug_flags = _gtu_debug_flags_get ();
+
+  fprintf (stdout, "Bail out!");
+  if (message != NULL)
+    fprintf (stdout, " %s", message);
+  else
+    fprintf (stdout, "\n");
+
+  if ((level & G_LOG_LEVEL_WARNING &&
+       debug_flags & GTU_DEBUG_FLAGS_FATAL_WARNINGS) ||
+      (level & G_LOG_LEVEL_CRITICAL &&
+       debug_flags & GTU_DEBUG_FLAGS_FATAL_CRITICALS))
+  {
+    g_abort ();
+  }
+
+  /* exit status to signal an error to the automake harness */
+  exit (99);
+}
+
 static void glib_test_logger (const char* log_domain, GLogLevelFlags log_level,
                               const char* message, void* data)
 {
@@ -98,8 +117,7 @@ do_log:
                               message);
 
     if (log_level & G_LOG_FLAG_FATAL && !suppress) {
-      fprintf (stdout, "Bail out! %s", fmtmsg);
-      exit (TEST_ERROR);
+      bail_out (log_level, fmtmsg);
 
     } else {
       _gtu_log_printf (fmtmsg);
@@ -172,8 +190,7 @@ do_log:
   }
 
   if (log_level & G_LOG_FLAG_FATAL && !suppress) {
-    fprintf (stdout, "Bail out!\n");
-    exit (TEST_ERROR);
+    bail_out (log_level, NULL);
   }
 
 ret:
@@ -190,7 +207,8 @@ static gboolean fatal_log_handler (const char* log_domain,
   (void) data;
 
   /* Fatal logs from us indicate a problem with the user's test suite.
-     Otherwise we never want to abort, as we handle this ourselves. */
+     Otherwise we never want GLib to abort for us, as we handle this
+     ourselves. */
   return strcmp (log_domain, GTU_LOG_DOMAIN) == 0;
 }
 

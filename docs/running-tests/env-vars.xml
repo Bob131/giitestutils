@@ -5,22 +5,63 @@
 <section>
   <title>Environment variables</title>
 
-  <formalpara id="GTU-DEBUG:CAPS">
-    <title><envar>GTU_DEBUG</envar></title>
-    <para>
-      Options altering the behaviour of GTU code.
-    </para>
+  <variablelist>
+    <varlistentry id="GTU-DEBUG:CAPS">
+      <term>
+        <envar>GTU_DEBUG</envar>
+      </term>
+      <listitem>
+        <para>
+          Options altering the behaviour of GTU code.
+        </para>
 
-    <variablelist>
-      <varlistentry>
-        <term>fatal-asserts</term>
-        <listitem>
-          <para>
-            Causes GTU to abort upon the failure of any GTU assertions. This is
-            useful for getting a coredump when debugging test cases.
-          </para>
-        </listitem>
-      </varlistentry>
-    </variablelist>
-  </formalpara>
+        <variablelist>
+          <varlistentry>
+            <term>fatal-asserts</term>
+            <listitem>
+              <para>
+                Causes GTU to abort upon the failure of any GTU assertions.
+                This is useful for getting a coredump when debugging test
+                cases.
+              </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>
+        <envar>G_DEBUG</envar>
+      </term>
+      <listitem>
+        <para>
+          We recognise some of the options of GLib's <envar>G_DEBUG</envar> to
+          replicate the expected behaviour.
+        </para>
+
+        <variablelist>
+          <varlistentry>
+            <term>fatal-warnings</term>
+            <listitem>
+              <para>
+                Aborts the program in addition to bailing out when an
+                unexpected warning is logged.
+              </para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>fatal-criticals</term>
+            <listitem>
+              <para>
+                Aborts the program in addition to bailing out when an
+                unexpected critical is logged.
+              </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </listitem>
+    </varlistentry>
+  </variablelist>
 </section>

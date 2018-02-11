@@ -209,7 +209,7 @@ static gboolean fatal_log_handler (const char* log_domain,
   /* Fatal logs from us indicate a problem with the user's test suite.
      Otherwise we never want GLib to abort for us, as we handle this
      ourselves. */
-  return strcmp (log_domain, GTU_LOG_DOMAIN) == 0;
+  return g_strcmp0 (log_domain, GTU_LOG_DOMAIN) == 0;
 }
 
 static void log_empty_test_plan (void) {

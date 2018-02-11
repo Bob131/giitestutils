@@ -21,6 +21,7 @@ libgtu_a_SOURCES = \
 
 libgtu_a_CFLAGS = \
 	-I$(top_srcdir)/include \
+	-DG_LOG_DOMAIN=GTU_LOG_DOMAIN \
 	$(gtu_U_CFLAGS)
 
 -include $(top_srcdir)/git.mk

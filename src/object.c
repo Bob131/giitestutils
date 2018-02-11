@@ -158,9 +158,7 @@ void* gtu_test_object_ref (void* instance) {
   g_return_val_if_fail (GTU_IS_TEST_OBJECT (instance), NULL);
 
   priv = PRIVATE (instance);
-
-  if (!g_atomic_int_compare_and_exchange (&priv->is_floating, 1, 0))
-    g_atomic_int_inc (&priv->ref_count);
+  g_atomic_int_inc (&priv->ref_count);
 
   return instance;
 }
@@ -181,13 +179,25 @@ void gtu_test_object_unref (void* instance) {
   }
 }
 
-void* gtu_test_object_sink (void* instance) {
+void* _gtu_test_object_sink (void* instance) {
   GtuTestObjectPrivate* priv;
 
   g_return_val_if_fail (GTU_IS_TEST_OBJECT (instance), NULL);
 
   priv = PRIVATE (instance);
   g_atomic_int_set (&priv->is_floating, 0);
+
+  return instance;
+}
+
+void* gtu_test_object_ref_sink (void* instance) {
+  GtuTestObjectPrivate* priv;
+
+  g_return_val_if_fail (GTU_IS_TEST_OBJECT (instance), NULL);
+
+  priv = PRIVATE (instance);
+  if (!g_atomic_int_compare_and_exchange (&priv->is_floating, 1, 0))
+    g_atomic_int_inc (&priv->ref_count);
 
   return instance;
 }

@@ -35,6 +35,10 @@ class TestSuite : Gtu.TestSuite {
     public TestCase a {set; get;}
     public TestCase b {set; get;}
 
+    ~TestSuite () {
+        message ("gone");
+    }
+
     public TestSuite (string name) {
         base (name);
 

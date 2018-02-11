@@ -32,6 +32,9 @@ G_GNUC_INTERNAL void _gtu_test_object_collect_tests (GtuTestObject* object,
 
 G_GNUC_INTERNAL void _gtu_test_object_emit_ancestry_signal (GtuTestObject* obj);
 
+/* sink without incrementing the ref count */
+G_GNUC_INTERNAL void* _gtu_test_object_sink (void* instance);
+
 typedef enum {
   GTU_TEST_RESULT_INVALID,
   GTU_TEST_RESULT_PASS,

@@ -62,7 +62,7 @@ namespace Gtu {
         public static Path? new_parse (string path);
     }
 
-    [CCode (ref_sink_function = "gtu_test_object_sink")]
+    [CCode (ref_sink_function = "gtu_test_object_ref_sink")]
     public abstract class TestObject {
         public string name {get;}
         public Path path {get;}

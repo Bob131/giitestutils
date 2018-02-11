@@ -76,8 +76,7 @@ struct _GtuTestObjectClass {
  * gtu_test_object_ref:
  * @instance: (type Gtu.TestObject): an instance of a #GtuTestObject type.
  *
- * Creates a new owned reference to @instance, either sinking @instance if it's
- * floating or incrementing its reference count.
+ * Increments @instance's ref-count.
  *
  * Returns: (type Gtu.TestObject): a new owned reference to @instance.
  */
@@ -95,14 +94,15 @@ void gtu_test_object_unref (void* instance);
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtuTestObject, gtu_test_object_unref)
 
 /**
- * gtu_test_object_sink:
+ * gtu_test_object_ref_sink:
  * @instance: (type Gtu.TestObject): an instance of a #GtuTestObject type.
  *
- * If @instance is floating, sink the reference. Otherwise, do nothing.
+ * If @instance is floating, sink the reference. Otherwise, we increase its
+ * reference count.
  *
  * Returns: (type Gtu.TestObject): a sunken reference to @instance.
  */
-void* gtu_test_object_sink (void* instance);
+void* gtu_test_object_ref_sink (void* instance);
 
 /**
  * gtu_test_object_get_name:

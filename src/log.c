@@ -185,13 +185,13 @@ static gboolean fatal_log_handler (const char* log_domain,
                                    const char* message,
                                    void* data)
 {
-  (void) log_domain;
   (void) log_level;
   (void) message;
   (void) data;
 
-  /* never abort, we want to handle this ourselves */
-  return false;
+  /* Fatal logs from us indicate a problem with the user's test suite.
+     Otherwise we never want to abort, as we handle this ourselves. */
+  return strcmp (log_domain, GTU_LOG_DOMAIN) == 0;
 }
 
 static void log_empty_test_plan (void) {

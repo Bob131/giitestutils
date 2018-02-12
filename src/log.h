@@ -17,4 +17,9 @@ G_GNUC_INTERNAL void _gtu_log_test_result (GtuTestResult result,
                                            const char* path,
                                            const char* message);
 
+/* No trailing newline. Free the result when done */
+G_GNUC_INTERNAL char* _gtu_log_format_message (const char* domain,
+                                               GLogLevelFlags level,
+                                               const char* message);
+
 #endif

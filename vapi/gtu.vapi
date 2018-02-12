@@ -107,6 +107,9 @@ namespace Gtu {
         [DestroysInstance]
         public int run ();
 
+        public void fail_if_logged (string domain,
+                                    GLib.LogLevelFlags level = 0);
+
         public TestSuite (string name);
     }
 

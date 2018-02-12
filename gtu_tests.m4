@@ -70,6 +70,7 @@ AC_SUBST(installed_testdir, [])
 
 AS_IF(ENABLED_CHECK, [
   AC_MSG_RESULT([yes])
+
   AC_REQUIRE([PKG_PROG_PKG_CONFIG])
   PKG_PROG_PKG_CONFIG
 
@@ -77,22 +78,22 @@ AS_IF(ENABLED_CHECK, [
 
   AC_SUBST([gtu_U_VALAFLAGS], ["--vapidir \[$](gtu_U_PATH)/vapi --pkg gtu"])
 
-  m4_pushdef([GLIB_FLAGS], [gtu_glib_U])
-  m4_pushdef([GLIB_CFLAGS], m4_join([], $GLIB_FLAGS, [_CFLAGS]))
-  m4_pushdef([GLIB_LIBS],   m4_join([], $GLIB_FLAGS, [_LIBS]))
+  m4_pushdef([REQ_FLAGS], [gtu_req_U])
+  m4_pushdef([REQ_CFLAGS], m4_join([], $REQ_FLAGS, [_CFLAGS]))
+  m4_pushdef([REQ_LIBS],   m4_join([], $REQ_FLAGS, [_LIBS]))
 
-  PKG_CHECK_MODULES(GLIB_FLAGS, [glib-2.0 gobject-2.0])
+  PKG_CHECK_MODULES(REQ_FLAGS, [glib-2.0 gobject-2.0 libunwind])
 
-  AS_VAR_SET([gtu_U_CFLAGS], GLIB_CFLAGS)
-  AS_VAR_SET([gtu_U_LIBS], GLIB_LIBS)
+  AS_VAR_SET([gtu_U_CFLAGS], REQ_CFLAGS)
+  AS_VAR_SET([gtu_U_LIBS], REQ_LIBS)
   AS_VAR_APPEND([gtu_U_CFLAGS], [" -I\[$](gtu_U_PATH)/include"])
   AS_VAR_APPEND([gtu_U_LIBS], [" \[$](gtu_U_PATH)/src/libgtu.a"])
   AC_SUBST([gtu_U_CFLAGS])
   AC_SUBST([gtu_U_LIBS])
 
-  m4_popdef([GLIB_FLAGS])
-  m4_popdef([GLIB_CFLAGS])
-  m4_popdef([GLIB_LIBS])
+  m4_popdef([REQ_FLAGS])
+  m4_popdef([REQ_CFLAGS])
+  m4_popdef([REQ_LIBS])
 
   AC_REQUIRE_AUX_FILE([tap-driver.sh])
 ], [

@@ -1,5 +1,9 @@
 #include <string.h>
 #include "test-case/priv.h"
+#include "log.h"
+
+#define UNW_LOCAL_ONLY
+#include <libunwind.h>
 
 typedef struct {
   GtuTestCaseFunc   func;
@@ -190,10 +194,12 @@ unsigned gtu_test_case_expect_count (GtuTestCase* self,
 bool _gtu_test_case_handle_message (GtuTestCase* self,
                                     const char* domain,
                                     GLogLevelFlags level,
-                                    const char* message)
+                                    const char* message,
+                                    uintptr_t caller)
 {
   unsigned i;
   GtuTestCasePrivate* priv;
+  GtuTestSuite* parent_suite;
 
   g_assert (GTU_IS_TEST_CASE (self));
   g_assert (message != NULL);
@@ -217,6 +223,80 @@ bool _gtu_test_case_handle_message (GtuTestCase* self,
       g_atomic_int_inc (&expect->match_count.s);
       return true;
     }
+  }
+
+  parent_suite = gtu_test_object_get_parent_suite (GTU_TEST_OBJECT (self));
+  if (_gtu_test_suite_log_should_fail (parent_suite, domain, level)) {
+
+    /* We can't just pre-empt the test, as our logging machinery has been
+       called by GLib's which maintains some global state regarding recursive
+       messages; if we jump up the stack without returning, GLib never gets to
+       record that the log handler finished.
+
+       To remedy this, we do something delightfully evil:
+         1. We unwind the stack until we've found the frame belonging to
+            `caller'.
+         2. `g_logv' is the stack frame above, so iterate the cursor again.
+         3. The return address for `g_logv' is on the frame above, so iterate
+            just one more time.
+         4. Overwrite the return address with the address for
+            `_gtu_test_preempt'.
+         5. Jump up the stack to `g_logv' so it can clean up and return. */
+
+    /* we don't want to log on assertion failure */
+#   define assert(x) G_STMT_START { if (x); else g_abort (); } G_STMT_END
+
+    char* formatted_message;
+    char* fail_message;
+
+    int unw_res;
+    unw_context_t unwind_context;
+    unw_cursor_t cursor;
+    unw_cursor_t glog_cursor;
+    unw_proc_info_t procedure_info;
+    bool found_caller = false;
+    TestRunContext* tr_context;
+
+    formatted_message = _gtu_log_format_message (domain, level, message);
+    fail_message = g_strconcat ("Unexpected fatal message: ",
+                                formatted_message,
+                                NULL);
+    g_free (formatted_message);
+
+    assert (unw_getcontext (&unwind_context) == 0);
+    assert (unw_init_local (&cursor, &unwind_context) == 0);
+
+    while ((unw_res = unw_step (&cursor)) > 0) {
+      assert (unw_get_proc_info (&cursor, &procedure_info) == 0);
+
+      if (procedure_info.start_ip == caller) {
+        found_caller = true;
+        break;
+      }
+    }
+
+    /* assert that there wasn't an error and we didn't reach the last frame */
+    assert (unw_res > 0);
+    assert (found_caller);
+
+    assert (unw_step (&cursor) > 0);
+    glog_cursor = cursor;
+
+    assert (unw_step (&cursor) > 0);
+    unw_res = unw_set_reg (&cursor,
+                           UNW_REG_IP,
+                           (unw_word_t) &_gtu_test_preempt);
+
+    assert (unw_res == 0);
+
+    tr_context = _gtu_get_tr_context ();
+    tr_context->message = fail_message;
+    tr_context->result = GTU_TEST_RESULT_FAIL;
+
+    unw_resume (&glog_cursor);
+    assert (false);
+
+#   undef assert
   }
 
   return false;

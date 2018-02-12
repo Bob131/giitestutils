@@ -96,7 +96,8 @@ static void glib_test_logger (const char* log_domain, GLogLevelFlags log_level,
       _gtu_test_case_handle_message (_gtu_current_test,
                                      log_domain,
                                      log_level,
-                                     message))
+                                     message,
+                                     (uintptr_t) &glib_test_logger))
   {
     suppress = true;
     if (should_log (G_LOG_LEVEL_INFO))
@@ -106,22 +107,21 @@ static void glib_test_logger (const char* log_domain, GLogLevelFlags log_level,
   }
 
   if (should_log (log_level)) {
-    char* fmtmsg;
+    char *fmtmsg, *reformat;
 
 do_log:
-    fmtmsg = g_strdup_printf ("%s%s%s%s: %s\n",
-                              suppress ? "Suppressed message: " : "",
-                              log_domain != NULL ? log_domain : "",
-                              log_domain != NULL ? "-" : "",
-                              level_to_string (log_level),
-                              message);
+    fmtmsg = _gtu_log_format_message (log_domain, log_level, message);
+    reformat = g_strdup_printf ("%s%s\n",
+                                suppress ? "Suppressed message: " : "",
+                                fmtmsg);
+    g_free (fmtmsg);
 
     if (log_level & G_LOG_FLAG_FATAL && !suppress) {
-      bail_out (log_level, fmtmsg);
+      bail_out (log_level, reformat);
 
     } else {
-      _gtu_log_printf (fmtmsg);
-      g_free (fmtmsg);
+      _gtu_log_printf (reformat);
+      g_free (reformat);
     }
   }
 }
@@ -139,6 +139,8 @@ static GLogWriterOutput glib_structured_logger (GLogLevelFlags log_level,
   if (_gtu_current_test != NULL) {
     const char* message = NULL;
     const char* domain = NULL;
+
+    uintptr_t us = (uintptr_t) &glib_structured_logger;
 
     for (i = 0; i < n_fields && (message == NULL || domain == NULL); i++) {
       const char** var;
@@ -158,7 +160,8 @@ static GLogWriterOutput glib_structured_logger (GLogLevelFlags log_level,
     if (message != NULL && _gtu_test_case_handle_message (_gtu_current_test,
                                                           domain,
                                                           log_level,
-                                                          message))
+                                                          message,
+                                                          us))
     {
       suppress = true;
       if (should_log (G_LOG_LEVEL_INFO))
@@ -311,4 +314,15 @@ void _gtu_log_test_result (GtuTestResult result,
     fprintf (stdout, " %s", message);
 
   fprintf (stdout, "\n");
+}
+
+char* _gtu_log_format_message (const char* domain,
+                               GLogLevelFlags level,
+                               const char* message)
+{
+  return g_strdup_printf ("%s%s%s: %s",
+                          domain != NULL ? domain : "",
+                          domain != NULL ? "-" : "",
+                          level_to_string (level),
+                          message);
 }

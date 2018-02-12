@@ -5,6 +5,7 @@ testc_SOURCES = \
 	testc.c
 
 testc_CFLAGS = \
+	-Wall -Wextra -Wpedantic -std=c99 \
 	-I$(top_srcdir)/include \
 	$(gtu_U_CFLAGS)
 

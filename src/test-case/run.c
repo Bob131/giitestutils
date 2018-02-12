@@ -1,21 +1,14 @@
 #include <string.h>
-#include <setjmp.h>
 #include "test-case/priv.h"
 
 /* lazy sanity checking */
 static const uint32_t TR_MAGIC = 0x7357CA5E;
 
-typedef struct {
-  uint32_t magic;
-  jmp_buf caller_context;
-  char* message;
-  GtuTestResult result;
-} TestRunContext;
-
 static void _gtu_tr_context_check (const TestRunContext* tr_context) {
-  g_assert (gtu_has_initialized ()        &&
-            tr_context->magic == TR_MAGIC &&
-            tr_context->message == NULL);
+  g_assert (gtu_has_initialized ());
+  g_assert (tr_context != NULL);
+  g_assert (tr_context->magic == TR_MAGIC);
+  g_assert (tr_context->message == NULL);
 }
 
 static TestRunContext* _current_tr_context = NULL;
@@ -28,6 +21,17 @@ static TestRunContext* _current_tr_context = NULL;
   g_assert_not_reached ();                          \
 } G_STMT_END
 
+
+TestRunContext* _gtu_get_tr_context (void) {
+  return CURRENT_CONTEXT;
+}
+
+/* No asserts because anything log related will fail; we're in this function
+   because we've blown the stack away, which can cause segfaults in GLib's
+   printf implementation. */
+void _gtu_test_preempt () {
+  longjmp (_current_tr_context->caller_context, 1);
+}
 
 void _gtu_assertion_message (const char* file,
                              const char* line,

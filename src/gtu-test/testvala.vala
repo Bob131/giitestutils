@@ -49,6 +49,11 @@ class TestSuite : Gtu.TestSuite {
         this.add (b);
 
         this.add (new ExpectCase ("regex"));
+
+        this.fail_if_logged ("ff");
+        this.add (new Gtu.TestCase ("log-fail", () => {
+            log ("ff", LogLevelFlags.LEVEL_WARNING, "ffffsdf");
+        }));
     }
 }
 

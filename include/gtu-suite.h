@@ -117,6 +117,31 @@ GtuTestSuiteChild* gtu_test_suite_add (GtuTestSuite*  self,
   (gtu_test_suite_add ((self), GTU_TEST_OBJECT ((obj))))
 
 /**
+ * gtu_test_suite_fail_if_logged:
+ * @self:   test suite instance.
+ * @domain: log domain to check against.
+ * @level:  log flags to check against.
+ *
+ * Indicates that, should any of @self's children (or their children, etc) log
+ * any messages matching @domain and @level during their execution, the test
+ * case should be marked as having failed.
+ *
+ * @domain mustn't be %NULL or zero-length. The result is undefined if @domain
+ * is equal to %GTU_LOG_DOMAIN.
+ *
+ * For a logged message to match @level, the message's log level flags and at
+ * @level must have some common bits set. If @level is zero, it defaults to
+ * <literal>%G_LOG_LEVEL_CRITICAL | %G_LOG_LEVEL_WARNING</literal>.
+ *
+ * Matchers configured with this function have a higher precedence than GTU's
+ * generic bail-out handler, and a lower precedence than those configured with
+ * gtu_test_case_expect_message().
+ */
+void gtu_test_suite_fail_if_logged (GtuTestSuite* self,
+                                    const char* domain,
+                                    GLogLevelFlags level);
+
+/**
  * gtu_test_suite_run:
  * @self: (transfer full): test suite to be executed.
  *

@@ -1,15 +1,30 @@
-#include <stdio.h>
+#include <string.h>
 #include "test-suite/priv.h"
 
 typedef struct {
   GPtrArray*  children;
-  GHashTable* child_names; /* set containing unowned strings */
+  GHashTable* child_names;    /* set containing unowned strings */
+  GArray*     fatal_messages; /* array of FatalMessage */
 } GtuTestSuitePrivate;
 
 #define PRIVATE(obj) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GTU_TYPE_TEST_SUITE, \
                                 GtuTestSuitePrivate))
 G_DEFINE_TYPE (GtuTestSuite, gtu_test_suite, GTU_TYPE_TEST_OBJECT)
+
+typedef struct {
+  char* domain;
+  GLogLevelFlags flags;
+} FatalMessage;
+
+static void fatal_message_dispose (FatalMessage* message) {
+  if (message->domain) {
+    g_free (message->domain);
+    message->domain = NULL;
+  }
+
+  message->flags = 0;
+}
 
 GtuTestSuiteChild* gtu_test_suite_add (GtuTestSuite* self,
                                        GtuTestObject* test_object)
@@ -82,6 +97,63 @@ int gtu_test_suite_run (GtuTestSuite* self) {
   return ret;
 }
 
+void gtu_test_suite_fail_if_logged (GtuTestSuite* self,
+                                    const char* domain,
+                                    GLogLevelFlags level)
+{
+  GtuTestSuitePrivate* priv;
+  unsigned index;
+  FatalMessage* message;
+
+  g_return_if_fail (GTU_IS_TEST_SUITE (self));
+  g_return_if_fail (domain != NULL);
+  g_return_if_fail (domain[0] != '\0' && strcmp (domain, GTU_LOG_DOMAIN) != 0);
+
+  if (level == 0)
+    level = G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_WARNING;
+
+  priv = PRIVATE (self);
+  index = priv->fatal_messages->len;
+  g_array_set_size (priv->fatal_messages, index + 1);
+  message = &g_array_index (priv->fatal_messages, FatalMessage, index);
+
+  message->domain = g_strdup (domain);
+  message->flags = level;
+}
+
+bool _gtu_test_suite_log_should_fail (GtuTestSuite* self,
+                                      const char* log_domain,
+                                      GLogLevelFlags log_level)
+{
+  GtuTestSuitePrivate* priv;
+  unsigned i;
+  GtuTestSuite* parent;
+
+  g_assert (GTU_IS_TEST_SUITE (self));
+  g_assert (log_domain != NULL);
+
+  priv = PRIVATE (self);
+
+  for (i = 0; i < priv->fatal_messages->len; i++) {
+    FatalMessage* message =
+      &g_array_index (priv->fatal_messages, FatalMessage, i);
+
+    if (strcmp (message->domain, log_domain) != 0)
+      continue;
+
+    if ((log_level & message->flags) == 0)
+      continue;
+
+    return true;
+  }
+
+  parent = gtu_test_object_get_parent_suite (GTU_TEST_OBJECT (self));
+  if (parent != NULL)
+    return _gtu_test_suite_log_should_fail (parent, log_domain, log_level);
+
+  return false;
+}
+
 static void gtu_test_suite_finalize (GtuTestObject* self) {
   GtuTestSuitePrivate* priv = PRIVATE (self);
 
@@ -90,6 +162,9 @@ static void gtu_test_suite_finalize (GtuTestObject* self) {
 
   g_hash_table_destroy (priv->child_names);
   priv->child_names = NULL;
+
+  g_array_free (priv->fatal_messages, true);
+  priv->fatal_messages = NULL;
 
   GTU_TEST_OBJECT_CLASS (gtu_test_suite_parent_class)->finalize (self);
 }
@@ -113,10 +188,14 @@ static void propagate_signal (GtuTestSuite* self, void* data) {
 }
 
 static void gtu_test_suite_init (GtuTestSuite* self) {
-  PRIVATE (self)->children =
-    g_ptr_array_new_with_free_func (gtu_test_object_unref);
+  GtuTestSuitePrivate* priv = PRIVATE (self);
 
-  PRIVATE (self)->child_names = g_hash_table_new (&g_str_hash, &g_str_equal);
+  priv->children = g_ptr_array_new_with_free_func (&gtu_test_object_unref);
+  priv->child_names = g_hash_table_new (&g_str_hash, &g_str_equal);
+
+  priv->fatal_messages = g_array_new (false, true, sizeof (FatalMessage));
+  g_array_set_clear_func (priv->fatal_messages,
+                          (GDestroyNotify) &fatal_message_dispose);
 
   g_signal_connect (self,
                     "ancestry-changed",

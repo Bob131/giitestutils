@@ -34,7 +34,7 @@ expand_content_files = \
 	considerations/memory-leaks.xml
 
 GTKDOC_CFLAGS = -I$(top_srcdir)/include
-GTKDOC_LIBS = $(top_srcdir)/src/libgtu.a
+GTKDOC_LIBS = $(top_srcdir)/src/libgtu.a $(gtu_U_LIBS)
 
 
 if ENABLE_GTK_DOC

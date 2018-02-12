@@ -46,7 +46,7 @@ GtuTestSuiteChild* gtu_test_suite_add (GtuTestSuite* self,
     NULL
   );
 
-  child = gtu_test_object_ref (test_object);
+  child = gtu_test_object_ref_sink (test_object);
   g_ptr_array_add (priv->children, child);
   _gtu_test_object_set_parent_suite (child, self);
 

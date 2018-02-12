@@ -83,18 +83,22 @@ static void test_case_dispose (GtuTestCase* self) {
 
 GtuTestResult _gtu_test_case_run (GtuTestCase* self, char** out_message) {
   char* message = NULL;
+  const char* path;
   GtuTestCasePrivate* priv;
 
   g_assert (GTU_IS_TEST_CASE (self));
 
   priv = PRIVATE (self);
+  path = gtu_test_object_get_path_string (GTU_TEST_OBJECT (self));
 
   if (priv->result == GTU_TEST_RESULT_INVALID) {
     g_assert (_gtu_current_test == NULL);
     _gtu_current_test = self;
 
+    g_info ("Starting test: %s", path);
     priv->result =
       _gtu_test_case_exec_inner (priv->func, priv->func_target, &message);
+    g_info ("Leaving test: %s", path);
 
     _gtu_current_test = NULL;
 

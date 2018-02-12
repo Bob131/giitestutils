@@ -157,9 +157,8 @@
           <listitem>
             <para>
               #GtuTestSuite allows you to organise collections of related test
-              cases, describe dependent relationships between them, and
-              provides the mechanism for executing the test cases you've
-              supplied. Test case scheduling, memory management and
+              cases and provides the mechanism for executing the test cases
+              you've supplied. Test case scheduling, memory management and
               communication with the test harness are all managed by this
               object.
             </para>

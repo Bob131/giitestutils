@@ -21,11 +21,6 @@ void _gtu_test_case_dispose (GtuTestCase* self) {
   priv->func_target = NULL;
   priv->func_target_destroy = NULL;
 
-  if (priv->dependencies) {
-    g_ptr_array_free (priv->dependencies, true);
-    priv->dependencies = NULL;
-  }
-
   if (priv->expected_msgs) {
     g_array_free (priv->expected_msgs, true);
     priv->expected_msgs = NULL;
@@ -37,31 +32,6 @@ void _gtu_test_case_dispose (GtuTestCase* self) {
 bool _gtu_test_case_has_run (GtuTestCase* self) {
   g_assert (GTU_IS_TEST_CASE (self));
   return PRIVATE (self)->result != GTU_TEST_RESULT_INVALID;
-}
-
-GPtrArray* _gtu_test_case_get_deps (GtuTestCase* self) {
-  g_assert (GTU_IS_TEST_CASE (self));
-  g_assert (!PRIVATE (self)->has_disposed);
-  return PRIVATE (self)->dependencies;
-}
-
-void gtu_test_case_add_dependency (GtuTestCase* self,
-                                   GtuTestSuiteChild* child)
-{
-  g_return_if_fail (GTU_IS_TEST_CASE (self));
-  g_return_if_fail (GTU_IS_TEST_OBJECT (child));
-
-  /* Defer sanity checking until suite execution, since `self' mightn't be
-     parented yet. */
-
-  g_ptr_array_add (PRIVATE (self)->dependencies, gtu_test_object_ref (child));
-}
-
-GtuTestCase* gtu_test_case_with_dep (GtuTestCase* self,
-                                     GtuTestSuiteChild* child)
-{
-  gtu_test_case_add_dependency (self, child);
-  return self;
 }
 
 static void gtu_test_case_finalize (GtuTestObject* self) {
@@ -81,8 +51,6 @@ static void gtu_test_case_class_init (GtuTestCaseClass* klass) {
 
 static void gtu_test_case_init (GtuTestCase* self) {
   GtuTestCasePrivate* priv = PRIVATE (self);
-
-  priv->dependencies = g_ptr_array_new_with_free_func (gtu_test_object_unref);
 
   priv->expected_msgs = g_array_new (false, true, sizeof (GtuExpectedMessage));
   g_array_set_clear_func (priv->expected_msgs,

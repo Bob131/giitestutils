@@ -49,9 +49,6 @@ G_GNUC_INTERNAL GtuTestResult _gtu_test_case_run (GtuTestCase* self,
 
 G_GNUC_INTERNAL bool _gtu_test_case_has_run (GtuTestCase* self);
 
-/* returns array of GtuTestObject */
-G_GNUC_INTERNAL GPtrArray* _gtu_test_case_get_deps (GtuTestCase* self);
-
 typedef struct {
   GList* path_selectors;
   GList* path_skippers;

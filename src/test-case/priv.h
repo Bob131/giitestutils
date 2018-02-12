@@ -8,7 +8,6 @@ typedef struct {
   GtuTestCaseFunc   func;
   void*             func_target;
   GDestroyNotify    func_target_destroy;
-  GPtrArray*        dependencies;  /* array of GtuTestObject */
   GArray*           expected_msgs; /* array of ExpectedMessage */
   GtuTestResult     result;
   bool              has_disposed;  /* FALSE if we're valid, TRUE if we've been

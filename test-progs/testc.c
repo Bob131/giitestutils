@@ -79,7 +79,6 @@ static void run_second (void* data) {
 
 int main (int argc, char* argv[]) {
   GtuTestSuite* suite;
-  GtuTestSuiteChild* child;
 
   gtu_init (argv, argc);
 
@@ -98,13 +97,11 @@ int main (int argc, char* argv[]) {
                                                     GINT_TO_POINTER (42),
                                                     _destroy));
 
-  child = gtu_test_suite_add_obj (suite, gtu_test_case_new ("first", run_first,
-                                                            NULL, NULL));
+  gtu_test_suite_add_obj (suite, gtu_test_case_new ("first", run_first,
+                                                    NULL, NULL));
 
-  gtu_test_suite_add_obj (suite, gtu_test_case_with_dep (
-    gtu_test_case_new ("second", run_second, NULL, NULL),
-    child
-  ));
+  gtu_test_suite_add_obj (suite, gtu_test_case_new ("second", run_second,
+                                                    NULL, NULL));
 
   return gtu_test_suite_run (suite);
 }

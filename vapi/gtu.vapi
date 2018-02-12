@@ -81,9 +81,6 @@ namespace Gtu {
 
         protected virtual void test_impl ();
 
-        public void add_dependency (TestSuite.Child test_object);
-        public unowned TestCase with_dep (TestSuite.Child test_object);
-
         public ExpectHandle expect_message (string domain,
                                             GLib.LogLevelFlags level,
                                             owned GLib.Regex regex);
@@ -98,12 +95,8 @@ namespace Gtu {
     }
 
     public class TestSuite : TestObject {
-        [Compact]
-        public class Child {
-            private Child (); // doesn't exist
-        }
+        public void add (TestObject test_object);
 
-        public unowned Child add (TestObject test_object);
         [DestroysInstance]
         public int run ();
 

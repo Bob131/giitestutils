@@ -26,31 +26,25 @@ static void fatal_message_dispose (FatalMessage* message) {
   message->flags = 0;
 }
 
-GtuTestSuiteChild* gtu_test_suite_add (GtuTestSuite* self,
-                                       GtuTestObject* test_object)
-{
+void gtu_test_suite_add (GtuTestSuite* self, GtuTestObject* test_object) {
   GtuTestSuitePrivate* priv;
   GtuTestObject* child;
 
-  g_return_val_if_fail (GTU_IS_TEST_SUITE  (self),        NULL);
-  g_return_val_if_fail (GTU_IS_TEST_OBJECT (test_object), NULL);
-  g_return_val_if_fail (gtu_test_object_get_parent_suite (test_object) == NULL,
-                        NULL);
+  g_return_if_fail (GTU_IS_TEST_SUITE  (self));
+  g_return_if_fail (GTU_IS_TEST_OBJECT (test_object));
+  g_return_if_fail (gtu_test_object_get_parent_suite (test_object) == NULL);
 
   priv = PRIVATE (self);
 
   /* ght_add returns TRUE if the insertion is unique */
-  g_return_val_if_fail (
+  g_return_if_fail (
     g_hash_table_add (priv->child_names,
-                      (void*) gtu_test_object_get_name (test_object)),
-    NULL
+                      (void*) gtu_test_object_get_name (test_object))
   );
 
   child = gtu_test_object_ref_sink (test_object);
   g_ptr_array_add (priv->children, child);
   _gtu_test_object_set_parent_suite (child, self);
-
-  return child;
 }
 
 void _gtu_test_object_collect_tests (GtuTestObject* object, GPtrArray* tests) {

@@ -64,8 +64,7 @@ int main (string[] args) {
     var suite = new Gtu.TestSuite ("tests");
     suite.add (new TestCase ("asdf"));
 
-    unowned Gtu.TestSuite.Child child = suite.add (new TestSuite ("suite"));
-    suite.add (new TestCase ("depends-on-suite").with_dep (child));
+    suite.add (new TestSuite ("suite"));
 
     return suite.run ();
 }

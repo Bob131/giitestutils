@@ -2,89 +2,6 @@
 #include "test-suite/priv.h"
 #include "log/logio.h"
 
-typedef struct {
-  const GtuPath* aborted_path;
-  GtuTestResult  aborted_result;
-} GtuTestSuiteAbortData;
-
-static bool result_is_abort (GtuTestResult result) {
-  switch (result) {
-    case GTU_TEST_RESULT_INVALID:
-    case GTU_TEST_RESULT_PASS:
-      return false;
-
-    case GTU_TEST_RESULT_SKIP:
-    case GTU_TEST_RESULT_FAIL:
-      return true;
-
-    default:
-      g_assert_not_reached ();
-  }
-}
-
-static bool abort_filled (GtuTestSuiteAbortData* data) {
-  return data->aborted_path != NULL && result_is_abort (data->aborted_result);
-}
-
-static void check_deps (GtuTestObject* required,
-                        GtuTestCase*   requiree_test)
-{
-  const char *required_path = NULL,
-             *requiree_path = NULL,
-             *required_path_parent = NULL,
-             *requiree_path_parent = NULL;
-
-  GtuTestObject* requiree = GTU_TEST_OBJECT (requiree_test);
-
-  required_path = gtu_test_object_get_path_string (required);
-  requiree_path = gtu_test_object_get_path_string (requiree);
-
-  /* requiree_test will have a parent if we're in this function */
-  if (gtu_test_object_get_parent_suite (required) == NULL) {
-    g_log (GTU_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
-           "test `%s' depends on `%s', but the latter has no parent!",
-           requiree_path, required_path);
-    return;
-  }
-
-  required_path_parent = gtu_test_object_get_path_string (
-    GTU_TEST_OBJECT (gtu_test_object_get_parent_suite (required))
-  );
-  requiree_path_parent = gtu_test_object_get_path_string (
-    GTU_TEST_OBJECT (gtu_test_object_get_parent_suite (requiree))
-  );
-
-  if (gtu_test_object_get_parent_suite (requiree) !=
-      gtu_test_object_get_parent_suite (required))
-  {
-    g_log (GTU_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
-           "test `%s' depends on `%s', but they have different parents (`%s' vs `%s')",
-           requiree_path,
-           required_path,
-           requiree_path_parent,
-           required_path_parent);
-  }
-}
-
-static void coalesce_results (GtuTestCase* test_case,
-                              GtuTestSuiteAbortData* data)
-{
-  GtuTestResult test_case_result;
-
-  g_return_if_fail (_gtu_test_case_has_run (test_case));
-
-  if (abort_filled (data))
-    return;
-
-  /* grab the result of the prior test execution */
-  test_case_result = _gtu_test_case_run (test_case, NULL);
-
-  if (result_is_abort (test_case_result)) {
-    data->aborted_path = gtu_test_object_get_path (GTU_TEST_OBJECT (test_case));
-    data->aborted_result = test_case_result;
-  }
-}
-
 static void run_test (GtuTestCase* test_case, int* n_failed) {
   char* message = NULL;
   GtuTestResult result = GTU_TEST_RESULT_INVALID;
@@ -101,34 +18,7 @@ static void run_test (GtuTestCase* test_case, int* n_failed) {
   }
 
   if (_gtu_path_should_run (path)) {
-    GPtrArray* dep_test_cases = g_ptr_array_new ();
-    GtuTestSuiteAbortData abort_data = {
-      NULL,                   /* aborted_path */
-      GTU_TEST_RESULT_INVALID /* aborted_result */
-    };
-
-    g_ptr_array_foreach (_gtu_test_case_get_deps (test_case),
-                         (GFunc) check_deps, test_case);
-
-    g_ptr_array_foreach (_gtu_test_case_get_deps (test_case),
-                         (GFunc) _gtu_test_object_collect_tests,
-                         dep_test_cases);
-
-    g_ptr_array_foreach (dep_test_cases, (GFunc) run_test, n_failed);
-    g_ptr_array_foreach (dep_test_cases, (GFunc) coalesce_results,
-                         &abort_data);
-
-    if (abort_filled (&abort_data)) {
-      message =
-        g_strdup_printf ("prerequisite test aborted: %s",
-                         gtu_path_to_string (abort_data.aborted_path));
-      result = abort_data.aborted_result;
-
-    } else {
-      result = _gtu_test_case_run (test_case, &message);
-    }
-
-    g_ptr_array_free (dep_test_cases, true);
+    result = _gtu_test_case_run (test_case, &message);
 
   } else {
     result = GTU_TEST_RESULT_SKIP;

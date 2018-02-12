@@ -210,8 +210,8 @@
 
         int main (int argc, char *argv[]) {
           gtu_init (argv, argc);
-          GtuTestSuite *root_suite = gtu_test_suite_new ("my-project");
-          GtuTestSuite *object_suite = gtu_test_suite_new ("my-object");
+          GtuTestSuite* root_suite = gtu_test_suite_new ("my-project");
+          GtuTestSuite* object_suite = gtu_test_suite_new ("my-object");
 
           MyObject* object = g_malloc (sizeof (MyObject));
           object->some_field = 42;

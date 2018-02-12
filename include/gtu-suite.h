@@ -104,9 +104,9 @@ GtuTestSuiteChild* gtu_test_suite_add (GtuTestSuite*  self,
                                        GtuTestObject* test_object);
 
 /**
- * gtu_test_suite_add_obj:
- * @self: test suite instance
- * @obj:  test object instance
+ * gtu_test_suite_add_obj: (skip)
+ * @self: (type Gtu.TestSuite):  test suite instance
+ * @obj:  (type Gtu.TestObject): test object instance
  *
  * Convenience macro that casts @obj to #GtuTestObject before calling
  * gtu_test_suite_add().

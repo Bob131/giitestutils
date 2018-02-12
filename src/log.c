@@ -291,6 +291,12 @@ void _gtu_log_test_result (GtuTestResult result,
 
   fprintf (stdout, " %d ", test_number++);
   fprintf (stdout, path);
+
+  if (result == GTU_TEST_RESULT_PASS && message == NULL) {
+    fprintf (stdout, "\n");
+    return;
+  }
+
   fprintf (stdout, " # ");
 
   switch (result) {

@@ -222,22 +222,9 @@ static void log_empty_test_plan (void) {
   fprintf (stdout, "1..0 # Skipped: no tests to run\n");
 }
 
-void _gtu_install_glib_loggers (void) {
-  g_log_set_default_handler (glib_test_logger, NULL);
-  g_log_set_writer_func (glib_structured_logger, NULL, NULL);
-  g_test_log_set_fatal_handler (&fatal_log_handler, NULL);
-
-  atexit (&log_empty_test_plan);
-}
-
-void _gtu_log_printf (const char* format, ...) {
-  char* message;
-  va_list args;
+static void glib_print_handler (const char* message) {
   int i;
   char buf;
-
-  va_start (args, format);
-  message = g_strdup_vprintf (format, args);
 
   /* To be TAP-compliant, lines written to stdout that aren't test results must
      be prefixed with '#'. We iterate through `message', printing "# " after
@@ -250,7 +237,33 @@ void _gtu_log_printf (const char* format, ...) {
 
   if (buf != '\n')
     fprintf (stdout, "\n");
+}
 
+static void glib_printerr_handler (const char* message) {
+  char* new_message = g_strconcat ("STDERR: ", message, NULL);
+  glib_print_handler (new_message);
+  g_free (new_message);
+}
+
+void _gtu_install_glib_loggers (void) {
+  g_set_print_handler (&glib_print_handler);
+  g_set_printerr_handler (&glib_printerr_handler);
+
+  g_log_set_default_handler (glib_test_logger, NULL);
+  g_log_set_writer_func (glib_structured_logger, NULL, NULL);
+
+  g_test_log_set_fatal_handler (&fatal_log_handler, NULL);
+
+  atexit (&log_empty_test_plan);
+}
+
+void _gtu_log_printf (const char* format, ...) {
+  va_list args;
+  char* message;
+
+  va_start (args, format);
+  message = g_strdup_vprintf (format, args);
+  glib_print_handler (message);
   g_free (message);
 }
 

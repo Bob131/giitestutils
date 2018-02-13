@@ -66,7 +66,7 @@ dnl ###########################################################################
 AC_CONFIG_FILES([
 Makefile
 src/Makefile
-src/gtu-test/Makefile
+test-progs/Makefile
 docs/Makefile
 ])
 AC_OUTPUT

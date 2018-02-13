@@ -1,7 +1,5 @@
 AM_CPPFLAGS = -Wall -Wextra -std=c99 -Wpedantic
 
-SUBDIRS = . gtu-test
-
 if IS_SUBPROJECT
 check_LIBRARIES = libgtu.a
 else

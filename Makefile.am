@@ -1,5 +1,9 @@
 SUBDIRS	= src
 
+if ENABLE_CHECK_PROGS
+SUBDIRS += test-progs
+endif
+
 if ENABLE_GTK_DOC
 SUBDIRS += docs
 endif

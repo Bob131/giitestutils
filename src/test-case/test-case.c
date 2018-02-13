@@ -1,6 +1,7 @@
 #include <string.h>
 #include "test-case/priv.h"
 #include "log/log-glib.h"
+#include "log/log-color.h"
 
 #define UNW_LOCAL_ONLY
 #include <libunwind.h>
@@ -202,10 +203,17 @@ GtuTestResult _gtu_test_case_run (GtuTestCase* self, char** out_message) {
   if (priv->result == GTU_TEST_RESULT_INVALID) {
     gtu_log_g_install_suppress_func (&suppress_callback, self);
 
-    g_info ("Starting test: %s", path);
+    g_info ("%s>>> %s%s",
+            gtu_log_lookup_color (GTU_LOG_COLOR_FLAG_BOLD),
+            path,
+            gtu_log_lookup_color (GTU_LOG_COLOR_DISABLE));
+
     priv->result =
       _gtu_test_case_exec_inner (priv->func, priv->func_target, &message);
-    g_info ("Leaving test: %s", path);
+    g_info ("%s<<< %s%s",
+            gtu_log_lookup_color (GTU_LOG_COLOR_FLAG_BOLD),
+            path,
+            gtu_log_lookup_color (GTU_LOG_COLOR_DISABLE));
 
     gtu_log_g_uninstall_suppress_func (&suppress_callback);
 

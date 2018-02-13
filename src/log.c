@@ -107,21 +107,24 @@ static void glib_test_logger (const char* log_domain, GLogLevelFlags log_level,
   }
 
   if (should_log (log_level)) {
-    char *fmtmsg, *reformat;
+    char *fmtmsg;
 
 do_log:
     fmtmsg = _gtu_log_format_message (log_domain, log_level, message);
-    reformat = g_strdup_printf ("%s%s\n",
-                                suppress ? "Suppressed message: " : "",
-                                fmtmsg);
-    g_free (fmtmsg);
+
+    if (suppress) {
+      char* smsg = g_strconcat ("Suppressed message: ", fmtmsg, NULL);
+      g_free (fmtmsg);
+      fmtmsg = _gtu_log_format_message (GTU_LOG_DOMAIN, G_LOG_LEVEL_INFO, smsg);
+      g_free (smsg);
+    }
 
     if (log_level & G_LOG_FLAG_FATAL && !suppress) {
-      bail_out (log_level, reformat);
+      bail_out (log_level, fmtmsg);
 
     } else {
-      _gtu_log_printf (reformat);
-      g_free (reformat);
+      _gtu_log_printf (fmtmsg);
+      g_free (fmtmsg);
     }
   }
 }
@@ -339,9 +342,22 @@ char* _gtu_log_format_message (const char* domain,
                                GLogLevelFlags level,
                                const char* message)
 {
-  return g_strdup_printf ("%s%s%s: %s",
-                          domain != NULL ? domain : "",
-                          domain != NULL ? "-" : "",
+  const char *domain_head = "",
+             *domain_str  = "",
+             *domain_tail = "";
+
+  if (domain != NULL && domain[0] != '\0') {
+    domain_head = "(**";
+    domain_str = domain;
+    domain_tail = ") ";
+  }
+
+  return g_strdup_printf ("%s: %s%s%s%s",
                           level_to_string (level),
+
+                          domain_head,
+                          domain_str,
+                          domain_tail,
+
                           message);
 }

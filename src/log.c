@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 201111L
 #include <stdio.h>
 #include <string.h>
 #include "log.h"
@@ -26,6 +27,54 @@ static bool should_log (GLogLevelFlags log_level) {
     default:
       g_assert_not_reached ();
   }
+}
+
+/* we probably don't want to be calling isatty() all the time for something
+   trivial, so we wrap it in a once_init */
+static bool supports_color (void) {
+  /* -1 for unsupported, +1 for supported */
+  static volatile gssize supported = 0;
+
+  if (g_once_init_enter (&supported)) {
+    gssize result = g_log_writer_supports_color (fileno (stdout)) ? +1 : -1;
+    g_once_init_leave (&supported, result);
+  }
+
+  return supported > 0 ? true : false;
+}
+
+static const char* level_color (GLogLevelFlags level) {
+  if (!supports_color ())
+    return "";
+
+  if (level & G_LOG_FLAG_FATAL)
+    level = G_LOG_LEVEL_ERROR;
+
+  switch (level & G_LOG_LEVEL_MASK) {
+    case G_LOG_LEVEL_ERROR:     return "\033[1;31m";
+    case G_LOG_LEVEL_CRITICAL:  return "\033[1;35m";
+    case G_LOG_LEVEL_WARNING:   return "\033[1;33m";
+    case G_LOG_LEVEL_MESSAGE:   return "\033[1;32m";
+    case G_LOG_LEVEL_INFO:      return "\033[1;34m";
+    case G_LOG_LEVEL_DEBUG:     return "\033[1;36m";
+  }
+
+  return "";
+}
+
+static const char* color_reset (void) {
+  return supports_color () ? "\033[0m" : "";
+}
+
+static const char* diagnostic (void) {
+  static char* string = NULL;
+
+  if (string == NULL)
+    string = g_strdup_printf ("%s#%s ",
+                              supports_color () ? "\033[1m" : "",
+                              color_reset ());
+
+  return string;
 }
 
 static const char* level_to_string (GLogLevelFlags log_level) {
@@ -67,7 +116,7 @@ static const char* level_to_string (GLogLevelFlags log_level) {
 static void bail_out (GLogLevelFlags level, const char* message) {
   GtuDebugFlags debug_flags = _gtu_debug_flags_get ();
 
-  fprintf (stdout, "Bail out!");
+  fprintf (stdout, "%sBail out!%s", level_color (level), color_reset ());
   if (message != NULL)
     fprintf (stdout, " %s", message);
   else
@@ -234,7 +283,7 @@ static void glib_print_handler (const char* message) {
      every newline unless it's a trailing newline. */
   for (i = 0, buf = '\n'; message[i] != '\0'; fputc (buf, stdout), i++) {
     if (buf == '\n')
-      fprintf (stdout, "# ");
+      fprintf (stdout, diagnostic ());
     buf = message[i];
   }
 
@@ -352,8 +401,10 @@ char* _gtu_log_format_message (const char* domain,
     domain_tail = ") ";
   }
 
-  return g_strdup_printf ("%s: %s%s%s%s",
+  return g_strdup_printf ("%s%s%s: %s%s%s%s",
+                          level_color (level),
                           level_to_string (level),
+                          color_reset (),
 
                           domain_head,
                           domain_str,

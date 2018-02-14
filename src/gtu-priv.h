@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#undef G_DISABLE_CHECKS
 #undef G_DISABLE_ASSERT
 #include "gtu.h"
 

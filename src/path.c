@@ -1,5 +1,5 @@
 #include <string.h>
-#include "gtu.h"
+#include "gtu-priv.h"
 
 struct _GtuPath {
   GPtrArray* elements;
@@ -188,4 +188,26 @@ bool gtu_path_has_prefix (GtuPath* path, GtuPath* prefix) {
       return false;
 
   return true;
+}
+
+bool _gtu_path_should_run (GtuPath* path) {
+  bool should_run = true;
+  GtuTestMode* test_mode = _gtu_get_test_mode ();
+  GList* cursor;
+
+  for (cursor = test_mode->path_selectors;
+       cursor != NULL && should_run;
+       cursor = cursor->next)
+  {
+    should_run = gtu_path_has_prefix (path, cursor->data);
+  }
+
+  for (cursor = test_mode->path_skippers;
+       cursor != NULL && should_run;
+       cursor = cursor->next)
+  {
+    should_run = !gtu_path_has_prefix (path, cursor->data);
+  }
+
+  return should_run;
 }

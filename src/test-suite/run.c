@@ -111,59 +111,39 @@ static void run_test (GtuTestCase* test_case, GtuTestSuiteRunData* data) {
     return;
   }
 
-  {
-    bool should_run = true;
-    GtuTestMode* test_mode = _gtu_get_test_mode ();
-    GList* cursor;
+  if (_gtu_path_should_run (path)) {
+    GPtrArray* dep_test_cases = g_ptr_array_new ();
+    GtuTestSuiteAbortData abort_data = {
+      NULL,                   /* aborted_path */
+      GTU_TEST_RESULT_INVALID /* aborted_result */
+    };
 
-    for (cursor = test_mode->path_selectors;
-         cursor != NULL && should_run;
-         cursor = cursor->next)
-    {
-      should_run = gtu_path_has_prefix (path, cursor->data);
-    }
+    g_ptr_array_foreach (_gtu_test_case_get_deps (test_case),
+                         (GFunc) check_deps, test_case);
 
-    for (cursor = test_mode->path_skippers;
-         cursor != NULL && should_run;
-         cursor = cursor->next)
-    {
-      should_run = !gtu_path_has_prefix (path, cursor->data);
-    }
+    g_ptr_array_foreach (_gtu_test_case_get_deps (test_case),
+                         (GFunc) _gtu_test_object_collect_tests,
+                         dep_test_cases);
 
-    if (should_run) {
-      GPtrArray* dep_test_cases = g_ptr_array_new ();
-      GtuTestSuiteAbortData abort_data = {
-        NULL,                   /* aborted_path */
-        GTU_TEST_RESULT_INVALID /* aborted_result */
-      };
+    g_ptr_array_foreach (dep_test_cases, (GFunc) run_test, data);
+    g_ptr_array_foreach (dep_test_cases, (GFunc) coalesce_results,
+                         &abort_data);
 
-      g_ptr_array_foreach (_gtu_test_case_get_deps (test_case),
-                           (GFunc) check_deps, test_case);
-
-      g_ptr_array_foreach (_gtu_test_case_get_deps (test_case),
-                           (GFunc) _gtu_test_object_collect_tests,
-                           dep_test_cases);
-
-      g_ptr_array_foreach (dep_test_cases, (GFunc) run_test, data);
-      g_ptr_array_foreach (dep_test_cases, (GFunc) coalesce_results,
-                           &abort_data);
-
-      if (abort_filled (&abort_data)) {
-        message =
-          g_strdup_printf ("prerequisite test aborted: %s",
-                           gtu_path_to_string (abort_data.aborted_path));
-        result = abort_data.aborted_result;
-
-      } else {
-        result = _gtu_test_case_run (test_case, &message);
-      }
-
-      g_ptr_array_free (dep_test_cases, true);
+    if (abort_filled (&abort_data)) {
+      message =
+        g_strdup_printf ("prerequisite test aborted: %s",
+                         gtu_path_to_string (abort_data.aborted_path));
+      result = abort_data.aborted_result;
 
     } else {
-      result = GTU_TEST_RESULT_SKIP;
-      message = g_strdup ("due to command line args");
+      result = _gtu_test_case_run (test_case, &message);
     }
+
+    g_ptr_array_free (dep_test_cases, true);
+
+  } else {
+    result = GTU_TEST_RESULT_SKIP;
+    message = g_strdup ("due to command line args");
   }
 
   switch (result) {

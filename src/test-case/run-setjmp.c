@@ -1,5 +1,5 @@
 #include <string.h>
-#include "test-case/priv.h"
+#include "test-case/priv-setjmp.h"
 
 /* lazy sanity checking */
 static const uint32_t TR_MAGIC = 0x7357CA5E;

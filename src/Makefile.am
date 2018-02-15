@@ -21,7 +21,9 @@ libgtu_a_SOURCES = \
 	log/glib-handlers.c \
 	log/glib-format.c \
 	test-case/test-case.c \
-	test-case/run.c \
+	test-case/run-init.c \
+	test-case/run-setjmp.c \
+	test-case/expect.c \
 	test-suite/test-suite.c \
 	test-suite/run.c
 

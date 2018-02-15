@@ -1,22 +1,39 @@
 #ifndef __GII_TEST_UTILS_TEST_CASE_PRIV_H__
 #define __GII_TEST_UTILS_TEST_CASE_PRIV_H__
 
-#include <setjmp.h>
 #include "gtu-priv.h"
+#include "priv-setjmp.h"
 
 typedef struct {
-  uint32_t magic;
-  jmp_buf caller_context;
-  char* message;
-  GtuTestResult result;
-} TestRunContext;
+  GtuTestCaseFunc   func;
+  void*             func_target;
+  GDestroyNotify    func_target_destroy;
+  GPtrArray*        dependencies;  /* array of GtuTestObject */
+  GArray*           expected_msgs; /* array of ExpectedMessage */
+  GtuTestResult     result;
+  bool              has_disposed;  /* FALSE if we're valid, TRUE if we've been
+                                      executed and subsequently freed all
+                                      internally held resources. */
+} GtuTestCasePrivate;
 
-G_GNUC_INTERNAL TestRunContext* _gtu_get_tr_context (void);
+#define PRIVATE(obj) \
+  (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GTU_TYPE_TEST_CASE, GtuTestCasePrivate))
 
-G_GNUC_INTERNAL GtuTestResult _gtu_test_case_exec_inner (GtuTestCaseFunc func,
-                                                         void* func_target,
-                                                         char** message);
+G_GNUC_INTERNAL void _gtu_test_case_dispose (GtuTestCase* self);
 
-G_GNUC_INTERNAL void _gtu_test_preempt ();
+typedef struct {
+  char*          domain;
+  GRegex*        regex;
+
+  union {
+    volatile int s;
+    volatile unsigned u;
+  } match_count;
+
+  GLogLevelFlags flags;
+} GtuExpectedMessage;
+
+G_GNUC_INTERNAL void
+_gtu_expected_message_dispose (GtuExpectedMessage* message);
 
 #endif

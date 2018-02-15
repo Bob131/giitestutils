@@ -92,7 +92,7 @@ GtuPath* gtu_path_new_parse (const char* path, char** endptr);
  *
  * Returns: a new copy of @path.
  */
-GtuPath* gtu_path_copy (GtuPath* path);
+GtuPath* gtu_path_copy (const GtuPath* path);
 
 /**
  * gtu_path_free:
@@ -113,7 +113,7 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtuPath, gtu_path_free)
  *
  * Returns: %TRUE if @self is valid, otherwise %FALSE.
  */
-bool gtu_path_is_valid (GtuPath* path);
+bool gtu_path_is_valid (const GtuPath* path);
 
 /**
  * gtu_path_to_string:
@@ -128,7 +128,7 @@ bool gtu_path_is_valid (GtuPath* path);
  *
  * Returns: (transfer none): string representation of @path.
  */
-const char* gtu_path_to_string (GtuPath* path);
+const char* gtu_path_to_string (const GtuPath* path);
 
 /**
  * gtu_path_prepend_element:
@@ -158,7 +158,7 @@ void gtu_path_append_element (GtuPath* path, const char* to_append);
  *
  * Copies and prepends all elements from @to_prepend to @path.
  */
-void gtu_path_prepend_path (GtuPath* path, GtuPath* to_prepend);
+void gtu_path_prepend_path (GtuPath* path, const GtuPath* to_prepend);
 
 /**
  * gtu_path_append_path:
@@ -168,7 +168,7 @@ void gtu_path_prepend_path (GtuPath* path, GtuPath* to_prepend);
  *
  * Copies and appends all elements from @to_append to @path.
  */
-void gtu_path_append_path (GtuPath* path, GtuPath* to_append);
+void gtu_path_append_path (GtuPath* path, const GtuPath* to_append);
 
 /**
  * gtu_path_has_prefix:
@@ -180,7 +180,7 @@ void gtu_path_append_path (GtuPath* path, GtuPath* to_append);
  * Returns: %TRUE if all elements in @prefix match the first elements in @path,
  *          or if @path and @prefix are equal; otherwise, return %FALSE.
  */
-bool gtu_path_has_prefix (GtuPath* path, GtuPath* prefix);
+bool gtu_path_has_prefix (const GtuPath* path, const GtuPath* prefix);
 
 G_END_DECLS
 

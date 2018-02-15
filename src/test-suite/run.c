@@ -3,8 +3,8 @@
 #include "log/logio.h"
 
 typedef struct {
-  GtuPath*      aborted_path;
-  GtuTestResult aborted_result;
+  const GtuPath* aborted_path;
+  GtuTestResult  aborted_result;
 } GtuTestSuiteAbortData;
 
 static bool result_is_abort (GtuTestResult result) {
@@ -94,7 +94,7 @@ static void coalesce_results (GtuTestCase* test_case,
 static void run_test (GtuTestCase* test_case, int* n_failed) {
   char* message = NULL;
   GtuTestResult result = GTU_TEST_RESULT_INVALID;
-  GtuPath* path;
+  const GtuPath* path;
 
   if (_gtu_test_case_has_run (test_case))
     return;

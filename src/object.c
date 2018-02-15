@@ -213,7 +213,7 @@ const char* gtu_test_object_get_name (GtuTestObject* self) {
   return priv->name;
 }
 
-GtuPath* gtu_test_object_get_path (GtuTestObject* self) {
+const GtuPath* gtu_test_object_get_path (GtuTestObject* self) {
   GtuTestObjectPrivate* priv;
 
   g_return_val_if_fail (GTU_IS_TEST_OBJECT (self), NULL);

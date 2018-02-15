@@ -65,11 +65,11 @@ ret:
   return self;
 }
 
-static bool path_is_valid_pointer (GtuPath* path) {
+static bool path_is_valid_pointer (const GtuPath* path) {
   return path != NULL && path->elements != NULL;
 }
 
-GtuPath* gtu_path_copy (GtuPath* path) {
+GtuPath* gtu_path_copy (const GtuPath* path) {
   unsigned i;
   GtuPath* ret;
 
@@ -101,16 +101,19 @@ void gtu_path_free (GtuPath* path) {
 /* There should be only one way to construct an invalid GtuPath instance, and
    that's by making an empty path with gtu_path_new(). So just testing the
    length of `elements' should be enough. */
-bool gtu_path_is_valid (GtuPath* path) {
+bool gtu_path_is_valid (const GtuPath* path) {
   g_return_val_if_fail (path_is_valid_pointer (path), false);
   return path->elements->len > 0;
 }
 
-const char* gtu_path_to_string (GtuPath* path) {
+/* we lie about `path' being const just to make the API simpler */
+const char* gtu_path_to_string (const GtuPath* _path) {
   unsigned i;
   GString* ret_buffer;
+  GtuPath* path;
 
-  g_return_val_if_fail (gtu_path_is_valid (path), NULL);
+  g_return_val_if_fail (gtu_path_is_valid (_path), NULL);
+  path = (GtuPath*) _path;
 
   if (path->cached_string == NULL) {
     for (i = 0, ret_buffer = g_string_new (NULL);
@@ -152,7 +155,7 @@ void gtu_path_append_element (GtuPath* path, const char* element) {
   g_ptr_array_add (path->elements, g_strdup (element));
 }
 
-void gtu_path_prepend_path (GtuPath* path, GtuPath* to_prepend) {
+void gtu_path_prepend_path (GtuPath* path, const GtuPath* to_prepend) {
   unsigned i;
 
   g_return_if_fail (path_is_valid_pointer (path));
@@ -164,7 +167,7 @@ void gtu_path_prepend_path (GtuPath* path, GtuPath* to_prepend) {
                         g_strdup (to_prepend->elements->pdata[i]));
 }
 
-void gtu_path_append_path (GtuPath* path, GtuPath* to_append) {
+void gtu_path_append_path (GtuPath* path, const GtuPath* to_append) {
   unsigned i;
 
   g_return_if_fail (path_is_valid_pointer (path));
@@ -174,7 +177,7 @@ void gtu_path_append_path (GtuPath* path, GtuPath* to_append) {
     g_ptr_array_add (path->elements, g_strdup (to_append->elements->pdata[i]));
 }
 
-bool gtu_path_has_prefix (GtuPath* path, GtuPath* prefix) {
+bool gtu_path_has_prefix (const GtuPath* path, const GtuPath* prefix) {
   unsigned i;
 
   g_return_val_if_fail (path_is_valid_pointer (path),   false);
@@ -190,7 +193,7 @@ bool gtu_path_has_prefix (GtuPath* path, GtuPath* prefix) {
   return true;
 }
 
-bool _gtu_path_should_run (GtuPath* path) {
+bool _gtu_path_should_run (const GtuPath* path) {
   bool should_run = true;
   GtuTestMode* test_mode = _gtu_get_test_mode ();
   GList* cursor;

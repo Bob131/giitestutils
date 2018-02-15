@@ -124,7 +124,7 @@ const char* gtu_test_object_get_name (GtuTestObject* self);
  *
  * Returns: (transfer none): a #GtuPath instance representing @self.
  */
-GtuPath* gtu_test_object_get_path (GtuTestObject* self);
+const GtuPath* gtu_test_object_get_path (GtuTestObject* self);
 
 /**
  * gtu_test_object_get_path_string:

@@ -93,7 +93,7 @@ GtuTestCase* gtu_test_case_construct (GType type, const char* name) {
                         NULL);
 
   klass = GTU_TEST_CASE_GET_CLASS (self);
-  if (klass->test_impl == dummy_test_impl) {
+  if (klass->test_impl == dummy_test_impl && !GTU_IS_COMPLEX_CASE (self)) {
     g_log (GTU_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
            "GtuTestCase subtype %s fails to override test_impl()",
            g_type_name (type));

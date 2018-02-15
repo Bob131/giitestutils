@@ -3,6 +3,7 @@
 
 #include "gtu-priv.h"
 #include "priv-setjmp.h"
+#include "priv-complex.h"
 
 typedef struct {
   GtuTestCaseFunc   func;

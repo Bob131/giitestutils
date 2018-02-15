@@ -134,8 +134,12 @@ GtuTestResult _gtu_test_case_run (GtuTestCase* self, char** out_message) {
             path,
             gtu_log_lookup_color (GTU_LOG_COLOR_DISABLE));
 
-    priv->result =
-      _gtu_test_case_exec_inner (priv->func, priv->func_target, &message);
+    if (GTU_IS_COMPLEX_CASE (self)) {
+      priv->result = _gtu_complex_case_run (GTU_COMPLEX_CASE (self), &message);
+    } else {
+      priv->result =
+        _gtu_test_case_exec_inner (priv->func, priv->func_target, &message);
+    }
 
     g_info ("%s<<< %s%s",
             gtu_log_lookup_color (GTU_LOG_COLOR_FLAG_BOLD),

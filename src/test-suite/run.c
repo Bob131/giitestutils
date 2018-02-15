@@ -47,9 +47,21 @@ static void run_test (GtuTestCase* test_case, int* n_failed) {
     g_free (message);
 }
 
+static void count_tests (GtuTestCase* test_case, unsigned* n_tests) {
+  if (GTU_IS_COMPLEX_CASE (test_case)) {
+    *n_tests += _gtu_complex_case_get_length (GTU_COMPLEX_CASE (test_case));
+  }
+
+  (*n_tests)++;
+}
+
 int _gtu_test_suite_run_internal (GPtrArray* tests) {
   int n_failed = 0;
-  gtu_log_test_plan (tests->len);
-  g_ptr_array_foreach (tests, (GFunc) run_test, &n_failed);
+  unsigned n_tests = 0;
+
+  g_ptr_array_foreach (tests, (GFunc) &count_tests, &n_tests);
+  gtu_log_test_plan (n_tests);
+
+  g_ptr_array_foreach (tests, (GFunc) &run_test, &n_failed);
   return n_failed;
 }

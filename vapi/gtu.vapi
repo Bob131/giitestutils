@@ -94,6 +94,16 @@ namespace Gtu {
         protected TestCase.@construct (string name);
     }
 
+    public abstract class ComplexCase<T> : TestCase {
+        protected new abstract void test_impl (
+            [CCode (type = "int")]
+            T subunit
+        );
+
+        [CCode (has_new_function = false, construct_function = "gtu_complex_case_construct_vala")]
+        protected ComplexCase (string name);
+    }
+
     public class TestSuite : TestObject {
         public void add (TestObject test_object);
 

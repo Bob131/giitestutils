@@ -58,6 +58,28 @@ class TestSuite : Gtu.TestSuite {
     }
 }
 
+class ComplexCase : Gtu.ComplexCase<Subunit> {
+    public enum Subunit {
+        A, B
+    }
+
+    protected override void test_impl (Subunit subunit) {
+        message (subunit.to_string ());
+
+        switch (subunit) {
+            case Subunit.A:
+                assert_not_reached ();
+
+            case Subunit.B:
+                return;
+        }
+    }
+
+    public ComplexCase (string name) {
+        base (name);
+    }
+}
+
 int main (string[] args) {
     Gtu.init (args);
 
@@ -65,6 +87,8 @@ int main (string[] args) {
     suite.add (new TestCase ("asdf"));
 
     suite.add (new TestSuite ("suite"));
+
+    suite.add (new ComplexCase ("complex"));
 
     return suite.run ();
 }

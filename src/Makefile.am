@@ -24,6 +24,7 @@ libgtu_a_SOURCES = \
 	test-case/run-init.c \
 	test-case/run-setjmp.c \
 	test-case/expect.c \
+	test-case/complex.c \
 	test-suite/test-suite.c \
 	test-suite/run.c
 

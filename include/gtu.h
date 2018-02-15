@@ -22,6 +22,7 @@
 #include "gtu-path.h"
 #include "gtu-object.h"
 #include "gtu-case.h"
+#include "gtu-complex.h"
 #include "gtu-suite.h"
 
 #include "gtu-asserts.h"

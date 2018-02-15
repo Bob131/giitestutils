@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import itertools
+
 enum_name = 'GTU_LOG_COLOR'
 
 flags = [
@@ -46,23 +48,29 @@ end = 'm'
 
 cases = set ()
 
-def add_case (case):
-    cases.add (case)
+def flatten (delim, iterable):
+    vals = [val if type (val) == str else flatten (delim, val) for val in iterable]
+    vals = [val for val in vals if len (val) > 0]
+    return delim.join (vals)
 
+def add_case (fields, vals):
+    bitfield = flatten (" | ", fields)
+    valstr = flatten (";", vals)
 
-for flag, flagval in zip (flags, flag_vals):
-    add_case (f'case {flag}: return "{escape}{flagval}{end}";')
+    if (len (bitfield) != 0):
+        cases.add (f'case {bitfield}: return "{escape}{valstr}{end}";')
 
+# https://docs.python.org/3/library/itertools.html
+def powerset (iterable):
+    "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
+    s = list (iterable)
+    return itertools.chain.from_iterable (itertools.combinations (s, r) for r in range (len (s) + 1))
+
+for flag, flagval in zip (powerset (flags), powerset (flag_vals)):
     for fgcol, fgval in zip (fg_colors, fg_vals):
-        add_case (f'case {fgcol}: return "{escape}{fgval}{end}";')
-        add_case (f'case {flag} | {fgcol}: return "{escape}{flagval};{fgval}{end}";')
-
         for bgcol, bgval in zip (bg_colors, bg_vals):
-            add_case (f'case {bgcol}: return "{escape}{bgval}{end}";')
-            add_case (f'case {fgcol} | {bgcol}: return "{escape}{fgval};{bgval}{end}";')
-            add_case (f'case {flag} | {bgcol}: return "{escape}{flagval};{bgval}{end}";')
-            add_case (f'case {flag} | {fgcol} | {bgcol}: return "{escape}{flagval};{fgval};{bgval}{end}";')
-
+            for bits, vals in zip (powerset ([flag, fgcol, bgcol]), powerset ([flagval, fgval, bgval])):
+                add_case (bits, vals)
 
 for line in cases:
     print (line)

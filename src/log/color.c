@@ -26,10 +26,6 @@ const char* gtu_log_lookup_color (GtuLogColor color) {
   switch ((uint16_t) color) {
     case GTU_LOG_COLOR_DISABLE: return "\033[0m";
 
-    case GTU_LOG_COLOR_FLAG_BOLD | GTU_LOG_COLOR_FLAG_UNDERSCORE:  return "\033[1;4m";
-    case GTU_LOG_COLOR_FLAG_BOLD | GTU_LOG_COLOR_FLAG_BLINK:       return "\033[1;4m";
-    case GTU_LOG_COLOR_FLAG_BLINK | GTU_LOG_COLOR_FLAG_UNDERSCORE: return "\033[5;4m";
-
 #   include "color-table.c.in"
 
     default:

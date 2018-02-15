@@ -234,9 +234,9 @@ const GtuPath* gtu_test_object_get_path (GtuTestObject* self) {
   return priv->path;
 }
 
-char* gtu_test_object_get_path_string (GtuTestObject* self) {
+const char* gtu_test_object_get_path_string (GtuTestObject* self) {
   g_return_val_if_fail (GTU_IS_TEST_OBJECT (self), NULL);
-  return g_strdup (gtu_path_to_string (gtu_test_object_get_path (self)));
+  return gtu_path_to_string (gtu_test_object_get_path (self));
 }
 
 GtuTestSuite* gtu_test_object_get_parent_suite (GtuTestObject* self) {

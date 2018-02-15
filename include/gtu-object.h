@@ -130,12 +130,12 @@ const GtuPath* gtu_test_object_get_path (GtuTestObject* self);
  * gtu_test_object_get_path_string:
  * @self: and instance of a #GtuTestObject type.
  *
- * Convenience function that returns a new string instead of a #GtuPath
- * instance. See gtu_test_object_get_path() for more information.
+ * Convenience function that returns a string instead of a #GtuPath instance.
+ * See gtu_test_object_get_path() for more information.
  *
- * Returns: a newly allocated string. Free with g_free() when no longer needed.
+ * Returns: (transfer none): a string representing the path of @self.
  */
-char* gtu_test_object_get_path_string (GtuTestObject* self);
+const char* gtu_test_object_get_path_string (GtuTestObject* self);
 
 #include "gtu-suite.h"
 

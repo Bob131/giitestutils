@@ -29,10 +29,10 @@ static bool abort_filled (GtuTestSuiteAbortData* data) {
 static void check_deps (GtuTestObject* required,
                         GtuTestCase*   requiree_test)
 {
-  char *required_path = NULL,
-       *requiree_path = NULL,
-       *required_path_parent = NULL,
-       *requiree_path_parent = NULL;
+  const char *required_path = NULL,
+             *requiree_path = NULL,
+             *required_path_parent = NULL,
+             *requiree_path_parent = NULL;
 
   GtuTestObject* requiree = GTU_TEST_OBJECT (requiree_test);
 
@@ -44,7 +44,7 @@ static void check_deps (GtuTestObject* required,
     g_log (GTU_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
            "test `%s' depends on `%s', but the latter has no parent!",
            requiree_path, required_path);
-    goto ret;
+    return;
   }
 
   required_path_parent = gtu_test_object_get_path_string (
@@ -64,12 +64,6 @@ static void check_deps (GtuTestObject* required,
            requiree_path_parent,
            required_path_parent);
   }
-
-ret:
-  if (required_path)        g_free (required_path);
-  if (requiree_path)        g_free (requiree_path);
-  if (required_path_parent) g_free (required_path_parent);
-  if (requiree_path_parent) g_free (requiree_path_parent);
 }
 
 static void coalesce_results (GtuTestCase* test_case,

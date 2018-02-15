@@ -122,12 +122,13 @@ static void log_test_result (bool success,
 {
   bool has_directive = tap_directive != NULL || user_directive != NULL;
   unsigned prev_test_count = g_atomic_int_add (&test_count, 1);
-  log_printf ("%sok %u %s%s%s%s\n",
+  log_printf ("%sok %u %s%s%s%s%s\n",
               success ? "" : "not ",
               prev_test_count + 1,
               test_description != NULL ? test_description : "-",
               has_directive ? " # " : "",
               tap_directive != NULL ? tap_directive : "",
+              tap_directive != NULL && user_directive != NULL ? " " : "",
               user_directive != NULL ? user_directive : "");
 }
 

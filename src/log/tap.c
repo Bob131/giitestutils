@@ -96,6 +96,9 @@ void gtu_log_diagnostic (const char* format, ...) {
 void gtu_log_bail_out (const char* format, ...) {
   va_list args;
 
+  /* pre-empt the atexit() handler */
+  gtu_log_disable_test_plan ();
+
   G_LOCK (stdout);
 
   fprintf (stdout, "Bail out!");

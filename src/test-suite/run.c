@@ -3,11 +3,6 @@
 #include "log/logio.h"
 
 typedef struct {
-  int test_number;
-  int n_failed;
-} GtuTestSuiteRunData;
-
-typedef struct {
   GtuPath*      aborted_path;
   GtuTestResult aborted_result;
 } GtuTestSuiteAbortData;
@@ -96,7 +91,7 @@ static void coalesce_results (GtuTestCase* test_case,
   }
 }
 
-static void run_test (GtuTestCase* test_case, GtuTestSuiteRunData* data) {
+static void run_test (GtuTestCase* test_case, int* n_failed) {
   char* message = NULL;
   GtuTestResult result = GTU_TEST_RESULT_INVALID;
   GtuPath* path;
@@ -125,7 +120,7 @@ static void run_test (GtuTestCase* test_case, GtuTestSuiteRunData* data) {
                          (GFunc) _gtu_test_object_collect_tests,
                          dep_test_cases);
 
-    g_ptr_array_foreach (dep_test_cases, (GFunc) run_test, data);
+    g_ptr_array_foreach (dep_test_cases, (GFunc) run_test, n_failed);
     g_ptr_array_foreach (dep_test_cases, (GFunc) coalesce_results,
                          &abort_data);
 
@@ -157,6 +152,7 @@ static void run_test (GtuTestCase* test_case, GtuTestSuiteRunData* data) {
 
     case GTU_TEST_RESULT_FAIL:
       gtu_log_test_failed (gtu_path_to_string (path), message);
+      (*n_failed)++;
       break;
 
     default:
@@ -168,12 +164,8 @@ static void run_test (GtuTestCase* test_case, GtuTestSuiteRunData* data) {
 }
 
 int _gtu_test_suite_run_internal (GPtrArray* tests) {
-  GtuTestSuiteRunData data;
-
+  int n_failed = 0;
   gtu_log_test_plan (tests->len);
-
-  data.test_number = 1;
-  g_ptr_array_foreach (tests, (GFunc) run_test, &data);
-
-  return data.n_failed;
+  g_ptr_array_foreach (tests, (GFunc) run_test, &n_failed);
+  return n_failed;
 }

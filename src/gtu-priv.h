@@ -52,18 +52,6 @@ G_GNUC_INTERNAL bool _gtu_test_case_has_run (GtuTestCase* self);
 /* returns array of GtuTestObject */
 G_GNUC_INTERNAL GPtrArray* _gtu_test_case_get_deps (GtuTestCase* self);
 
-/* Returns `true' if `self' handled the message, `false' otherwise. The
-   `caller' parameter should be the address of the function acting as a GLib
-   log handler. */
-G_GNUC_INTERNAL bool _gtu_test_case_handle_message (GtuTestCase* self,
-                                                    const char* domain,
-                                                    GLogLevelFlags level,
-                                                    const char* message,
-                                                    uintptr_t caller);
-
-/* The test currently being executed. May be NULL */
-G_GNUC_INTERNAL extern GtuTestCase* _gtu_current_test;
-
 typedef struct {
   GList* path_selectors;
   GList* path_skippers;

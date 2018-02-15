@@ -1,7 +1,9 @@
 #include <string.h>
 #include <stdio.h>
 #include "gtu-priv.h"
-#include "log.h"
+
+#include "log/logio.h"
+#include "log/log-glib.h"
 
 #ifdef HAVE_ALLOCA_H
 # include <alloca.h>
@@ -128,6 +130,7 @@ static bool parse_args (char** args, int args_length) {
 
     } else if (strcmp (args[i], "-l") == 0) {
       _test_mode.list_only = true;
+      gtu_log_disable_test_plan ();
 
     } else if (GET_ARG ("--GTestLogFD")     ||
                GET_ARG ("--GTestSkipCount") ||
@@ -140,8 +143,8 @@ static bool parse_args (char** args, int args_length) {
 
   /* this shouldn't necessarily be fatal, so just log */
   if (!tap_set && !_test_mode.list_only)
-    _gtu_log_printf ("WARNING: non-TAP test logging is unsupported. %s\n",
-                     "Run with --tap");
+    gtu_log_diagnostic ("WARNING: non-TAP test logging is unsupported. %s\n",
+                        "Run with --tap");
 
   return tap_set;
 }
@@ -190,7 +193,7 @@ void gtu_init (char** args, int args_length) {
       G_N_ELEMENTS (_glib_debug_keys)
     );
 
-    _gtu_install_glib_loggers ();
+    gtu_log_g_install_handlers ();
 
     _has_initialized = true;
   }

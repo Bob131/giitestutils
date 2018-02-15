@@ -6,12 +6,20 @@ else
 noinst_LIBRARIES = libgtu.a
 endif
 
+BUILT_SOURCES = log/color-table.c.in
+
+log/color-table.c.in:
+	$(AM_V_GEN) log/generate-color-table.py > $@
+
 libgtu_a_SOURCES = \
 	init.c \
-	log.c \
 	flags.c \
 	path.c \
 	object.c \
+	log/tap.c \
+	log/color.c \
+	log/glib-handlers.c \
+	log/glib-format.c \
 	test-case/test-case.c \
 	test-case/run.c \
 	test-suite/test-suite.c \

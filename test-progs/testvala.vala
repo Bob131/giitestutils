@@ -19,10 +19,11 @@ class TestCase : Gtu.TestCase {
 class ExpectCase : Gtu.TestCase {
     protected override void test_impl () {
         var handle = this.expect_message ("asdf", LogLevelFlags.LEVEL_CRITICAL,
-                                          /klasdf/);
+                                          /klasd./);
         log ("asdf", LogLevelFlags.LEVEL_CRITICAL, "klasdf");
+        log_structured ("asdf", LogLevelFlags.LEVEL_CRITICAL, "MESSAGE", "klasde");
         assert (this.expect_check (handle));
-        assert (this.expect_count (handle) == 1);
+        assert (this.expect_count (handle) == 2);
         assert (!this.expect_check (handle));
     }
 

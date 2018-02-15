@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "test-suite/priv.h"
-#include "log.h"
+#include "log/logio.h"
 
 typedef struct {
   int test_number;
@@ -166,7 +166,22 @@ static void run_test (GtuTestCase* test_case, GtuTestSuiteRunData* data) {
     }
   }
 
-  _gtu_log_test_result (result, gtu_path_to_string (path), message);
+  switch (result) {
+    case GTU_TEST_RESULT_PASS:
+      gtu_log_test_success (gtu_path_to_string (path), message);
+      break;
+
+    case GTU_TEST_RESULT_SKIP:
+      gtu_log_test_skipped (gtu_path_to_string (path), message);
+      break;
+
+    case GTU_TEST_RESULT_FAIL:
+      gtu_log_test_failed (gtu_path_to_string (path), message);
+      break;
+
+    default:
+      g_assert_not_reached ();
+  }
 
   if (message != NULL)
     g_free (message);
@@ -175,7 +190,7 @@ static void run_test (GtuTestCase* test_case, GtuTestSuiteRunData* data) {
 int _gtu_test_suite_run_internal (GPtrArray* tests) {
   GtuTestSuiteRunData data;
 
-  _gtu_log_test_plan (tests->len);
+  gtu_log_test_plan (tests->len);
 
   data.test_number = 1;
   g_ptr_array_foreach (tests, (GFunc) run_test, &data);

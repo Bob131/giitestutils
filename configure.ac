@@ -15,7 +15,7 @@ dnl ###########################################################################
 
 AC_FUNC_ALLOCA
 
-GLIB_REQUIRED=2.40.0
+GLIB_REQUIRED=2.44.0
 
 GTU_REQUIRED_PACKAGES=m4_flatten(["
   glib-2.0 >= $GLIB_REQUIRED

@@ -31,6 +31,7 @@ libgtu_a_SOURCES = \
 libgtu_a_CFLAGS = \
 	-I$(top_srcdir)/include \
 	-DG_LOG_DOMAIN=GTU_LOG_DOMAIN \
+	-DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_44 \
 	$(gtu_U_CFLAGS)
 
 -include $(top_srcdir)/git.mk

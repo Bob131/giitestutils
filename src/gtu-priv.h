@@ -9,6 +9,11 @@
 #undef G_DISABLE_ASSERT
 #include "gtu.h"
 
+/* g_abort() doesn't exist before 2.50 */
+#if GLIB_VERSION_MAX_ALLOWED < GLIB_VERSION_2_50
+# define g_abort() abort ()
+#endif
+
 typedef enum {
   GTU_DEBUG_FLAGS_NONE            = 0,
   GTU_DEBUG_FLAGS_FATAL_ASSERTS   = 1 << 0,

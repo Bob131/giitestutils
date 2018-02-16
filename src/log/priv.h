@@ -6,6 +6,9 @@
 
 #include <glib.h>
 
+#define STRUCTURED_LOGGING_AVAILABLE \
+    (GLIB_VERSION_MAX_ALLOWED >= GLIB_VERSION_2_50)
+
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN ("GiiTestUtils-Log")
 

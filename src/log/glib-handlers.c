@@ -120,6 +120,7 @@ static void message_handler (const char* domain,
   }
 }
 
+#if STRUCTURED_LOGGING_AVAILABLE
 static GLogWriterOutput structured_handler (GLogLevelFlags level,
                                             const GLogField* fields,
                                             size_t n_fields,
@@ -208,6 +209,7 @@ static GLogWriterOutput structured_handler (GLogLevelFlags level,
 ret:
   return G_LOG_WRITER_HANDLED;
 }
+#endif
 
 static gboolean fatal_handler (const char* domain,
                                GLogLevelFlags level,
@@ -233,7 +235,9 @@ void gtu_log_g_install_handlers (void) {
     g_set_printerr_handler (&stdfd_handler);
 
     g_log_set_default_handler (&message_handler, NULL);
+#if STRUCTURED_LOGGING_AVAILABLE
     g_log_set_writer_func (&structured_handler, NULL, NULL);
+#endif
 
     g_test_log_set_fatal_handler (&fatal_handler, NULL);
 

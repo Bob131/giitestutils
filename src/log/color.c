@@ -5,6 +5,10 @@
 #include "priv.h"
 #include "log-color.h"
 
+#if !STRUCTURED_LOGGING_AVAILABLE
+# include <unistd.h>
+#endif
+
 /* we probably don't want to be calling isatty() all the time for something
    trivial, so we wrap it in a once_init */
 bool gtu_log_supports_color (void) {
@@ -12,7 +16,16 @@ bool gtu_log_supports_color (void) {
   static volatile gssize supported = 0;
 
   if (g_once_init_enter (&supported)) {
-    gssize result = g_log_writer_supports_color (fileno (stdout)) ? +1 : -1;
+    bool is_tty;
+    gssize result;
+
+#if STRUCTURED_LOGGING_AVAILABLE
+    is_tty = g_log_writer_supports_color (fileno (stdout));
+#else
+    is_tty = isatty (fileno (stdout));
+#endif
+
+    result = is_tty ? +1 : -1;
     g_once_init_leave (&supported, result);
   }
 

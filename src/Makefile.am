@@ -20,6 +20,7 @@ libgtu_a_SOURCES = \
 	log/color.c \
 	log/glib-handlers.c \
 	log/glib-format.c \
+	log/hooks.c \
 	test-case/test-case.c \
 	test-case/run-init.c \
 	test-case/run-setjmp.c \

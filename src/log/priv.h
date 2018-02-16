@@ -12,4 +12,11 @@
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN ("GiiTestUtils-Log")
 
+#include <stdlib.h>
+
+/* g_abort() doesn't exist before 2.50 */
+#if GLIB_VERSION_MAX_ALLOWED < GLIB_VERSION_2_50
+# define g_abort() abort ()
+#endif
+
 #endif

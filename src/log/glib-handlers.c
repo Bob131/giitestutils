@@ -13,15 +13,15 @@ static struct {
   const void* data;
 } suppress_info = {NULL, NULL};
 
-#define SHOULD_SUPPRESS(domain, level, message, func) \
-  (should_suppress ((domain), (level), (message), (uintptr_t) (func)))
+#define SHOULD_SUPPRESS(domain, level, message) \
+  (should_suppress ((domain), (level), (message)))
 
 static bool should_suppress (const char* domain,
                              GLogLevelFlags level,
-                             const char* message,
-                             uintptr_t log_entry)
+                             const char* message)
 {
   bool ret;
+  GtuLogGMessage g_message = { domain, level, message };
 
   /* TODO: hold read locks. The suppression mechanism is exclusively for the
      benefit of GtuTestCase, which does all sorts of nasty stack unwinding
@@ -31,11 +31,7 @@ static bool should_suppress (const char* domain,
   /* G_LOCK (suppress_info); */
 
   ret = suppress_info.func != NULL ?
-    suppress_info.func (domain,
-                        level,
-                        message,
-                        log_entry,
-                        (void*) suppress_info.data) :
+    suppress_info.func (&g_message, (void*) suppress_info.data) :
     false;
 
   /* G_UNLOCK (suppress_info); */
@@ -93,17 +89,15 @@ static void message_handler (const char* domain,
 {
   (void) data;
 
-  if (SHOULD_SUPPRESS (domain, level, message, &message_handler)) {
+  if (SHOULD_SUPPRESS (domain, level, message)) {
     GString* formatted_message;
+    GtuLogGMessage g_message = { domain, level, message };
 
     if (!should_log (G_LOG_LEVEL_INFO))
       return;
 
     formatted_message = g_string_new ("Suppressed message: ");
-    gtu_log_g_format_message_append (formatted_message,
-                                     domain,
-                                     level,
-                                     message);
+    gtu_log_g_format_message_append (formatted_message, &g_message);
 
     message_printer (GTU_LOG_DOMAIN, G_LOG_LEVEL_INFO, formatted_message->str);
 
@@ -154,9 +148,7 @@ static GLogWriterOutput structured_handler (GLogLevelFlags level,
     }
 
     /* call SHOULD_SUPPRESS before we allocate any memory */
-    if (message != NULL &&
-        SHOULD_SUPPRESS (domain, level, message, &structured_handler))
-    {
+    if (message != NULL && SHOULD_SUPPRESS (domain, level, message)) {
       check_level = G_LOG_LEVEL_INFO;
       suppressed = true;
     }
@@ -170,9 +162,10 @@ static GLogWriterOutput structured_handler (GLogLevelFlags level,
                                     "Structured message (suppressed):");
 
   if (message != NULL) {
+    GtuLogGMessage g_message = { domain, level, message };
+
     g_string_append_c (formatted_message, ' ');
-    gtu_log_g_format_message_append (formatted_message,
-                                     domain, level, message);
+    gtu_log_g_format_message_append (formatted_message, &g_message);
 
     if (suppressed) {
       char* info_message = gtu_log_g_format_message (GTU_LOG_DOMAIN,

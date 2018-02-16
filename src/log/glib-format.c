@@ -39,9 +39,7 @@ static const char* level_to_string (GLogLevelFlags log_level) {
 }
 
 void gtu_log_g_format_message_append (GString* string,
-                                      const char* domain,
-                                      GLogLevelFlags level,
-                                      const char* message)
+                                      const GtuLogGMessage* message)
 {
   const char *fatal_color_begin = "",
              *fatal_level = "",
@@ -51,16 +49,16 @@ void gtu_log_g_format_message_append (GString* string,
              *domain_str  = "",
              *domain_tail = "";
 
-  if (level & G_LOG_FLAG_FATAL) {
+  if (message->flags & G_LOG_FLAG_FATAL) {
     fatal_color_begin = gtu_log_lookup_color (level_color (G_LOG_LEVEL_ERROR));
     fatal_level = "FATAL";
     fatal_color_end = gtu_log_lookup_color (GTU_LOG_COLOR_DISABLE);
     fatal_sep = "-";
   }
 
-  if (domain != NULL && domain[0] != '\0') {
+  if (message->domain != NULL && message->domain[0] != '\0') {
     domain_head = "(**";
-    domain_str = domain;
+    domain_str = message->domain;
     domain_tail = ") ";
   }
 
@@ -72,15 +70,15 @@ void gtu_log_g_format_message_append (GString* string,
     fatal_color_end,
     fatal_sep,
 
-    gtu_log_lookup_color (level_color (level)),
-    level_to_string (level),
+    gtu_log_lookup_color (level_color (message->flags)),
+    level_to_string (message->flags),
     gtu_log_lookup_color (GTU_LOG_COLOR_DISABLE),
 
     domain_head,
     domain_str,
     domain_tail,
 
-    message
+    message->body
   );
 }
 
@@ -88,7 +86,8 @@ char* gtu_log_g_format_message (const char* domain,
                                 GLogLevelFlags level,
                                 const char* message)
 {
+  GtuLogGMessage g_message = { domain, level, message };
   GString* ret = g_string_new (NULL);
-  gtu_log_g_format_message_append (ret, domain, level, message);
+  gtu_log_g_format_message_append (ret, &g_message);
   return g_string_free (ret, false);
 }

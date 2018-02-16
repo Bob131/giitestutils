@@ -4,6 +4,10 @@
 
 #include "log/logio.h"
 #include "log/log-glib.h"
+#include "log/log-hooks.h"
+
+/* needed for _gtu_test_preempt declaration */
+#include "test-case/priv-setjmp.h"
 
 #ifdef HAVE_ALLOCA_H
 # include <alloca.h>
@@ -194,6 +198,7 @@ void gtu_init (char** args, int args_length) {
     );
 
     gtu_log_g_install_handlers ();
+    gtu_log_hooks_init (&_gtu_test_preempt);
 
     _has_initialized = true;
   }

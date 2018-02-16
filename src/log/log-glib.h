@@ -6,22 +6,31 @@
 #include <glib.h>
 
 /**
+ * GtuLogGMessage:
+ * @domain: (allow-none): GLib log domain.
+ * @flags:  GLib log level + flags.
+ * @body:   A message logged through the GLib logging machinery from @domain
+ *          and with @flags.
+ *
+ * Contains all the details of a message logged with g_log() et al.
+ */
+typedef struct {
+  const char* domain;
+  GLogLevelFlags flags;
+  const char* body;
+} GtuLogGMessage;
+
+/**
  * GtuLogGSuppressFunc:
- * @domain:        (allow-none): GLib log domain.
- * @level:         GLib log level/flags.
- * @message:       a message logged with @domain and @level.
- * @gtu_log_entry: the address of the first GTU Log function called by GLib.
- * @user_data:     (closure): user-provided data.
+ * @message:   a message logged via GLib.
+ * @user_data: (closure): user-provided data.
  *
  * Callback to determine whether a message should be suppressed. Must not call
  * gtu_log_g_*_suppress_func.
  *
  * Returns: %TRUE if @message should be suppressed, %FALSE otherwise.
  */
-typedef bool (*GtuLogGSuppressFunc) (const char* domain,
-                                     GLogLevelFlags level,
-                                     const char* message,
-                                     uintptr_t gtu_log_entry,
+typedef bool (*GtuLogGSuppressFunc) (const GtuLogGMessage* message,
                                      void* user_data);
 
 /**
@@ -56,16 +65,12 @@ void gtu_log_g_uninstall_suppress_func (GtuLogGSuppressFunc func);
 
 /**
  * @string:  #GString to which the formatted message will be appended.
- * @domain:  (allow-none): log domain to which @message belongs.
- * @level:   logging level of @message, including flags.
- * @message: contents of the logged message.
+ * @message: message to be formatted.
  *
  * Appends a formatted string describing a message logged via GLib to @string.
  */
 void gtu_log_g_format_message_append (GString* string,
-                                      const char* domain,
-                                      GLogLevelFlags level,
-                                      const char* message);
+                                      const GtuLogGMessage* message);
 
 /**
  * gtu_log_g_format_message:
@@ -73,7 +78,8 @@ void gtu_log_g_format_message_append (GString* string,
  * @level:   logging level of @message with flags.
  * @message: contents of the logged message.
  *
- * Returns a string describing a message logged via GLib.
+ * Convenience wrapper around gtu_log_g_format_message_append(), with a
+ * signature more convenient for use from GLib handlers.
  *
  * Returns: an owned string, without a trailing newline. Free the result when
  *          done.

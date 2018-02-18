@@ -5,16 +5,16 @@ public void assert_not_reached ();
 [CCode (cheader_filename = "gtu.h", cname = "gtu_assert")]
 public void assert (bool expr);
 
-[CCode (cheader_filename = "gtu.h", cname = "gtu_assert")]
+[CCode (cheader_filename = "gtu.h", cname = "gtu_assert_true")]
 public void assert_true (bool expr);
 
-[CCode (cheader_filename = "gtu.h", cname = "gtu_assert")]
+[CCode (cheader_filename = "gtu.h", cname = "gtu_assert_false")]
 public void assert_false (bool expr);
 
-[CCode (cheader_filename = "gtu.h", cname = "gtu_assert")]
+[CCode (cheader_filename = "gtu.h", cname = "gtu_assert_null")]
 public void assert_null (...);
 
-[CCode (cheader_filename = "gtu.h", cname = "gtu_assert")]
+[CCode (cheader_filename = "gtu.h", cname = "gtu_assert_nonnull")]
 public void assert_nonnull (...);
 
 [CCode (cheader_filename = "gtu.h")]

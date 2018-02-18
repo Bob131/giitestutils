@@ -35,11 +35,15 @@ typedef bool (*GtuLogGSuppressFunc) (const GtuLogGMessage* message,
 
 /**
  * gtu_log_g_install_handlers:
+ * @fatal_log_domain: the log domain prefix for which %G_LOG_FLAG_FATAL is
+ *                    actually fatal. A little pointless at the moment, since
+ *                    in a few places we assume this is equal to
+ *                    "GiiTestUtils", so don't pass any other values in.
  *
  * On the first call, installs a variety of callbacks in GLib to ensure message
  * logging is handled correctly. On subsequent calls, does nothing.
  */
-void gtu_log_g_install_handlers (void);
+void gtu_log_g_install_handlers (const char* fatal_log_domain);
 
 /**
  * gtu_log_g_install_suppress_func:

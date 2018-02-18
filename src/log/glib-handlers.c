@@ -5,13 +5,13 @@
 #include "logio.h"
 #include "log-glib.h"
 
-#include "gtu.h"
-
 G_LOCK_DEFINE_STATIC (suppress_info);
 static struct {
   GtuLogGSuppressFunc func;
   const void* data;
 } suppress_info = {NULL, NULL};
+
+char* _gtu_log_g_log_domain = NULL;
 
 #define SHOULD_SUPPRESS(domain, level, message) \
   (should_suppress ((domain), (level), (message)))
@@ -37,28 +37,6 @@ static bool should_suppress (const char* domain,
   /* G_UNLOCK (suppress_info); */
 
   return ret;
-}
-
-static bool should_log (GLogLevelFlags log_level) {
-  if (log_level & G_LOG_FLAG_FATAL)
-    return true;
-
-  switch (log_level & G_LOG_LEVEL_MASK) {
-    case G_LOG_LEVEL_ERROR:
-    case G_LOG_LEVEL_CRITICAL:
-    case G_LOG_LEVEL_WARNING:
-      return true;
-
-    case G_LOG_LEVEL_MESSAGE:
-      return !(gtu_test_mode_flags_get_flags () & GTU_TEST_MODE_FLAGS_QUIET);
-
-    case G_LOG_LEVEL_INFO:
-    case G_LOG_LEVEL_DEBUG:
-      return gtu_test_mode_flags_get_flags () & GTU_TEST_MODE_FLAGS_VERBOSE;
-
-    default:
-      g_assert_not_reached ();
-  }
 }
 
 static void stdfd_handler (const char* message) {
@@ -89,24 +67,7 @@ static void message_handler (const char* domain,
 {
   (void) data;
 
-  if (SHOULD_SUPPRESS (domain, level, message)) {
-    GString* formatted_message;
-    GtuLogGMessage g_message = { domain, level, message };
-
-    if (!should_log (G_LOG_LEVEL_INFO))
-      return;
-
-    formatted_message = g_string_new ("Suppressed message: ");
-    gtu_log_g_format_message_append (formatted_message, &g_message);
-
-    message_printer (GTU_LOG_DOMAIN, G_LOG_LEVEL_INFO, formatted_message->str);
-
-    g_string_free (formatted_message, true);
-
-  } else {
-    if (!should_log (level))
-      return;
-
+  if (!SHOULD_SUPPRESS (domain, level, message)) {
     if (level & G_LOG_FLAG_FATAL)
       message_bailout (domain, level, message);
     else
@@ -124,56 +85,36 @@ static GLogWriterOutput structured_handler (GLogLevelFlags level,
   const char* domain = NULL;
   const char* message = NULL;
   GString* formatted_message;
-  bool suppressed = false;
 
   (void) data;
 
-  {
-    /* collect the domain/message fields and check suppression */
-    GLogLevelFlags check_level = level;
+  /* collect the domain/message fields and check suppression */
+  for (i = 0; i < n_fields && (message == NULL || domain == NULL); i++) {
+    const char** var;
 
-    for (i = 0; i < n_fields && (message == NULL || domain == NULL); i++) {
-      const char** var;
-
-      if (strcmp (fields[i].key, "MESSAGE") == 0) {
-        var = &message;
-      } else if (strcmp (fields[i].key, "GLIB_DOMAIN") == 0) {
-        var = &domain;
-      } else {
-        continue;
-      }
-
-      g_return_val_if_fail (fields[i].length == -1, G_LOG_WRITER_UNHANDLED);
-      *var = (const char*) fields[i].value;
+    if (strcmp (fields[i].key, "MESSAGE") == 0) {
+      var = &message;
+    } else if (strcmp (fields[i].key, "GLIB_DOMAIN") == 0) {
+      var = &domain;
+    } else {
+      continue;
     }
 
-    /* call SHOULD_SUPPRESS before we allocate any memory */
-    if (message != NULL && SHOULD_SUPPRESS (domain, level, message)) {
-      check_level = G_LOG_LEVEL_INFO;
-      suppressed = true;
-    }
-
-    if (!should_log (check_level))
-      goto ret;
+    g_return_val_if_fail (fields[i].length == -1, G_LOG_WRITER_UNHANDLED);
+    *var = (const char*) fields[i].value;
   }
 
-  formatted_message = g_string_new (!suppressed ?
-                                    "Structured message:" :
-                                    "Structured message (suppressed):");
+  /* call SHOULD_SUPPRESS before we allocate any memory */
+  if (message != NULL && SHOULD_SUPPRESS (domain, level, message))
+    goto ret;
+
+  formatted_message = g_string_new ("Structured message:");
 
   if (message != NULL) {
     GtuLogGMessage g_message = { domain, level, message };
 
     g_string_append_c (formatted_message, ' ');
     gtu_log_g_format_message_append (formatted_message, &g_message);
-
-    if (suppressed) {
-      char* info_message = gtu_log_g_format_message (GTU_LOG_DOMAIN,
-                                                     G_LOG_LEVEL_INFO,
-                                                     formatted_message->str);
-      g_string_assign (formatted_message, info_message);
-      g_free (info_message);
-    }
   }
 
   g_string_append_c (formatted_message, '\n');
@@ -196,7 +137,7 @@ static GLogWriterOutput structured_handler (GLogLevelFlags level,
   gtu_log_diagnostic (formatted_message->str);
   g_string_free (formatted_message, true);
 
-  if (level & G_LOG_FLAG_FATAL && !suppressed)
+  if (level & G_LOG_FLAG_FATAL)
     gtu_log_bail_out ("Fatal structured message received");
 
 ret:
@@ -213,17 +154,23 @@ static gboolean fatal_handler (const char* domain,
   (void) message;
   (void) data;
 
-  return domain == NULL ? false : g_str_has_prefix (domain, GTU_LOG_DOMAIN);
+  return domain == NULL ?
+    false :
+    g_str_has_prefix (domain, _gtu_log_g_log_domain);
 }
 
 static void log_empty_plan (void) {
   gtu_log_test_plan (0);
 }
 
-void gtu_log_g_install_handlers (void) {
+void gtu_log_g_install_handlers (const char* log_domain) {
   static volatile size_t has_installed;
 
   if (g_once_init_enter (&has_installed)) {
+    g_assert (_gtu_log_g_log_domain == NULL);
+    g_assert (log_domain != NULL);
+    _gtu_log_g_log_domain = g_strdup (log_domain);
+
     g_set_print_handler (&stdfd_handler);
     g_set_printerr_handler (&stdfd_handler);
 

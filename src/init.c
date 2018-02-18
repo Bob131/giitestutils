@@ -3,7 +3,6 @@
 #include "gtu-priv.h"
 
 #include "log/logio.h"
-#include "log/log-glib.h"
 #include "log/log-hooks.h"
 
 /* needed for _gtu_test_preempt declaration */
@@ -153,6 +152,17 @@ static bool parse_args (char** args, int args_length) {
   return tap_set;
 }
 
+GtuLogAction verbosity_handler (const GtuLogGMessage* message, void* data) {
+  (void) data;
+
+  if (message->flags & G_LOG_FLAG_FATAL)
+    return GTU_LOG_ACTION_BAIL_OUT;
+
+  return _gtu_should_log (message->flags) ?
+    GTU_LOG_ACTION_CONTINUE :
+    GTU_LOG_ACTION_IGNORE;
+}
+
 void gtu_init (char** args, int args_length) {
   g_return_if_fail (args != NULL && args_length > 0);
 
@@ -197,8 +207,8 @@ void gtu_init (char** args, int args_length) {
       G_N_ELEMENTS (_glib_debug_keys)
     );
 
-    gtu_log_g_install_handlers ();
-    gtu_log_hooks_init (&_gtu_test_preempt);
+    gtu_log_hooks_init (GTU_LOG_DOMAIN, &_gtu_test_preempt);
+    gtu_log_hooks_push (&verbosity_handler, NULL);
 
     _has_initialized = true;
   }

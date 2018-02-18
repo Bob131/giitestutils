@@ -1,6 +1,5 @@
 #include <string.h>
 #include "priv.h"
-#include "log/log-glib.h"
 #include "log/log-color.h"
 #include "log/log-hooks.h"
 
@@ -38,7 +37,9 @@ static GtuLogAction log_hook (const GtuLogGMessage* message, void* user_data) {
                        NULL))
     {
       g_atomic_int_inc (&expect->match_count.s);
-      return GTU_LOG_ACTION_SUPPRESS;
+      return _gtu_should_log (G_LOG_LEVEL_INFO) ?
+        GTU_LOG_ACTION_SUPPRESS :
+        GTU_LOG_ACTION_IGNORE;
     }
   }
 

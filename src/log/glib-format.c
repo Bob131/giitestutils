@@ -4,8 +4,6 @@
 #include "log-glib.h"
 #include "log-color.h"
 
-#include "gtu.h"
-
 static GtuLogColor level_color (GLogLevelFlags level) {
   GtuLogColor color = GTU_LOG_COLOR_FLAG_BOLD;
 

@@ -43,3 +43,25 @@ GtuTestModeFlags gtu_test_mode_flags_get_flags (void) {
 
   return flags;
 }
+
+bool _gtu_should_log (GLogLevelFlags log_level) {
+  if (log_level & G_LOG_FLAG_FATAL)
+    return true;
+
+  switch (log_level & G_LOG_LEVEL_MASK) {
+    case G_LOG_LEVEL_ERROR:
+    case G_LOG_LEVEL_CRITICAL:
+    case G_LOG_LEVEL_WARNING:
+      return true;
+
+    case G_LOG_LEVEL_MESSAGE:
+      return !(gtu_test_mode_flags_get_flags () & GTU_TEST_MODE_FLAGS_QUIET);
+
+    case G_LOG_LEVEL_INFO:
+    case G_LOG_LEVEL_DEBUG:
+      return gtu_test_mode_flags_get_flags () & GTU_TEST_MODE_FLAGS_VERBOSE;
+
+    default:
+      g_assert_not_reached ();
+  }
+}

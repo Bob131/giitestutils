@@ -19,4 +19,6 @@
 # define g_abort() abort ()
 #endif
 
+G_GNUC_INTERNAL extern char* _gtu_log_g_log_domain;
+
 #endif

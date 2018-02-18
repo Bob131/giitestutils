@@ -1,6 +1,6 @@
 #include "priv.h"
+#include "logio.h"
 #include "log-hooks.h"
-#include "log/log-glib.h"
 
 #define UNW_LOCAL_ONLY
 #include <libunwind.h>
@@ -136,12 +136,35 @@ static bool invoke_hooks (const GtuLogGMessage* message, void* user_data) {
 
     G_UNLOCK (hooks);
 
-    /* TODO: Implement GTU_LOG_ACTION_IGNORE */
-    if (action == GTU_LOG_ACTION_SUPPRESS || action == GTU_LOG_ACTION_IGNORE)
+    if (action == GTU_LOG_ACTION_IGNORE)
       return true;
+
+    if (action == GTU_LOG_ACTION_SUPPRESS) {
+      GString* string = g_string_new (NULL);
+
+      GtuLogGMessage suppress_message = {
+        _gtu_log_g_log_domain,
+        G_LOG_LEVEL_INFO,
+        "Suppressed message: "
+      };
+
+      gtu_log_g_format_message_append (string, &suppress_message);
+      gtu_log_g_format_message_append (string, message);
+      g_string_append_c (string, '\n');
+
+      gtu_log_diagnostic (string->str);
+
+      g_string_free (string, true);
+      return true;
+    }
 
     if (action == GTU_LOG_ACTION_ABORT)
       do_abort ();
+
+    if (action == GTU_LOG_ACTION_BAIL_OUT)
+      gtu_log_bail_out (gtu_log_g_format_message (message->domain,
+                                                  message->flags,
+                                                  message->body));
 
     g_assert_not_reached ();
   }
@@ -176,11 +199,11 @@ static void find_glogv_address (const char* domain,
     (void(*)(const char*,int,const char*,va_list)) procedure_info.start_ip;
 }
 
-void gtu_log_hooks_init (void (*abort_handler) (void)) {
+void gtu_log_hooks_init (const char* log_domain, void (*abort_handler) (void)) {
   static volatile size_t has_initialized = 0;
 
   if (g_once_init_enter (&has_initialized)) {
-    gtu_log_g_install_handlers ();
+    gtu_log_g_install_handlers (log_domain);
 
     unsigned handler_id = g_log_set_handler (
       NULL, G_LOG_LEVEL_MESSAGE, &find_glogv_address, NULL

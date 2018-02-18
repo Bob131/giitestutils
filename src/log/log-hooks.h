@@ -39,7 +39,15 @@ typedef enum {
    *
    * THIS IS REALLY DANGEROUS!
    */
-  GTU_LOG_ACTION_ABORT
+  GTU_LOG_ACTION_ABORT,
+
+  /**
+   * GTU_LOG_ACTION_BAIL_OUT:
+   *
+   * Signals to the test harness that a fatal error has occured and exits the
+   * program.
+   */
+  GTU_LOG_ACTION_BAIL_OUT
 
 } GtuLogAction;
 
@@ -57,6 +65,8 @@ typedef GtuLogAction (*GtuLogHook) (const GtuLogGMessage* message,
 
 /**
  * gtu_log_hooks_init:
+ * @log_domain:    log domain used when formatting suppression messages and
+ *                 passed to gtu_log_g_install_handlers().
  * @abort_handler: address to write on the call stack on hook abortion.
  *
  * Initialises internal library state and registers @abort_handler as the abort
@@ -70,9 +80,13 @@ typedef GtuLogAction (*GtuLogHook) (const GtuLogGMessage* message,
  * this may cause segfaults. The only thing it should do is use longjmp (or a
  * similar mechanism) to jump up to a sane point in the stack.
  *
+ * For log hooks to function correctly, gtu_log_g_install_handlers() mustn't be
+ * used; this is called automatically. gtu_log_g_install_suppress_func() (and
+ * its counterpart) also mustn't be used.
+ *
  * On subsequent calls, this function is a no-op.
  */
-void gtu_log_hooks_init (void (*abort_handler) (void));
+void gtu_log_hooks_init (const char* log_domain, void (*abort_handler) (void));
 
 /**
  * gtu_log_hooks_push:

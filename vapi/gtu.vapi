@@ -73,10 +73,15 @@ namespace Gtu {
         private TestObject ();
     }
 
+    public interface LogConsumer : TestObject {
+        public void fail_if_logged (string domain,
+                                    GLib.LogLevelFlags level = 0);
+    }
+
     [SimpleType]
     public struct ExpectHandle {}
 
-    public class TestCase : TestObject {
+    public class TestCase : TestObject, LogConsumer {
         public delegate void Func ();
 
         protected virtual void test_impl ();
@@ -104,14 +109,11 @@ namespace Gtu {
         protected ComplexCase (string name);
     }
 
-    public class TestSuite : TestObject {
+    public class TestSuite : TestObject, LogConsumer {
         public void add (TestObject test_object);
 
         [DestroysInstance]
         public int run ();
-
-        public void fail_if_logged (string domain,
-                                    GLib.LogLevelFlags level = 0);
 
         public TestSuite (string name);
     }

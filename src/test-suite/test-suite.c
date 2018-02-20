@@ -1,30 +1,26 @@
 #include <string.h>
 #include "test-suite/priv.h"
+#include "log-consumer.h"
 
 typedef struct {
-  GPtrArray*  children;
-  GHashTable* child_names;    /* set containing unowned strings */
-  GArray*     fatal_messages; /* array of FatalMessage */
+  GPtrArray*              children;
+  GHashTable*             child_names;  /* set containing unowned strings */
+  _GtuLogConsumerPrivate* log_consumer_priv;
 } GtuTestSuitePrivate;
+
+static void log_consumer_iface_init (GtuLogConsumerInterface* iface);
 
 #define PRIVATE(obj) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GTU_TYPE_TEST_SUITE, \
                                 GtuTestSuitePrivate))
-G_DEFINE_TYPE (GtuTestSuite, gtu_test_suite, GTU_TYPE_TEST_OBJECT)
+G_DEFINE_TYPE_WITH_CODE (GtuTestSuite, gtu_test_suite, GTU_TYPE_TEST_OBJECT,
+                         G_IMPLEMENT_INTERFACE (GTU_TYPE_LOG_CONSUMER,
+                                                log_consumer_iface_init))
 
 typedef struct {
   char* domain;
   GLogLevelFlags flags;
 } FatalMessage;
-
-static void fatal_message_dispose (FatalMessage* message) {
-  if (message->domain) {
-    g_free (message->domain);
-    message->domain = NULL;
-  }
-
-  message->flags = 0;
-}
 
 void gtu_test_suite_add (GtuTestSuite* self, GtuTestObject* test_object) {
   GtuTestSuitePrivate* priv;
@@ -91,63 +87,6 @@ int gtu_test_suite_run (GtuTestSuite* self) {
   return ret;
 }
 
-void gtu_test_suite_fail_if_logged (GtuTestSuite* self,
-                                    const char* domain,
-                                    GLogLevelFlags level)
-{
-  GtuTestSuitePrivate* priv;
-  unsigned index;
-  FatalMessage* message;
-
-  g_return_if_fail (GTU_IS_TEST_SUITE (self));
-  g_return_if_fail (domain != NULL);
-  g_return_if_fail (domain[0] != '\0' && strcmp (domain, GTU_LOG_DOMAIN) != 0);
-
-  if (level == 0)
-    level = G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_WARNING;
-
-  priv = PRIVATE (self);
-  index = priv->fatal_messages->len;
-  g_array_set_size (priv->fatal_messages, index + 1);
-  message = &g_array_index (priv->fatal_messages, FatalMessage, index);
-
-  message->domain = g_strdup (domain);
-  message->flags = level;
-}
-
-bool _gtu_test_suite_log_should_fail (GtuTestSuite* self,
-                                      const char* log_domain,
-                                      GLogLevelFlags log_level)
-{
-  GtuTestSuitePrivate* priv;
-  unsigned i;
-  GtuTestSuite* parent;
-
-  g_assert (GTU_IS_TEST_SUITE (self));
-  g_assert (log_domain != NULL);
-
-  priv = PRIVATE (self);
-
-  for (i = 0; i < priv->fatal_messages->len; i++) {
-    FatalMessage* message =
-      &g_array_index (priv->fatal_messages, FatalMessage, i);
-
-    if (strcmp (message->domain, log_domain) != 0)
-      continue;
-
-    if ((log_level & message->flags) == 0)
-      continue;
-
-    return true;
-  }
-
-  parent = gtu_test_object_get_parent_suite (GTU_TEST_OBJECT (self));
-  if (parent != NULL)
-    return _gtu_test_suite_log_should_fail (parent, log_domain, log_level);
-
-  return false;
-}
-
 static void gtu_test_suite_finalize (GtuTestObject* self) {
   GtuTestSuitePrivate* priv = PRIVATE (self);
 
@@ -157,8 +96,8 @@ static void gtu_test_suite_finalize (GtuTestObject* self) {
   g_hash_table_destroy (priv->child_names);
   priv->child_names = NULL;
 
-  g_array_free (priv->fatal_messages, true);
-  priv->fatal_messages = NULL;
+  _gtu_log_consumer_private_free (priv->log_consumer_priv);
+  priv->log_consumer_priv = NULL;
 
   GTU_TEST_OBJECT_CLASS (gtu_test_suite_parent_class)->finalize (self);
 }
@@ -187,13 +126,19 @@ static void gtu_test_suite_init (GtuTestSuite* self) {
   priv->children = g_ptr_array_new_with_free_func (&gtu_test_object_unref);
   priv->child_names = g_hash_table_new (&g_str_hash, &g_str_equal);
 
-  priv->fatal_messages = g_array_new (false, true, sizeof (FatalMessage));
-  g_array_set_clear_func (priv->fatal_messages,
-                          (GDestroyNotify) &fatal_message_dispose);
+  priv->log_consumer_priv = _gtu_log_consumer_private_new ();
 
   g_signal_connect (self,
                     "ancestry-changed",
                     (GCallback) &propagate_signal, NULL);
+}
+
+static _GtuLogConsumerPrivate* log_consumer_get_priv (GtuLogConsumer* self) {
+  return PRIVATE (self)->log_consumer_priv;
+}
+
+static void log_consumer_iface_init (GtuLogConsumerInterface* iface) {
+  iface->get_private = &log_consumer_get_priv;
 }
 
 GtuTestSuite* gtu_test_suite_construct (GType type, const char* name) {

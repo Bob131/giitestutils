@@ -37,6 +37,7 @@
     <xi:include href="xml/gtu.xml"/>
     <xi:include href="xml/gtu-path.xml"/>
     <xi:include href="xml/gtu-object.xml"/>
+    <xi:include href="xml/gtu-log-consumer.xml"/>
     <xi:include href="xml/gtu-case.xml"/>
     <xi:include href="xml/gtu-complex.xml"/>
     <xi:include href="xml/gtu-suite.xml"/>

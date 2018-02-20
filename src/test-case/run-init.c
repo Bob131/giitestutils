@@ -1,12 +1,12 @@
 #include <string.h>
 #include "priv.h"
+#include "log-consumer.h"
 #include "log/log-color.h"
 #include "log/log-hooks.h"
 
 static GtuLogAction log_hook (const GtuLogGMessage* message, void* user_data) {
   unsigned i;
   GtuTestCasePrivate* priv;
-  GtuTestSuite* parent_suite;
   GtuTestCase* self;
 
   g_assert (GTU_IS_TEST_CASE (user_data));
@@ -43,10 +43,9 @@ static GtuLogAction log_hook (const GtuLogGMessage* message, void* user_data) {
     }
   }
 
-  parent_suite = gtu_test_object_get_parent_suite (GTU_TEST_OBJECT (self));
-  if (_gtu_test_suite_log_should_fail (parent_suite,
-                                       message->domain,
-                                       message->flags))
+  if (_gtu_log_consumer_should_fail (self,
+                                     message->domain,
+                                     message->flags))
   {
     GString* fail_message;
     TestRunContext* tr_context;

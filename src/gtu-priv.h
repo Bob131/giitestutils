@@ -71,8 +71,4 @@ G_GNUC_INTERNAL bool _gtu_path_element_is_valid (const char* element);
 /* checks `path' against command line arguments */
 G_GNUC_INTERNAL bool _gtu_path_should_run (const GtuPath* path);
 
-G_GNUC_INTERNAL bool _gtu_test_suite_log_should_fail (GtuTestSuite* self,
-                                                      const char* log_domain,
-                                                      GLogLevelFlags log_level);
-
 #endif

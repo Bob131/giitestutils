@@ -16,6 +16,7 @@ libgtu_a_SOURCES = \
 	flags.c \
 	path.c \
 	object.c \
+	log-consumer.c \
 	log/tap.c \
 	log/color.c \
 	log/glib-handlers.c \

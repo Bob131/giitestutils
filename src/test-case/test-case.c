@@ -1,7 +1,12 @@
 #include <string.h>
 #include "test-case/priv.h"
+#include "log-consumer.h"
 
-G_DEFINE_TYPE (GtuTestCase, gtu_test_case, GTU_TYPE_TEST_OBJECT)
+static void log_consumer_iface_init (GtuLogConsumerInterface* iface);
+
+G_DEFINE_TYPE_WITH_CODE (GtuTestCase, gtu_test_case, GTU_TYPE_TEST_OBJECT,
+                         G_IMPLEMENT_INTERFACE (GTU_TYPE_LOG_CONSUMER,
+                                                log_consumer_iface_init))
 
 void _gtu_test_case_dispose (GtuTestCase* self) {
   GtuTestCasePrivate* priv;
@@ -24,6 +29,11 @@ void _gtu_test_case_dispose (GtuTestCase* self) {
   if (priv->expected_msgs) {
     g_array_free (priv->expected_msgs, true);
     priv->expected_msgs = NULL;
+  }
+
+  if (priv->log_consumer_priv) {
+    _gtu_log_consumer_private_free (priv->log_consumer_priv);
+    priv->log_consumer_priv = NULL;
   }
 
   priv->has_disposed = true;
@@ -49,12 +59,22 @@ static void gtu_test_case_class_init (GtuTestCaseClass* klass) {
   klass->test_impl = dummy_test_impl;
 }
 
+static _GtuLogConsumerPrivate* log_consumer_get_priv (GtuLogConsumer* self) {
+  return PRIVATE (self)->log_consumer_priv;
+}
+
+static void log_consumer_iface_init (GtuLogConsumerInterface* iface) {
+  iface->get_private = &log_consumer_get_priv;
+}
+
 static void gtu_test_case_init (GtuTestCase* self) {
   GtuTestCasePrivate* priv = PRIVATE (self);
 
   priv->expected_msgs = g_array_new (false, true, sizeof (GtuExpectedMessage));
   g_array_set_clear_func (priv->expected_msgs,
                           (GDestroyNotify) &_gtu_expected_message_dispose);
+
+  priv->log_consumer_priv = _gtu_log_consumer_private_new ();
 
   priv->result = GTU_TEST_RESULT_INVALID;
 

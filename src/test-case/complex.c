@@ -168,7 +168,9 @@ GtuTestResult _gtu_complex_case_run (GtuComplexCase* self, char** out_message) {
       break;
   }
 
-  *out_message = g_strdup ("All subunits passed successfully");
+  if (gtu_test_mode_flags_get_flags () & GTU_TEST_MODE_FLAGS_VERBOSE)
+    *out_message = g_strdup ("All subunits passed successfully");
+
   return GTU_TEST_RESULT_PASS;
 }
 

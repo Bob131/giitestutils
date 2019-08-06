@@ -181,6 +181,9 @@ void gtu_log_g_install_handlers (const char* log_domain) {
 
     g_test_log_set_fatal_handler (&fatal_handler, NULL);
 
+    /* If we exit without running any tests, this handler will log an empty
+     * test plan; otherwise, gtu_log_test_plan will return and the handler is
+     * effectively a no-op */
     atexit (&log_empty_plan);
 
     g_once_init_leave (&has_installed, 1);

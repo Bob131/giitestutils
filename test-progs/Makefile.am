@@ -1,5 +1,5 @@
 if ENABLE_CHECK_PROGS
-noinst_PROGRAMS = testc testvala testempty
+noinst_PROGRAMS = testc testvala testempty testemptysuite
 
 testc_SOURCES = \
 	testc.c
@@ -32,6 +32,13 @@ testempty_SOURCES = \
 testempty_CFLAGS = $(testc_CFLAGS)
 
 testempty_LDADD = $(testc_LDADD)
+
+testemptysuite_SOURCES = \
+	testemptysuite.c
+
+testemptysuite_CFLAGS = $(testc_CFLAGS)
+
+testemptysuite_LDADD = $(testc_LDADD)
 endif
 
 CLEANFILES = \

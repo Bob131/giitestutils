@@ -55,6 +55,8 @@ static void diag_vprintf (const char* format, va_list args) {
   g_free (message);
 }
 
+/* Only one test plan can be executed during the lifetime of a process, so we
+ * ignore subsequent calls. */
 static void log_test_plan (unsigned n_tests, bool disable) {
   static volatile size_t expected_tests__volatile = 0;
 
@@ -66,7 +68,9 @@ static void log_test_plan (unsigned n_tests, bool disable) {
 
     if (n_tests == 0) {
       log_printf ("1..0 # Skipped: no tests to run\n");
+      g_once_init_leave (&expected_tests__volatile, 1);
       exit (0);
+      g_assert_not_reached ();
     }
 
     log_printf ("1..%u\n", n_tests);

@@ -11,7 +11,13 @@ static struct {
   const void* data;
 } suppress_info = {NULL, NULL};
 
-char* _gtu_log_g_log_domain = NULL;
+/* re-parse GLib debug flags we're interested in */
+static const GDebugKey glib_debug_keys[] = {
+  { "fatal-criticals", G_LOG_LEVEL_CRITICAL },
+  { "fatal-warnings",  G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL }
+};
+
+static GLogLevelFlags fatal_mask;
 
 #define SHOULD_SUPPRESS(domain, level, message) \
   (should_suppress ((domain), (level), (message)))
@@ -57,7 +63,7 @@ static void message_bailout (const char* domain,
                              const char* message)
 {
   char* formatted_message = gtu_log_g_format_message (domain, level, message);
-  gtu_log_bail_out (formatted_message);
+  gtu_log_bail_out (true, formatted_message);
 }
 
 static void message_handler (const char* domain,
@@ -68,10 +74,13 @@ static void message_handler (const char* domain,
   (void) data;
 
   if (!SHOULD_SUPPRESS (domain, level, message)) {
-    if (level & G_LOG_FLAG_FATAL)
+    if (level & G_LOG_FLAG_FATAL) {
+      /* in practice we shouldn't ever get here; this code is more illustrative
+       * than functional */
       message_bailout (domain, level, message);
-    else
+    } else {
       message_printer (domain, level, message);
+    }
   }
 }
 
@@ -87,6 +96,11 @@ static GLogWriterOutput structured_handler (GLogLevelFlags level,
   GString* formatted_message;
 
   (void) data;
+
+  /* the always-fatal mask doesn't has no effect on structured logs, so we set
+   * this ourselves */
+  if (level & fatal_mask)
+    level |= G_LOG_FLAG_FATAL;
 
   /* collect the domain/message fields and check suppression */
   for (i = 0; i < n_fields && (message == NULL || domain == NULL); i++) {
@@ -137,57 +151,69 @@ static GLogWriterOutput structured_handler (GLogLevelFlags level,
   gtu_log_diagnostic (formatted_message->str);
   g_string_free (formatted_message, true);
 
+  /* in practice we shouldn't ever get here; this code is more illustrative
+   * than functional */
   if (level & G_LOG_FLAG_FATAL)
-    gtu_log_bail_out ("Fatal structured message received");
+    gtu_log_bail_out (true, "Fatal structured message received");
 
 ret:
   return G_LOG_WRITER_HANDLED;
 }
 #endif
 
-static gboolean fatal_handler (const char* domain,
-                               GLogLevelFlags level,
-                               const char* message,
-                               void* data)
-{
-  (void) level;
-  (void) message;
-  (void) data;
-
-  return domain == NULL ?
-    false :
-    g_str_has_prefix (domain, _gtu_log_g_log_domain);
-}
-
 static void log_empty_plan (void) {
   gtu_log_test_plan (0);
 }
 
-void gtu_log_g_install_handlers (const char* log_domain) {
+/* GTU log handlers are responsible for decisions about aborting programs, but
+ * for fatal messages GLib preempts them by aborting early. This handler is
+ * just to get GLib to pass fatal messages on. */
+static gboolean never_abort (const char* log_domain,
+                             GLogLevelFlags log_level,
+                             const char* message,
+                             void* user_data)
+{
+  (void) log_domain;
+  (void) log_level;
+  (void) message;
+  (void) user_data;
+  return false;
+}
+
+void gtu_log_g_install_handlers (void) {
   static volatile size_t has_installed;
 
   if (g_once_init_enter (&has_installed)) {
-    g_assert (_gtu_log_g_log_domain == NULL);
-    g_assert (log_domain != NULL);
-    _gtu_log_g_log_domain = g_strdup (log_domain);
-
     g_set_print_handler (&stdfd_handler);
     g_set_printerr_handler (&stdfd_handler);
+
+    fatal_mask = g_parse_debug_string (
+      getenv ("G_DEBUG"),
+      glib_debug_keys,
+      G_N_ELEMENTS (glib_debug_keys));
+    g_log_set_always_fatal (fatal_mask);
 
     g_log_set_default_handler (&message_handler, NULL);
 #if STRUCTURED_LOGGING_AVAILABLE
     g_log_set_writer_func (&structured_handler, NULL, NULL);
 #endif
 
-    g_test_log_set_fatal_handler (&fatal_handler, NULL);
+    g_test_log_set_fatal_handler (&never_abort, NULL);
 
     /* If we exit without running any tests, this handler will log an empty
      * test plan; otherwise, gtu_log_test_plan will return and the handler is
      * effectively a no-op */
     atexit (&log_empty_plan);
 
+    gtu_log_g_register_internal_domain (G_LOG_DOMAIN);
+
     g_once_init_leave (&has_installed, 1);
   }
+}
+
+void gtu_log_g_register_internal_domain (const char* domain) {
+  g_assert (domain != NULL);
+  g_log_set_fatal_mask (domain, G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL);
 }
 
 void gtu_log_g_install_suppress_func (GtuLogGSuppressFunc func,

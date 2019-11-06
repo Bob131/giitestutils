@@ -97,7 +97,7 @@ void gtu_log_diagnostic (const char* format, ...) {
   diag_vprintf (format, args);
 }
 
-void gtu_log_bail_out (const char* format, ...) {
+void gtu_log_bail_out (bool should_trap, const char* format, ...) {
   va_list args;
 
   /* pre-empt the atexit() handler */
@@ -114,6 +114,9 @@ void gtu_log_bail_out (const char* format, ...) {
   }
 
   fputc ('\n', stdout);
+
+  if (should_trap)
+    g_abort ();
 
   /* exit status to signal an error to the automake harness */
   exit (99);

@@ -44,8 +44,8 @@ typedef enum {
   /**
    * GTU_LOG_ACTION_BAIL_OUT:
    *
-   * Signals to the test harness that a fatal error has occured and exits the
-   * program.
+   * Signals to the test harness that a fatal error has occured and raises
+   * SIGTRAP.
    */
   GTU_LOG_ACTION_BAIL_OUT
 
@@ -83,6 +83,9 @@ typedef GtuLogAction (*GtuLogHook) (const GtuLogGMessage* message,
  * For log hooks to function correctly, gtu_log_g_install_handlers() mustn't be
  * used; this is called automatically. gtu_log_g_install_suppress_func() (and
  * its counterpart) also mustn't be used.
+ *
+ * This function must be called *after* g_test_init(). See
+ * gtu_log_g_install_handlers() for details.
  *
  * On subsequent calls, this function is a no-op.
  */

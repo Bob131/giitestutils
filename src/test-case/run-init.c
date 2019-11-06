@@ -14,11 +14,8 @@ static GtuLogAction log_hook (const GtuLogGMessage* message, void* user_data) {
 
   g_assert (message != NULL);
 
-  if (message->domain == NULL ||
-      g_str_has_prefix (message->domain, GTU_LOG_DOMAIN))
-  {
-    return GTU_LOG_ACTION_CONTINUE;
-  }
+  if (message->domain == NULL || message->flags & G_LOG_FLAG_FATAL)
+    return GTU_LOG_ACTION_CONTINUE; /* pass it on */
 
   priv = PRIVATE (self);
 

@@ -70,6 +70,8 @@ static void (*glogv_address) (const char*, int, const char*, va_list) = NULL;
 
 static void (*abort_handler_address) (void) = NULL;
 
+static char* _log_domain = NULL;
+
 
 static void do_abort (void) {
   /* we don't want to log on assertion failure */
@@ -143,7 +145,7 @@ static bool invoke_hooks (const GtuLogGMessage* message, void* user_data) {
       GString* string = g_string_new (NULL);
 
       GtuLogGMessage suppress_message = {
-        _gtu_log_g_log_domain,
+        _log_domain,
         G_LOG_LEVEL_INFO,
         "Suppressed message: "
       };
@@ -162,9 +164,9 @@ static bool invoke_hooks (const GtuLogGMessage* message, void* user_data) {
       do_abort ();
 
     if (action == GTU_LOG_ACTION_BAIL_OUT)
-      gtu_log_bail_out (gtu_log_g_format_message (message->domain,
-                                                  message->flags,
-                                                  message->body));
+      gtu_log_bail_out (true, gtu_log_g_format_message (message->domain,
+                                                        message->flags,
+                                                        message->body));
 
     g_assert_not_reached ();
   }
@@ -203,7 +205,11 @@ void gtu_log_hooks_init (const char* log_domain, void (*abort_handler) (void)) {
   static volatile size_t has_initialized = 0;
 
   if (g_once_init_enter (&has_initialized)) {
-    gtu_log_g_install_handlers (log_domain);
+    g_assert (_log_domain == NULL);
+    _log_domain = g_strdup (log_domain);
+
+    gtu_log_g_install_handlers ();
+    gtu_log_g_register_internal_domain (log_domain);
 
     unsigned handler_id = g_log_set_handler (
       NULL, G_LOG_LEVEL_MESSAGE, &find_glogv_address, NULL

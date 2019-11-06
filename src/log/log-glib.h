@@ -35,15 +35,26 @@ typedef bool (*GtuLogGSuppressFunc) (const GtuLogGMessage* message,
 
 /**
  * gtu_log_g_install_handlers:
- * @fatal_log_domain: the log domain prefix for which %G_LOG_FLAG_FATAL is
- *                    actually fatal. A little pointless at the moment, since
- *                    in a few places we assume this is equal to
- *                    "GiiTestUtils", so don't pass any other values in.
  *
  * On the first call, installs a variety of callbacks in GLib to ensure message
  * logging is handled correctly. On subsequent calls, does nothing.
+ *
+ * This function parses the G_DEBUG environment variable and sets the
+ * always-fatal mask based on the presence or absence of fatal-criticals and
+ * fatal-warnings. As such, this function must be called after any other
+ * functions that may alter the mask (i.e., g_test_init).
  */
-void gtu_log_g_install_handlers (const char* fatal_log_domain);
+void gtu_log_g_install_handlers (void);
+
+/**
+ * gtu_log_g_register_internal_domain:
+ * @domain: internal GTU logging domain.
+ *
+ * Sets the fatal mask for @domain to G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_WARNING.
+ * The idea is that any such messages from a GTU logging domain indicate a bug
+ * either in GTU or in a test program's use of it and needs to be fixed before
+ * continuing. */
+void gtu_log_g_register_internal_domain (const char* domain);
 
 /**
  * gtu_log_g_install_suppress_func:

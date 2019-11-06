@@ -11,6 +11,13 @@ static struct {
   const void* data;
 } suppress_info = {NULL, NULL};
 
+/* re-parse GLib debug flags we're interested in */
+static const GDebugKey glib_debug_keys[] = {
+  { "fatal-criticals", G_LOG_LEVEL_CRITICAL },
+  { "fatal-warnings",  G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL }
+};
+
+static GLogLevelFlags fatal_mask;
 
 #define SHOULD_SUPPRESS(domain, level, message) \
   (should_suppress ((domain), (level), (message)))
@@ -86,6 +93,11 @@ static GLogWriterOutput structured_handler (GLogLevelFlags level,
   GString* formatted_message;
 
   (void) data;
+
+  /* the always-fatal mask doesn't has no effect on structured logs, so we set
+   * this ourselves */
+  if (level & fatal_mask)
+    level |= G_LOG_FLAG_FATAL;
 
   /* collect the domain/message fields and check suppression */
   for (i = 0; i < n_fields && (message == NULL || domain == NULL); i++) {
@@ -169,6 +181,12 @@ void gtu_log_g_install_handlers (void) {
   if (g_once_init_enter (&has_installed)) {
     g_set_print_handler (&stdfd_handler);
     g_set_printerr_handler (&stdfd_handler);
+
+    fatal_mask = g_parse_debug_string (
+      getenv ("G_DEBUG"),
+      glib_debug_keys,
+      G_N_ELEMENTS (glib_debug_keys));
+    g_log_set_always_fatal (fatal_mask);
 
     g_log_set_default_handler (&message_handler, NULL);
 #if STRUCTURED_LOGGING_AVAILABLE

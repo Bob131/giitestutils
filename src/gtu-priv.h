@@ -15,10 +15,8 @@
 #endif
 
 typedef enum {
-  GTU_DEBUG_FLAGS_NONE            = 0,
-  GTU_DEBUG_FLAGS_FATAL_ASSERTS   = 1 << 0,
-  GTU_DEBUG_FLAGS_FATAL_CRITICALS = 1 << 1,
-  GTU_DEBUG_FLAGS_FATAL_WARNINGS  = 1 << 2
+  GTU_DEBUG_FLAGS_NONE          = 0,
+  GTU_DEBUG_FLAGS_FATAL_ASSERTS = 1 << 0
 } GtuDebugFlags;
 
 G_GNUC_INTERNAL GtuDebugFlags _gtu_debug_flags_get (void);

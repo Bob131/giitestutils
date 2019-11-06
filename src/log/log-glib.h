@@ -38,6 +38,11 @@ typedef bool (*GtuLogGSuppressFunc) (const GtuLogGMessage* message,
  *
  * On the first call, installs a variety of callbacks in GLib to ensure message
  * logging is handled correctly. On subsequent calls, does nothing.
+ *
+ * This function parses the G_DEBUG environment variable and sets the
+ * always-fatal mask based on the presence or absence of fatal-criticals and
+ * fatal-warnings. As such, this function must be called after any other
+ * functions that may alter the mask (i.e., g_test_init).
  */
 void gtu_log_g_install_handlers (void);
 

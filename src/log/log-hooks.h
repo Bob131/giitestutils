@@ -84,6 +84,9 @@ typedef GtuLogAction (*GtuLogHook) (const GtuLogGMessage* message,
  * used; this is called automatically. gtu_log_g_install_suppress_func() (and
  * its counterpart) also mustn't be used.
  *
+ * This function must be called *after* g_test_init(). See
+ * gtu_log_g_install_handlers() for details.
+ *
  * On subsequent calls, this function is a no-op.
  */
 void gtu_log_hooks_init (const char* log_domain, void (*abort_handler) (void));

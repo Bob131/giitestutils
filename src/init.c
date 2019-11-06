@@ -23,16 +23,9 @@ void *alloca (size_t);
 #endif
 
 #define GTU_DEBUG "GTU_DEBUG"
-#define G_DEBUG   "G_DEBUG"
 
 static const GDebugKey _debug_keys[] = {
   { "fatal-asserts", GTU_DEBUG_FLAGS_FATAL_ASSERTS }
-};
-
-/* re-parse GLib debug flags we're interested in */
-static const GDebugKey _glib_debug_keys[] = {
-  { "fatal-criticals", GTU_DEBUG_FLAGS_FATAL_CRITICALS },
-  { "fatal-warnings",  GTU_DEBUG_FLAGS_FATAL_WARNINGS  }
 };
 
 static GtuDebugFlags _debug_flags = GTU_DEBUG_FLAGS_NONE;
@@ -199,12 +192,6 @@ void gtu_init (char** args, int args_length) {
       getenv (GTU_DEBUG),
       _debug_keys,
       G_N_ELEMENTS (_debug_keys)
-    );
-
-    _debug_flags |= g_parse_debug_string (
-      getenv (G_DEBUG),
-      _glib_debug_keys,
-      G_N_ELEMENTS (_glib_debug_keys)
     );
 
     gtu_log_hooks_init (GTU_LOG_DOMAIN, &_gtu_test_preempt);

@@ -1,4 +1,5 @@
 #include <string.h>
+#include "log/logio.h"
 #include "test-case/priv-setjmp.h"
 
 /* lazy sanity checking */
@@ -24,6 +25,10 @@ static TestRunContext* _current_tr_context = NULL;
 
 TestRunContext* _gtu_get_tr_context (void) {
   return CURRENT_CONTEXT;
+}
+
+bool _gtu_have_tr_context (void) {
+  return _current_tr_context != NULL;
 }
 
 /* No asserts because anything log related will fail; we're in this function
@@ -52,8 +57,7 @@ void _gtu_assertion_message (const char* file,
     g_printerr ("**\nERROR:%s\n", location_message);
     abort ();
   } else if (!_gtu_keep_going) {
-    g_log (GTU_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE | G_LOG_FLAG_FATAL,
-           location_message);
+    gtu_log_bail_out (false, location_message);
     g_assert_not_reached ();
   }
 

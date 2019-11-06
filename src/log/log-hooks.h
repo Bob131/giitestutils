@@ -44,8 +44,8 @@ typedef enum {
   /**
    * GTU_LOG_ACTION_BAIL_OUT:
    *
-   * Signals to the test harness that a fatal error has occured and exits the
-   * program.
+   * Signals to the test harness that a fatal error has occured and raises
+   * SIGTRAP.
    */
   GTU_LOG_ACTION_BAIL_OUT
 

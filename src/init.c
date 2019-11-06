@@ -132,8 +132,7 @@ static bool parse_args (char** args, int args_length) {
                GET_ARG ("--GTestSkipCount") ||
                strcmp  ("--GTestSubprocess", args[i]) == 0)
     {
-      g_log (GTU_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
-             "unsupported command line argument: %s", args[i]);
+      gtu_log_bail_out (false, "unsupported command line argument: %s", args[i]);
     }
   }
 
@@ -150,6 +149,13 @@ GtuLogAction verbosity_handler (const GtuLogGMessage* message, void* data) {
 
   if (message->flags & G_LOG_FLAG_FATAL)
     return GTU_LOG_ACTION_BAIL_OUT;
+
+  /* if the message is an unexpected warning or critical:
+   *   - if we're running a test, abort it
+   *   - otherwise, bail out of the test program */
+  if (message->flags & (G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL))
+    return _gtu_have_tr_context () ?
+      GTU_LOG_ACTION_ABORT : GTU_LOG_ACTION_BAIL_OUT;
 
   return _gtu_should_log (message->flags) ?
     GTU_LOG_ACTION_CONTINUE :
@@ -193,6 +199,24 @@ void gtu_init (char** args, int args_length) {
       _debug_keys,
       G_N_ELEMENTS (_debug_keys)
     );
+
+    /* g_test_init() sets the always-fatal mask to:
+     *   G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_WARNING
+     * It seems the intended policy is that all such messages result in a trap
+     * unless they're expected by a test case.
+     *
+     * We follow the same policy outside of the execution of test cases, but
+     * during the test runner we would prefer instead to fail the test and
+     * continue to the next. We also want this to be configurable via G_DEBUG.
+     * This is the intended logic:
+     *   - always-fatal mask is set according to G_DEBUG, per normal
+     *   - logged messages with the FATAL flag set always produce a trap, per
+     *     normal
+     *   - if no test is running or the domain belongs to GTU, criticals and
+     *     warnings are treated as though FATAL was set and produce a trap
+     *   - if a test is running and the domain does not belong to GTU, that
+     *     test is treated as though it had failed an assert (marked as failed
+     *     and stopped) */
 
     gtu_log_hooks_init (GTU_LOG_DOMAIN, &_gtu_test_preempt);
     gtu_log_hooks_push (&verbosity_handler, NULL);

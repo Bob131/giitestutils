@@ -11,7 +11,6 @@ static struct {
   const void* data;
 } suppress_info = {NULL, NULL};
 
-char* _gtu_log_g_log_domain = NULL;
 
 #define SHOULD_SUPPRESS(domain, level, message) \
   (should_suppress ((domain), (level), (message)))
@@ -145,32 +144,29 @@ ret:
 }
 #endif
 
-static gboolean fatal_handler (const char* domain,
-                               GLogLevelFlags level,
-                               const char* message,
-                               void* data)
-{
-  (void) level;
-  (void) message;
-  (void) data;
-
-  return domain == NULL ?
-    false :
-    g_str_has_prefix (domain, _gtu_log_g_log_domain);
-}
-
 static void log_empty_plan (void) {
   gtu_log_test_plan (0);
 }
 
-void gtu_log_g_install_handlers (const char* log_domain) {
+/* GTU log handlers are responsible for decisions about aborting programs, but
+ * for fatal messages GLib preempts them by aborting early. This handler is
+ * just to get GLib to pass fatal messages on. */
+static gboolean never_abort (const char* log_domain,
+                             GLogLevelFlags log_level,
+                             const char* message,
+                             void* user_data)
+{
+  (void) log_domain;
+  (void) log_level;
+  (void) message;
+  (void) user_data;
+  return false;
+}
+
+void gtu_log_g_install_handlers (void) {
   static volatile size_t has_installed;
 
   if (g_once_init_enter (&has_installed)) {
-    g_assert (_gtu_log_g_log_domain == NULL);
-    g_assert (log_domain != NULL);
-    _gtu_log_g_log_domain = g_strdup (log_domain);
-
     g_set_print_handler (&stdfd_handler);
     g_set_printerr_handler (&stdfd_handler);
 
@@ -179,7 +175,7 @@ void gtu_log_g_install_handlers (const char* log_domain) {
     g_log_set_writer_func (&structured_handler, NULL, NULL);
 #endif
 
-    g_test_log_set_fatal_handler (&fatal_handler, NULL);
+    g_test_log_set_fatal_handler (&never_abort, NULL);
 
     /* If we exit without running any tests, this handler will log an empty
      * test plan; otherwise, gtu_log_test_plan will return and the handler is

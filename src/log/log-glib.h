@@ -47,6 +47,16 @@ typedef bool (*GtuLogGSuppressFunc) (const GtuLogGMessage* message,
 void gtu_log_g_install_handlers (void);
 
 /**
+ * gtu_log_g_register_internal_domain:
+ * @domain: internal GTU logging domain.
+ *
+ * Sets the fatal mask for @domain to G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_WARNING.
+ * The idea is that any such messages from a GTU logging domain indicate a bug
+ * either in GTU or in a test program's use of it and needs to be fixed before
+ * continuing. */
+void gtu_log_g_register_internal_domain (const char* domain);
+
+/**
  * gtu_log_g_install_suppress_func:
  * @func:      suppress function.
  * @user_data: (closure) (allow-none): user data for @func.

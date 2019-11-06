@@ -200,8 +200,15 @@ void gtu_log_g_install_handlers (void) {
      * effectively a no-op */
     atexit (&log_empty_plan);
 
+    gtu_log_g_register_internal_domain (G_LOG_DOMAIN);
+
     g_once_init_leave (&has_installed, 1);
   }
+}
+
+void gtu_log_g_register_internal_domain (const char* domain) {
+  g_assert (domain != NULL);
+  g_log_set_fatal_mask (domain, G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL);
 }
 
 void gtu_log_g_install_suppress_func (GtuLogGSuppressFunc func,

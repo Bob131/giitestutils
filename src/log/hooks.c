@@ -209,6 +209,7 @@ void gtu_log_hooks_init (const char* log_domain, void (*abort_handler) (void)) {
     _log_domain = g_strdup (log_domain);
 
     gtu_log_g_install_handlers ();
+    gtu_log_g_register_internal_domain (log_domain);
 
     unsigned handler_id = g_log_set_handler (
       NULL, G_LOG_LEVEL_MESSAGE, &find_glogv_address, NULL

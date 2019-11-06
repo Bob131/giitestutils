@@ -1,6 +1,8 @@
 #ifndef __GII_TEST_UTILS_LOGIO_H__
 #define __GII_TEST_UTILS_LOGIO_H__
 
+#include <glib.h>
+
 /**
  * Generic functions for writing to the test log. We do our best to be thread
  * safe in here, since there's a fair bit of global state.
@@ -41,7 +43,9 @@ void gtu_log_diagnostic (const char* format, ...);
  * Signals to the test harness that a fatal error has occurred and exits,
  * optionally printing a descriptive message alongside it.
  */
-void gtu_log_bail_out (const char* format, ...);
+void gtu_log_bail_out (const char* format, ...)
+  G_GNUC_PRINTF (1, 2)
+  G_GNUC_NORETURN;
 
 /**
  * gtu_log_test_success:

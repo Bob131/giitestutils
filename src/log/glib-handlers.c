@@ -63,7 +63,7 @@ static void message_bailout (const char* domain,
                              const char* message)
 {
   char* formatted_message = gtu_log_g_format_message (domain, level, message);
-  gtu_log_bail_out (formatted_message);
+  gtu_log_bail_out (false, formatted_message);
 }
 
 static void message_handler (const char* domain,
@@ -149,7 +149,7 @@ static GLogWriterOutput structured_handler (GLogLevelFlags level,
   g_string_free (formatted_message, true);
 
   if (level & G_LOG_FLAG_FATAL)
-    gtu_log_bail_out ("Fatal structured message received");
+    gtu_log_bail_out (false, "Fatal structured message received");
 
 ret:
   return G_LOG_WRITER_HANDLED;

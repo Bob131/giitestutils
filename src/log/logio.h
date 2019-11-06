@@ -1,6 +1,7 @@
 #ifndef __GII_TEST_UTILS_LOGIO_H__
 #define __GII_TEST_UTILS_LOGIO_H__
 
+#include <stdbool.h>
 #include <glib.h>
 
 /**
@@ -37,14 +38,15 @@ void gtu_log_diagnostic (const char* format, ...);
 
 /**
  * gtu_log_bail_out:
- * @format: (allow-none): printf format string.
- * @...:    values to be formatted.
+ * @should_trap: %TRUE if we should abort, %FALSE to call exit()
+ * @format:      (allow-none): printf format string.
+ * @...:         values to be formatted.
  *
  * Signals to the test harness that a fatal error has occurred and exits,
  * optionally printing a descriptive message alongside it.
  */
-void gtu_log_bail_out (const char* format, ...)
-  G_GNUC_PRINTF (1, 2)
+void gtu_log_bail_out (bool should_trap, const char* format, ...)
+  G_GNUC_PRINTF (2, 3)
   G_GNUC_NORETURN;
 
 /**

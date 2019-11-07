@@ -1,21 +1,15 @@
 #include <string.h>
 #include "test-suite/priv.h"
-#include "log-consumer.h"
 
 typedef struct {
   GPtrArray*              children;
   GHashTable*             child_names;  /* set containing unowned strings */
-  _GtuLogConsumerPrivate* log_consumer_priv;
 } GtuTestSuitePrivate;
-
-static void log_consumer_iface_init (GtuLogConsumerInterface* iface);
 
 #define PRIVATE(obj) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GTU_TYPE_TEST_SUITE, \
                                 GtuTestSuitePrivate))
-G_DEFINE_TYPE_WITH_CODE (GtuTestSuite, gtu_test_suite, GTU_TYPE_TEST_OBJECT,
-                         G_IMPLEMENT_INTERFACE (GTU_TYPE_LOG_CONSUMER,
-                                                log_consumer_iface_init))
+G_DEFINE_TYPE (GtuTestSuite, gtu_test_suite, GTU_TYPE_TEST_OBJECT)
 
 typedef struct {
   char* domain;
@@ -96,9 +90,6 @@ static void gtu_test_suite_finalize (GtuTestObject* self) {
   g_hash_table_destroy (priv->child_names);
   priv->child_names = NULL;
 
-  _gtu_log_consumer_private_free (priv->log_consumer_priv);
-  priv->log_consumer_priv = NULL;
-
   GTU_TEST_OBJECT_CLASS (gtu_test_suite_parent_class)->finalize (self);
 }
 
@@ -126,19 +117,9 @@ static void gtu_test_suite_init (GtuTestSuite* self) {
   priv->children = g_ptr_array_new_with_free_func (&gtu_test_object_unref);
   priv->child_names = g_hash_table_new (&g_str_hash, &g_str_equal);
 
-  priv->log_consumer_priv = _gtu_log_consumer_private_new ();
-
   g_signal_connect (self,
                     "ancestry-changed",
                     (GCallback) &propagate_signal, NULL);
-}
-
-static _GtuLogConsumerPrivate* log_consumer_get_priv (GtuLogConsumer* self) {
-  return PRIVATE (self)->log_consumer_priv;
-}
-
-static void log_consumer_iface_init (GtuLogConsumerInterface* iface) {
-  iface->get_private = &log_consumer_get_priv;
 }
 
 GtuTestSuite* gtu_test_suite_construct (GType type, const char* name) {

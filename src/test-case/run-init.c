@@ -1,12 +1,9 @@
 #include <string.h>
 #include "priv.h"
-#include "log-consumer.h"
 #include "log/log-color.h"
 #include "log/log-hooks.h"
 
 static GtuLogAction log_hook (const GtuLogGMessage* message, void* user_data) {
-  unsigned i;
-  GtuTestCasePrivate* priv;
   GtuTestCase* self;
 
   g_assert (GTU_IS_TEST_CASE (user_data));
@@ -14,43 +11,42 @@ static GtuLogAction log_hook (const GtuLogGMessage* message, void* user_data) {
 
   g_assert (message != NULL);
 
-  if (message->domain == NULL)
-    return GTU_LOG_ACTION_CONTINUE; /* pass it on */
+  /* Note: we assume the user does not/cannot add an expectation for a GTU
+   *       logging domain, so any such check is omitted here. */
+  if (message->domain != NULL) {
+    unsigned i;
+    GtuTestCasePrivate* priv = PRIVATE (self);
 
-  priv = PRIVATE (self);
+    for (i = 0; i < priv->expected_msgs->len; i++) {
+      GtuExpectedMessage* expect =
+        &g_array_index (priv->expected_msgs, GtuExpectedMessage, i);
 
-  for (i = 0; i < priv->expected_msgs->len; i++) {
-    GtuExpectedMessage* expect =
-      &g_array_index (priv->expected_msgs, GtuExpectedMessage, i);
+      if (strcmp (expect->domain, message->domain) != 0)
+        continue;
 
-    if (strcmp (expect->domain, message->domain) != 0)
-      continue;
+      if ((message->flags & expect->flags) == 0)
+        continue;
 
-    if ((message->flags & expect->flags) == 0)
-      continue;
-
-    if (g_regex_match (expect->regex, message->body,
-                       G_REGEX_MATCH_NOTEMPTY,
-                       NULL))
-    {
-      g_atomic_int_inc (&expect->match_count.s);
-      return _gtu_should_log (G_LOG_LEVEL_INFO) ?
-        GTU_LOG_ACTION_SUPPRESS :
-        GTU_LOG_ACTION_IGNORE;
+      if (g_regex_match (expect->regex, message->body,
+                         G_REGEX_MATCH_NOTEMPTY,
+                         NULL))
+      {
+        g_atomic_int_inc (&expect->match_count.s);
+        return _gtu_should_log (G_LOG_LEVEL_INFO) ?
+          GTU_LOG_ACTION_SUPPRESS :
+          GTU_LOG_ACTION_IGNORE;
+      }
     }
   }
 
   if (message->flags & G_LOG_FLAG_FATAL)
     return GTU_LOG_ACTION_CONTINUE;
 
-  if (_gtu_log_consumer_should_fail (self,
-                                     message->domain,
-                                     message->flags))
-  {
+  if (message->flags & (G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_WARNING)) {
     GString* fail_message;
     TestRunContext* tr_context;
 
-    fail_message = g_string_new ("Unexpected fatal message: ");
+    fail_message = g_string_new ("Unexpected message: ");
     gtu_log_g_format_message_append (fail_message, message);
 
     tr_context = _gtu_get_tr_context ();

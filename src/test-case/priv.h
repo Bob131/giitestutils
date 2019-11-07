@@ -6,16 +6,14 @@
 #include "priv-complex.h"
 
 typedef struct {
-  GtuTestCaseFunc         func;
-  void*                   func_target;
-  GDestroyNotify          func_target_destroy;
-  GArray*                 expected_msgs; /* array of ExpectedMessage */
-  _GtuLogConsumerPrivate* log_consumer_priv;
-  GtuTestResult           result;
-  bool                    has_disposed;  /* FALSE if we're valid, TRUE if we've
-                                            been executed and subsequently
-                                            freed all internally held
-                                            resources. */
+  GtuTestCaseFunc func;
+  void*           func_target;
+  GDestroyNotify  func_target_destroy;
+  GArray*         expected_msgs; /* array of ExpectedMessage */
+  GtuTestResult   result;
+  bool            has_disposed;  /* FALSE if we're valid, TRUE if we've been
+                                    executed and subsequently freed all
+                                    internally held resources. */
 } GtuTestCasePrivate;
 
 #define PRIVATE(obj) \

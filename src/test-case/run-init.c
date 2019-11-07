@@ -14,7 +14,7 @@ static GtuLogAction log_hook (const GtuLogGMessage* message, void* user_data) {
 
   g_assert (message != NULL);
 
-  if (message->domain == NULL || message->flags & G_LOG_FLAG_FATAL)
+  if (message->domain == NULL)
     return GTU_LOG_ACTION_CONTINUE; /* pass it on */
 
   priv = PRIVATE (self);
@@ -39,6 +39,9 @@ static GtuLogAction log_hook (const GtuLogGMessage* message, void* user_data) {
         GTU_LOG_ACTION_IGNORE;
     }
   }
+
+  if (message->flags & G_LOG_FLAG_FATAL)
+    return GTU_LOG_ACTION_CONTINUE;
 
   if (_gtu_log_consumer_should_fail (self,
                                      message->domain,

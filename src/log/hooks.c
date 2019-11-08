@@ -73,7 +73,7 @@ static void (*abort_handler_address) (void) = NULL;
 static char* _log_domain = NULL;
 
 
-static void do_abort (void) {
+G_GNUC_NORETURN static void do_abort (void) {
   /* we don't want to log on assertion failure */
 # define assert(x) G_STMT_START { if (x); else g_abort (); } G_STMT_END
 

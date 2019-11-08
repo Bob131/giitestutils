@@ -17,6 +17,6 @@ G_GNUC_INTERNAL GtuTestResult _gtu_test_case_exec_inner (GtuTestCaseFunc func,
                                                          void* func_target,
                                                          char** message);
 
-G_GNUC_INTERNAL void _gtu_test_preempt ();
+G_GNUC_INTERNAL void _gtu_test_preempt () G_GNUC_NORETURN;
 
 #endif

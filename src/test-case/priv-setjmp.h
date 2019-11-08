@@ -13,8 +13,6 @@ typedef struct {
 
 G_GNUC_INTERNAL TestRunContext* _gtu_get_tr_context (void);
 
-G_GNUC_INTERNAL bool _gtu_have_tr_context (void);
-
 G_GNUC_INTERNAL GtuTestResult _gtu_test_case_exec_inner (GtuTestCaseFunc func,
                                                          void* func_target,
                                                          char** message);

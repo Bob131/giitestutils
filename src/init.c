@@ -147,15 +147,13 @@ static bool parse_args (char** args, int args_length) {
 GtuLogAction verbosity_handler (GtuLogGMessage* message, void* data) {
   (void) data;
 
-  if (message->flags & G_LOG_FLAG_FATAL)
-    return GTU_LOG_ACTION_BAIL_OUT;
-
-  /* if the message is an unexpected warning or critical:
-   *   - if we're running a test, abort it
-   *   - otherwise, bail out of the test program */
+  /* A running test case will handle warnings and criticals by either
+   * suppressing them or failing the test, depending on what messages it
+   * expects. Thus if we're handling a warning or critical here, no test is
+   * running (or it's already fatal). We treat any warnings or criticals
+   * outside of test cases as though they were fatal. */
   if (message->flags & (G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL))
-    return _gtu_have_tr_context () ?
-      GTU_LOG_ACTION_ABORT : GTU_LOG_ACTION_BAIL_OUT;
+    message->flags |= G_LOG_FLAG_FATAL;
 
   return _gtu_should_log (message->flags) ?
     GTU_LOG_ACTION_CONTINUE :

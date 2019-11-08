@@ -76,8 +76,6 @@ static void message_handler (const char* domain,
 
   if (!SHOULD_SUPPRESS (domain, level, message)) {
     if (level & G_LOG_FLAG_FATAL) {
-      /* in practice we shouldn't ever get here; this code is more illustrative
-       * than functional */
       message_bailout (domain, level, message);
     } else {
       message_printer (domain, level, message);
@@ -152,8 +150,6 @@ static GLogWriterOutput structured_handler (GLogLevelFlags level,
   gtu_log_diagnostic (formatted_message->str);
   g_string_free (formatted_message, true);
 
-  /* in practice we shouldn't ever get here; this code is more illustrative
-   * than functional */
   if (level & G_LOG_FLAG_FATAL)
     gtu_log_bail_out (true, "Fatal structured message received");
 

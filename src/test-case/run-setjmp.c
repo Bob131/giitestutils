@@ -27,10 +27,6 @@ TestRunContext* _gtu_get_tr_context (void) {
   return CURRENT_CONTEXT;
 }
 
-bool _gtu_have_tr_context (void) {
-  return _current_tr_context != NULL;
-}
-
 /* No asserts because anything log related will fail; we're in this function
    because we've blown the stack away, which can cause segfaults in GLib's
    printf implementation. */

@@ -65,5 +65,6 @@
   <!-- xml/gfuncs-okay.xml -->
   <!-- xml/gfuncs-avoid.xml -->
   <!-- xml/memory-leaks.xml -->
+  <!-- xml/logging.xml -->
 
 </book>

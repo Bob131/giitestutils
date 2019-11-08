@@ -12,7 +12,8 @@ HFILE_GLOB = $(top_srcdir)/include/gtu*.h
 
 md2db_files = \
 	considerations/gfuncs-okay.xml \
-	considerations/gfuncs-avoid.xml
+	considerations/gfuncs-avoid.xml \
+	considerations/logging.xml
 
 content_files = \
 	gtu.css.xml \

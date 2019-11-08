@@ -60,4 +60,10 @@
   </index>
 
   <xi:include href="xml/annotation-glossary.xml"><xi:fallback /></xi:include>
+
+  <!-- shut up gtkdoc-check -->
+  <!-- xml/gfuncs-okay.xml -->
+  <!-- xml/gfuncs-avoid.xml -->
+  <!-- xml/memory-leaks.xml -->
+
 </book>

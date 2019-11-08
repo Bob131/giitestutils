@@ -7,10 +7,10 @@
  * @title: Test Suites
  * @include: gtu.h
  *
- * #GtuTestSuite is the method with which projects making use of GTU can
- * organise and execute collections of #GtuTestCase. It is an opaque
- * ref-counted object that contains a tree of test cases exercising elements of
- * project functionality.
+ * #GtuTestSuite is the method by which projects making use of GTU can organise
+ * and execute collections of #GtuTestCase. It is an opaque reference counted
+ * object that contains a tree of test cases exercising elements of project
+ * functionality.
  *
  * Projects are free to subclass #GtuTestSuite, allowing a neat encapsulation
  * of various project-specific testing utilities.
@@ -53,7 +53,7 @@ struct _GtuTestSuiteClass {
  * @name: identifier to use as the root name for all children tests of `this`.
  *
  * Creates a new test suite object and returns a floating reference to it. This
- * reference is sunk by the first call to gtu_test_object_ref().
+ * reference is sunk by the first call to gtu_test_object_ref_sink().
  *
  * @name must not be %NULL and must be a valid #GtuPath element as per
  * #Validity.
@@ -117,8 +117,8 @@ void gtu_test_suite_add (GtuTestSuite*  self, GtuTestObject* test_object);
  * that should be run must be added to @self before this function is called.
  *
  * The @self parameter should be an owned reference to the test suite. It's
- * recommended that you drop all references to @self and its children before
- * calling this function, to allow for post-run clean up.
+ * recommended that you drop all other references to @self and its children
+ * before calling this function, to allow for post-run clean up.
  *
  * Returns: an exit value that should be returned from `main()`, signalling the
  *          overall result to the test runner.

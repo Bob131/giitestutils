@@ -7,10 +7,10 @@
  * @title: Test Object
  * @include: gtu.h
  *
- * #GtuTestObject is an abstract ref-counted object, the type from which
+ * #GtuTestObject is an abstract reference-counted object, the type from which
  * #GtuTestCase and #GtuTestSuite derive. Instances are floating references on
- * construction; the first call to gtu_test_object_ref() sinks the reference,
- * and additional calls increment the ref-count.
+ * construction; the first call to gtu_test_object_ref_sink() sinks the
+ * reference, and additional calls increment the reference count.
  *
  * Project code may not derive from this type. For building convenience
  * objects, you should derive from #GtuTestCase or #GtuTestSuite instead.
@@ -119,8 +119,11 @@ const char* gtu_test_object_get_name (GtuTestObject* self);
  * @self: an instance of a #GtuTestObject type.
  *
  * Concatenates and returns the names of all @self's parents' names and the
- * name of @self. As the ancestry of @self and its parents changes, this
- * function will return different results.
+ * name of @self.
+ *
+ * The returned pointer is only guaranteed to be valid for as long as the
+ * ancestry of @self and its parents remains unchanged. If you need to hold onto
+ * the path, it's recommended that you create a copy.
  *
  * Returns: (transfer none): a #GtuPath instance representing @self.
  */
@@ -131,6 +134,11 @@ const GtuPath* gtu_test_object_get_path (GtuTestObject* self);
  * @self: and instance of a #GtuTestObject type.
  *
  * Convenience function that returns a string instead of a #GtuPath instance.
+ *
+ * The returned pointer is only guaranteed to be valid for as long as the
+ * ancestry of @self and its parents remains unchanged. If you need to hold onto
+ * the string, it's recommended that you create a copy.
+ *
  * See gtu_test_object_get_path() for more information.
  *
  * Returns: (transfer none): a string representing the path of @self.
@@ -145,7 +153,7 @@ const char* gtu_test_object_get_path_string (GtuTestObject* self);
  *
  * Returns the test suite to which @self has been added as a child.
  * #GtuTestCase instances must be parented to a #GtuTestSuite to be executed,
- * and #GtuTestSuite instances will typically have an ancestry ending in a root
+ * and #GtuTestSuite instances will have an ancestry ending in a root
  * #GtuTestSuite. If @self has not yet been parented, this function returns
  * %NULL instead.
  *

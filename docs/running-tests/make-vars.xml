@@ -14,7 +14,8 @@
       <listitem>
         <para>
           Allows the set of enabled tests to be configured without running test
-          binaries explicitly.
+          binaries explicitly. This is the same as specifying
+          <parameter>-m</parameter> when running a test binary directly.
         </para>
 
         <xi:include href="mode-list.xml"/>

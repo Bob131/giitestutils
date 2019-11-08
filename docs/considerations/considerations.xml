@@ -14,7 +14,7 @@
   <section>
     <title>Interoperation with the GLib test framework</title>
     <para>
-      To minimise the amount of code (and the opportunity for bugs), GTU
+      To minimise the amount of code (and the opportunity for bugs) GTU
       depends on GLib test APIs for providing certain functionality. However,
       we also rewrite functionality or hack around GLib's implementation when
       it isn't sufficiently flexible for our purposes. The end result is that
@@ -22,7 +22,7 @@
     </para>
 
     <para>
-      This is a list of GLib test functions that should work as normal:
+      The following is a list of GLib test functions that should work as normal:
     </para>
 
     <xi:include href="gfuncs-okay.xml"/>
@@ -40,7 +40,7 @@
     </para>
   </section>
 
-  <section>
+  <section id="Logging">
     <title>Logging</title>
     <xi:include href="logging.xml"/>
   </section>

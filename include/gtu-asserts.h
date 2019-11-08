@@ -44,8 +44,9 @@ void _gtu_assertion_message (const char* file,
  *             abort the test.
  * @message:   (allow-none): explanation of failure if @condition is %FALSE
  *
- * If @condition is truthy, do nothing. When @condition is falsy, we abort the
- * test and print @message with some extra diagnostic information.
+ * If @condition is truthy, do nothing. When @condition is falsy we mark the
+ * test as failed and print @message with some extra diagnostic information,
+ * without returning to the caller.
  */
 #define gtu_assert_with_message(condition, message) G_STMT_START {          \
   if (G_LIKELY (condition))                                                 \
@@ -66,10 +67,10 @@ void _gtu_assertion_message (const char* file,
 /**
  * gtu_assert:
  * @condition: %TRUE for a no-op, %FALSE if this test has failed and we should
- *             abort the test.
+ *             fail the test.
  *
- * If @condition is truthy, do nothing. When @condition is falsy, we abort the
- * current test.
+ * If @condition is truthy, do nothing. When @condition is falsy, we mark the
+ * test as failed and don't return.
  */
 #define gtu_assert(condition) \
   gtu_assert_with_message (condition, "assertion failed: " #condition)
@@ -96,7 +97,7 @@ void _gtu_assertion_message (const char* file,
  * gtu_assert_null:
  * @expression: expression to be tested.
  *
- * Aborts the current test if @expression is not equal to %NULL.
+ * Marks the current test as having failed if @expression is not equal to %NULL.
  */
 #define gtu_assert_null(expression) \
   gtu_assert_with_message ((expression) == NULL, "should be NULL: " #expression)
@@ -105,7 +106,7 @@ void _gtu_assertion_message (const char* file,
  * gtu_assert_nonnull:
  * @expression: expression to be tested.
  *
- * Aborts the current test if @expression is equal to %NULL.
+ * Performs the inverse of gtu_assert_null().
  */
 #define gtu_assert_nonnull(expression)              \
   gtu_assert_with_message ((expression) != NULL,    \

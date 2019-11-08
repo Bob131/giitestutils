@@ -7,11 +7,11 @@
  * @title: Initialisation
  * @include: gtu.h
  *
- * Before GTU tests can be run, the library must be initialised. This involves
- * passing the arguments from your test suite binary's `main()` to gtu_init(),
- * which then sets up GTU's internal state ready for testing.
+ * The library must be initialised before GTU features can be used. This
+ * involves passing the arguments from your test suite binary's `main()` to
+ * gtu_init(), which then sets up GTU's internal state ready for testing.
  *
- * Test flags passed to GTU can be queried with
+ * Test flags parsed from command line arguments can be queried with
  * gtu_test_mode_flags_get_flags().
  */
 
@@ -48,7 +48,8 @@ G_BEGIN_DECLS
  *
  * Initialises the GLib test framework and the GTU library.
  *
- * This function may be called several times.
+ * It is safe to call this function more than once; further calls are a no-op
+ * and ignore any passed arguments.
  *
  * This function must be called before any other GTU functionality is used.
  */
@@ -56,8 +57,6 @@ void gtu_init (char** args, int args_length);
 
 /**
  * gtu_has_initialized:
- *
- * Returns %TRUE if GTU has been initialised.
  *
  * Returns: %TRUE if gtu_init() has been called successfully, %FALSE otherwise.
  */
@@ -83,19 +82,19 @@ bool gtu_has_initialized (void);
  * @GTU_TEST_MODE_FLAGS_THOROUGH:   Alias of @GTU_TEST_MODE_FLAGS_SLOW.
  *
  * Represents the options a user running the test suite has requested. See
- * %TESTMODE for more information.
+ * [Test binaries][gtu-Args] for more information.
  *
  * Notes on valid flag combinations:
- *  * The result of gtu_test_mode_flags_get_flags() should never be `0`; at
- *    least one flag will always be set.
+ *  * The result of gtu_test_mode_flags_get_flags() will never be `0`; at least
+ *    one flag will always be set.
  *
- *  * @GTU_TEST_MODE_FLAGS_SLOW/@GTU_TEST_MODE_FLAGS_THOROUGH should never
- *    be set with @GTU_TEST_MODE_FLAGS_QUICK.
+ *  * @GTU_TEST_MODE_FLAGS_SLOW/@GTU_TEST_MODE_FLAGS_THOROUGH will never
+ *    be set simultaneously with @GTU_TEST_MODE_FLAGS_QUICK.
  *
  *  * One of @GTU_TEST_MODE_FLAGS_SLOW or @GTU_TEST_MODE_FLAGS_QUICK will
  *    always be set in values returned from gtu_test_mode_flags_get_flags().
  *
- *  * @GTU_TEST_MODE_FLAGS_VERBOSE should never be set with
+ *  * @GTU_TEST_MODE_FLAGS_VERBOSE will never be set simultaneously with
  *    @GTU_TEST_MODE_FLAGS_QUIET.
  *
  *  * It's valid for neither @GTU_TEST_MODE_FLAGS_VERBOSE or
@@ -115,10 +114,10 @@ typedef enum {
 /**
  * gtu_test_mode_flags_get_flags:
  *
- * Returns the #GtuTestModeFlags that the current test suite has been launched
- * with.
+ * Returns the #GtuTestModeFlags parsed from the command line arguments passed
+ * to gtu_init().
  *
- * Returns: flags for the current test suite.
+ * Returns: flags with which the current test program has been launched.
  */
 GtuTestModeFlags gtu_test_mode_flags_get_flags (void);
 

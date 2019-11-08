@@ -45,11 +45,11 @@ G_DECLARE_DERIVABLE_TYPE (GtuComplexCase, gtu_complex_case, GTU, COMPLEX_CASE,
 
 /**
  * GtuComplexCaseClass:
- * @test_impl: implementation of the test. @subunit is a boxed enum value,
- *             which can be recovered with %GPOINTER_TO_INT. Implementations
- *             should switch on this value to ensure the expected subunit is
- *             executed on each call. This function must be implemented by
- *             derivative classes.
+ * @test_impl: implementation of the test. @subunit is an enum value which can
+ *             be recovered with %GPOINTER_TO_INT. Implementations should switch
+ *             on this value to ensure the expected subunit is executed on each
+ *             call. This function must be implemented by derivative classes.
+ *             See also #GtuTestCaseClass.test_impl and #GtuTestCaseFunc
  *
  * Abstract class for #GtuComplexCase.
  */

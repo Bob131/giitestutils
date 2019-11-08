@@ -16,8 +16,10 @@
  * delimited by a slash/stroke (`/`) to describe hierarchies of #GtuTestSuite
  * and #GtuTestCase.
  *
- * Paths are guaranteed to be absolute, to be without a terminating stroke, and
- * to be free of whitespace.
+ * Paths are guaranteed to be:
+ *   - absolute,
+ *   - without a terminating stroke, and
+ *   - free of whitespace.
  *
  * Projects utilising GTU will typically don't need to use any path
  * functionality, or otherwise will only be interested in gtu_path_to_string().
@@ -37,8 +39,9 @@
  *   - they contain whitespace, or
  *   - they don't declare any elements (e.g. `path == ""`, `path == "/"`), or
  *   - they contain invalid elements.
- *   - This includes zero length elements (i.e. if the path contains two
- *     consecutive strokes `//`).
+ *     - This includes zero length elements (i.e. two consecutive strokes `//`
+ *       within a path denote a zero-length element between those strokes,
+ *       making such a path invalid).
  */
 
 #ifndef __GII_TEST_UTILS_H__
@@ -58,7 +61,8 @@ typedef struct _GtuPath GtuPath;
  * gtu_path_new:
  *
  * Creates an empty #GtuPath. The new instance is considered invalid until
- * elements are added to it.
+ * elements are added to it. The result should be freed with gtu_path_free()
+ * when it's no longer required.
  *
  * Returns: a new #GtuPath instance.
  */
@@ -74,9 +78,8 @@ GtuPath* gtu_path_new (void);
  * valid (see #Validity).
  *
  * @endptr is a return parameter indicating the location in @path where parsing
- * finished. If @path was parsed successfully, this will be equal to the length
- * of @path. Otherwise, it indicates the character which caused the parse to
- * fail.
+ * finished: If @path was parsed successfully this will be equal to `path +
+ * strlen (path)`, otherwise it points to the first invalid character in @path.
  *
  * Returns: (allow-none): a new #GtuPath instance filled with elements of
  *          @path, or %NULL if @path is invalid.
@@ -120,8 +123,12 @@ bool gtu_path_is_valid (const GtuPath* path);
  * @path: #GtuPath instance to serialise into a string. Must be valid.
  *
  * Collects elements of @path and concatenates them into a string, guaranteed
- * to be valid as per #Validity. The result is owned by the @path instance and
- * should not be altered or freed.
+ * to be a valid path string as per #Validity.
+ *
+ * The result is owned by the @path instance and should not be altered or freed.
+ * The returned pointer is only guaranteed to be valid whilst @path is not
+ * modified; mutating the path may cause it to become invalid. If you need to
+ * hold onto the string, it's recommended that you create a copy.
  *
  * The result of calling this function is undefined if @path is invalid (i.e.
  * if gtu_path_is_valid() would return %FALSE).
@@ -133,20 +140,20 @@ const char* gtu_path_to_string (const GtuPath* path);
 /**
  * gtu_path_prepend_element:
  * @path:       #GtuPath instance to which @to_prepend will be added.
- * @to_prepend: element to prepend to @path. Must be valid.
+ * @to_prepend: element to prepend to @path. Must be a valid element.
  *
  * Prepends @to_prepend to @path. The @to_prepend string is copied, so the
- * caller may free it once the call has finished.
+ * caller may free it once the call has returned.
  */
 void gtu_path_prepend_element (GtuPath* path, const char* to_prepend);
 
 /**
  * gtu_path_append_element:
  * @path:       #GtuPath instance to which @to_append will be added.
- * @to_append:  element to append to @path. Must be valid.
+ * @to_append:  element to append to @path. Must be a valid element.
  *
  * Appends @to_append to @path. The @to_append string is copied, so the caller
- * may free it once the call has finished.
+ * may free it once the call has returned.
  */
 void gtu_path_append_element (GtuPath* path, const char* to_append);
 

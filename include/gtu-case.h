@@ -7,8 +7,8 @@
  * @title: Test Cases
  * @include: gtu.h
  *
- * #GtuTestCase is the method with which projects making use of GTU can
- * implement test cases. It is an opaque ref-counted object that contains a
+ * #GtuTestCase is the method by which projects making use of GTU can implement
+ * test cases. It is an opaque reference-counted object that contains a
  * representation of an individual test case and its state.
  *
  * Projects are free to subclass #GtuTestCase, allowing a neat encapsulation of
@@ -43,6 +43,7 @@ G_DECLARE_DERIVABLE_TYPE (GtuTestCase, gtu_test_case, GTU, TEST_CASE,
  * @test_impl: function implementing the test case. This is only relevant for
  *             types deriving from #GtuTestCase, which should override this
  *             method; otherwise, use gtu_test_case_new().
+ *             See also: #GtuTestCaseFunc
  *
  * Class for #GtuTestCase objects.
  */
@@ -58,6 +59,14 @@ struct _GtuTestCaseClass {
  * @target: (closure): pointer to user data.
  *
  * A user-supplied function within which a test case is implemented.
+ *
+ * If such a function returns normally, the test is considered to have passed.
+ * If the function executes a failing assert (see [Asserts][gtu-Asserts]) or
+ * emits particular logs (see #Logging) the execution of the function is exited
+ * early and the test is marked as failed.
+ *
+ * [Skips][gtu-Skips] also end function execution early, but the test is marked
+ * as having been skipped rather than succeeded or failed.
  */
 typedef void (*GtuTestCaseFunc) (void* target);
 
@@ -143,7 +152,8 @@ GtuExpectHandle gtu_test_case_expect_message (GtuTestCase* self,
  * @self:   a #GtuTestCase instance.
  * @handle: a #GtuExpectHandle whose status will be queried.
  *
- * Checks whether any messages have been logged that match @handle.
+ * Checks whether any messages have been logged matching @handle since the last
+ * call to gtu_test_case_expect_count().
  *
  * See gtu_test_case_expect_message().
  *
@@ -156,8 +166,10 @@ bool gtu_test_case_expect_check (GtuTestCase* self, GtuExpectHandle handle);
  * @self:   a #GtuTestCase instance.
  * @handle: a #GtuExpectHandle whose status will be queried.
  *
- * Gets how many messages matching @handle have been logged and resets the
- * counter.
+ * Returns the number of logged messages matching @handle and resets the
+ * counter. Calling this function will cause future calls to
+ * gtu_test_case_expect_check() to return %FALSE until new matching messages are
+ * logged.
  *
  * Returns: the number of logged messages matching @handle.
  */

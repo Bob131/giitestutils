@@ -49,7 +49,7 @@ The rationale:
 Test suites/cases should be careful not to write arbitrary data to
 <varname>stdout</varname>, as this is the mechanism by which GTU communicates
 with the test harness. Whilst writing to <varname>stderr</varname> should be
-safe (as per the [TAP specification](http://testanything.org/tap-specification.html)),
+safe (as per the [TAP specification](https://testanything.org/tap-specification.html)),
 it's recommended that this is avoided for the sake of test log legibility and
 (potentially) compatibility with buggy test harnesses.
 

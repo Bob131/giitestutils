@@ -87,10 +87,14 @@ static char* get_arg (char** args, int args_length, int i, const char* arg) {
   }                                                                          \
 } G_STMT_END
 
-static bool parse_args (char** args, int args_length) {
+static void parse_args (char** args, int args_length,
+                        bool* out_tap_set,
+                        bool* out_fatal_warnings)
+{
   int i;
-  bool tap_set = false;
 
+  *out_tap_set = false;
+  *out_fatal_warnings = false;
   _gtu_keep_going = false;
 
   for (i = 0; i < args_length; i++) {
@@ -102,7 +106,10 @@ static bool parse_args (char** args, int args_length) {
       _gtu_keep_going = true;
 
     } else if (strcmp (args[i], "--tap") == 0) {
-      tap_set = true;
+      *out_tap_set = true;
+
+    } else if (strcmp (args[i], "--g-fatal-warnings") == 0) {
+      *out_fatal_warnings = true;
 
     } else if (GET_ARG ("-p")) {
       char* endptr;
@@ -137,11 +144,9 @@ static bool parse_args (char** args, int args_length) {
   }
 
   /* this shouldn't necessarily be fatal, so just log */
-  if (!tap_set && !_test_mode.list_only)
-    gtu_log_diagnostic ("WARNING: non-TAP test logging is unsupported. %s\n",
-                        "Run with --tap");
-
-  return tap_set;
+  if (!*out_tap_set && !_test_mode.list_only)
+    gtu_log_diagnostic ("WARNING: non-TAP test logging is unsupported. "
+                        "Run with --tap\n");
 }
 
 GtuLogAction verbosity_handler (GtuLogGMessage* message, void* data) {
@@ -161,17 +166,23 @@ GtuLogAction verbosity_handler (GtuLogGMessage* message, void* data) {
 }
 
 void gtu_init (char** args, int args_length) {
+  bool tap_set = false,
+       fatal_warnings = false;
+
   g_return_if_fail (args != NULL && args_length > 0);
 
   /* something has gone wrong if either is initialised without the other */
   g_assert (g_test_initialized () == _has_initialized);
 
   if (!g_test_initialized ()) {
-    bool tap_set = parse_args (args, args_length);
-
+    char** temp_args;
+    int temp_args_length;
     int i;
-    int temp_args_length = args_length + (tap_set ? 0 : 1);
-    char** temp_args = alloca (temp_args_length * sizeof (char*));
+
+    parse_args (args, args_length, &tap_set, &fatal_warnings);
+
+    temp_args_length = args_length + (tap_set ? 0 : 1);
+    temp_args = alloca (temp_args_length * sizeof (char*));
 
     memcpy (temp_args, args, args_length * sizeof (char*));
 
@@ -216,7 +227,7 @@ void gtu_init (char** args, int args_length) {
      *     test is treated as though it had failed an assert (marked as failed
      *     and stopped) */
 
-    gtu_log_hooks_init (GTU_LOG_DOMAIN, &_gtu_test_preempt);
+    gtu_log_hooks_init (fatal_warnings, GTU_LOG_DOMAIN, &_gtu_test_preempt);
     gtu_log_hooks_push (&verbosity_handler, NULL);
 
     _has_initialized = true;

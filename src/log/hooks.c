@@ -196,14 +196,17 @@ static void find_glogv_address (const char* domain,
     (void(*)(const char*,int,const char*,va_list)) procedure_info.start_ip;
 }
 
-void gtu_log_hooks_init (const char* log_domain, void (*abort_handler) (void)) {
+void gtu_log_hooks_init (bool fatal_warnings,
+                         const char* log_domain,
+                         void (*abort_handler) (void))
+{
   static volatile size_t has_initialized = 0;
 
   if (g_once_init_enter (&has_initialized)) {
     g_assert (_log_domain == NULL);
     _log_domain = g_strdup (log_domain);
 
-    gtu_log_g_install_handlers ();
+    gtu_log_g_install_handlers (fatal_warnings);
     gtu_log_g_register_internal_domain (log_domain);
 
     unsigned handler_id = g_log_set_handler (

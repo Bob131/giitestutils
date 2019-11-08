@@ -177,7 +177,7 @@ static gboolean never_abort (const char* log_domain,
   return false;
 }
 
-void gtu_log_g_install_handlers (void) {
+void gtu_log_g_install_handlers (bool fatal_warnings) {
   static volatile size_t has_installed;
 
   if (g_once_init_enter (&has_installed)) {
@@ -188,6 +188,8 @@ void gtu_log_g_install_handlers (void) {
       getenv ("G_DEBUG"),
       glib_debug_keys,
       G_N_ELEMENTS (glib_debug_keys));
+    if (fatal_warnings)
+      fatal_mask |= (G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL);
     g_log_set_always_fatal (fatal_mask);
 
     g_log_set_default_handler (&message_handler, NULL);

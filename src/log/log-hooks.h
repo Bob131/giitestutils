@@ -59,9 +59,10 @@ typedef GtuLogAction (*GtuLogHook) (GtuLogGMessage* message,
 
 /**
  * gtu_log_hooks_init:
- * @log_domain:    log domain used when formatting suppression messages and
- *                 passed to gtu_log_g_install_handlers().
- * @abort_handler: address to write on the call stack on hook abortion.
+ * @fatal_warnings: see gtu_log_g_install_handlers()
+ * @log_domain:     log domain used when formatting suppression messages and
+ *                  passed to gtu_log_g_install_handlers().
+ * @abort_handler:  address to write on the call stack on hook abortion.
  *
  * Initialises internal library state and registers @abort_handler as the abort
  * handler. When a hook returns %GTU_LOG_ACTION_ABORT, @abort_handler will
@@ -83,7 +84,9 @@ typedef GtuLogAction (*GtuLogHook) (GtuLogGMessage* message,
  *
  * On subsequent calls, this function is a no-op.
  */
-void gtu_log_hooks_init (const char* log_domain, void (*abort_handler) (void));
+void gtu_log_hooks_init (bool fatal_warnings,
+                         const char* log_domain,
+                         void (*abort_handler) (void));
 
 /**
  * gtu_log_hooks_push:

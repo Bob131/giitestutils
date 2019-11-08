@@ -39,15 +39,7 @@ typedef enum {
    *
    * THIS IS REALLY DANGEROUS!
    */
-  GTU_LOG_ACTION_ABORT,
-
-  /**
-   * GTU_LOG_ACTION_BAIL_OUT:
-   *
-   * Signals to the test harness that a fatal error has occured and raises
-   * SIGTRAP.
-   */
-  GTU_LOG_ACTION_BAIL_OUT
+  GTU_LOG_ACTION_ABORT
 
 } GtuLogAction;
 
@@ -58,7 +50,9 @@ typedef enum {
  *
  * Callback executed whenever a GLib message is logged.
  *
- * Returns: how the hook wants the message to be handled.
+ * Returns: how the hook wants the message to be handled. Messages that
+ *          possibly ought to trigger a trap should set %G_LOG_FLAG_FATAL in
+ *          @message's flags and return %GTU_LOG_ACTION_CONTINUE.
  */
 typedef GtuLogAction (*GtuLogHook) (GtuLogGMessage* message,
                                     void* user_data);

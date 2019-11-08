@@ -163,11 +163,6 @@ static bool invoke_hooks (GtuLogGMessage* message, void* user_data) {
     if (action == GTU_LOG_ACTION_ABORT)
       do_abort ();
 
-    if (action == GTU_LOG_ACTION_BAIL_OUT)
-      gtu_log_bail_out (true, gtu_log_g_format_message (message->domain,
-                                                        message->flags,
-                                                        message->body));
-
     g_assert_not_reached ();
   }
 

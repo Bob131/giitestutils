@@ -3,7 +3,7 @@
 #include "log/log-color.h"
 #include "log/log-hooks.h"
 
-static GtuLogAction log_hook (const GtuLogGMessage* message, void* user_data) {
+static GtuLogAction log_hook (GtuLogGMessage* message, void* user_data) {
   GtuTestCase* self;
 
   g_assert (GTU_IS_TEST_CASE (user_data));

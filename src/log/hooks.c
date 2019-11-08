@@ -120,7 +120,7 @@ static void do_abort (void) {
 # undef assert
 }
 
-static bool invoke_hooks (const GtuLogGMessage* message, void* user_data) {
+static bool invoke_hooks (GtuLogGMessage* message, void* user_data) {
   Hook* cursor;
 
   (void) user_data;

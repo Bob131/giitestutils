@@ -144,7 +144,7 @@ static bool parse_args (char** args, int args_length) {
   return tap_set;
 }
 
-GtuLogAction verbosity_handler (const GtuLogGMessage* message, void* data) {
+GtuLogAction verbosity_handler (GtuLogGMessage* message, void* data) {
   (void) data;
 
   if (message->flags & G_LOG_FLAG_FATAL)

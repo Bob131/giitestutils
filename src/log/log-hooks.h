@@ -60,7 +60,7 @@ typedef enum {
  *
  * Returns: how the hook wants the message to be handled.
  */
-typedef GtuLogAction (*GtuLogHook) (const GtuLogGMessage* message,
+typedef GtuLogAction (*GtuLogHook) (GtuLogGMessage* message,
                                     void* user_data);
 
 /**

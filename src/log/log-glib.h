@@ -15,9 +15,9 @@
  * Contains all the details of a message logged with g_log() et al.
  */
 typedef struct {
-  const char* domain;
+  const char* const domain;
   GLogLevelFlags flags;
-  const char* body;
+  const char* const body;
 } GtuLogGMessage;
 
 /**
@@ -30,7 +30,7 @@ typedef struct {
  *
  * Returns: %TRUE if @message should be suppressed, %FALSE otherwise.
  */
-typedef bool (*GtuLogGSuppressFunc) (const GtuLogGMessage* message,
+typedef bool (*GtuLogGSuppressFunc) (GtuLogGMessage* message,
                                      void* user_data);
 
 /**

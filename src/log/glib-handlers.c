@@ -20,14 +20,14 @@ static const GDebugKey glib_debug_keys[] = {
 static GLogLevelFlags fatal_mask;
 
 #define SHOULD_SUPPRESS(domain, level, message) \
-  (should_suppress ((domain), (level), (message)))
+  (should_suppress ((domain), &(level), (message)))
 
 static bool should_suppress (const char* domain,
-                             GLogLevelFlags level,
+                             GLogLevelFlags* level,
                              const char* message)
 {
   bool ret;
-  GtuLogGMessage g_message = { domain, level, message };
+  GtuLogGMessage g_message = { domain, *level, message };
 
   /* TODO: hold read locks. The suppression mechanism is exclusively for the
      benefit of GtuTestCase, which does all sorts of nasty stack unwinding
@@ -42,6 +42,7 @@ static bool should_suppress (const char* domain,
 
   /* G_UNLOCK (suppress_info); */
 
+  *level = g_message.flags;
   return ret;
 }
 

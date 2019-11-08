@@ -30,7 +30,7 @@
       </listitem>
     </varlistentry>
 
-    <varlistentry>
+    <varlistentry id="G-DEBUG:CAPS">
       <term>
         <envar>G_DEBUG</envar>
       </term>

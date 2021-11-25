@@ -178,7 +178,7 @@ static gboolean never_abort (const char* log_domain,
 }
 
 void gtu_log_g_install_handlers (bool fatal_warnings) {
-  static volatile size_t has_installed;
+  static size_t has_installed;
 
   if (g_once_init_enter (&has_installed)) {
     g_set_print_handler (&stdfd_handler);

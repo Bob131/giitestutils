@@ -12,9 +12,15 @@ typedef struct {
   bool has_finalized;       /* sanity checking */
 } GtuTestObjectPrivate;
 
+static int GtuTestObject_private_offset;
+
+static inline GtuTestObjectPrivate*
+gtu_test_object_get_instance_private (GtuTestObject* self) {
+  return G_STRUCT_MEMBER_P (self, GtuTestObject_private_offset);
+}
+
 #define PRIVATE(obj) \
-  (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GTU_TYPE_TEST_OBJECT, \
-                                GtuTestObjectPrivate))
+  gtu_test_object_get_instance_private ((obj))
 
 enum {
   ANCESTRY_CHANGED,
@@ -105,51 +111,57 @@ static char* _value_lcopy (const GValue* value,
   return NULL;
 }
 
+static GType gtu_test_object_get_type_once (void) {
+  static const GTypeValueTable value_table = {
+    &_value_init,
+    &_value_free,
+    &_value_copy,
+    &_value_peek,
+    "p",
+    &_value_collect,
+    "p",
+    &_value_lcopy
+  };
+
+  static const GTypeInfo type_info = {
+    sizeof (GtuTestObjectClass),
+    (GBaseInitFunc) NULL,
+    (GBaseFinalizeFunc) NULL,
+    &_gtu_test_object_class_init,
+    (GClassFinalizeFunc) NULL,
+    NULL,                         /* class_data  */
+    sizeof (GtuTestObject),
+    0,                            /* n_preallocs */
+    &_gtu_test_object_init,
+    &value_table
+  };
+
+  static const GTypeFundamentalInfo fundamental_info = {
+    G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE |
+    G_TYPE_FLAG_DEEP_DERIVABLE
+  };
+
+  GType g_define_type_id =
+    g_type_register_fundamental (g_type_fundamental_next (),
+                                 "GtuTestObject",
+                                 &type_info,
+                                 &fundamental_info,
+                                 G_TYPE_FLAG_ABSTRACT);
+
+  G_ADD_PRIVATE (GtuTestObject);
+
+  return g_define_type_id;
+}
+
 GType gtu_test_object_get_type (void) {
-  static volatile gsize type_id__volatile = 0;
+  static gsize static_g_define_type_id = 0;
 
-  if (g_once_init_enter (&type_id__volatile)) {
-    static const GTypeValueTable value_table = {
-      &_value_init,
-      &_value_free,
-      &_value_copy,
-      &_value_peek,
-      "p",
-      &_value_collect,
-      "p",
-      &_value_lcopy
-    };
-
-    static const GTypeInfo type_info = {
-      sizeof (GtuTestObjectClass),
-      (GBaseInitFunc) NULL,
-      (GBaseFinalizeFunc) NULL,
-      &_gtu_test_object_class_init,
-      (GClassFinalizeFunc) NULL,
-      NULL,                         /* class_data  */
-      sizeof (GtuTestObject),
-      0,                            /* n_preallocs */
-      &_gtu_test_object_init,
-      &value_table
-    };
-
-    static const GTypeFundamentalInfo fundamental_info = {
-      G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE |
-        G_TYPE_FLAG_DEEP_DERIVABLE
-    };
-
-    GType type_id = g_type_register_fundamental (
-      g_type_fundamental_next (),
-      "GtuTestObject",
-      &type_info,
-      &fundamental_info,
-      G_TYPE_FLAG_ABSTRACT
-    );
-
-    g_once_init_leave (&type_id__volatile, type_id);
+  if (g_once_init_enter (&static_g_define_type_id)) {
+    GType g_define_type_id = gtu_test_object_get_type_once ();
+    g_once_init_leave (&static_g_define_type_id, g_define_type_id);
   }
 
-  return type_id__volatile;
+  return static_g_define_type_id;
 }
 
 void* gtu_test_object_ref (void* instance) {
@@ -274,7 +286,9 @@ GtuTestObject* _gtu_test_object_construct (GType type, const char* name) {
 static void _gtu_test_object_class_init (void* klass, void* data) {
   (void) data;
 
-  g_type_class_add_private (klass, sizeof (GtuTestObjectPrivate));
+  if (GtuTestObject_private_offset != 0)
+    g_type_class_adjust_private_offset (klass, &GtuTestObject_private_offset);
+
   GTU_TEST_OBJECT_CLASS (klass)->finalize = _gtu_test_object_finalize;
 
   object_signals[ANCESTRY_CHANGED] =

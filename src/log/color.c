@@ -13,7 +13,7 @@
    trivial, so we wrap it in a once_init */
 bool gtu_log_supports_color (void) {
   /* -1 for unsupported, +1 for supported */
-  static volatile gssize supported = 0;
+  static gssize supported = 0;
 
   if (g_once_init_enter (&supported)) {
     bool is_tty;

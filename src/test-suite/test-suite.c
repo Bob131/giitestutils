@@ -7,9 +7,9 @@ typedef struct {
 } GtuTestSuitePrivate;
 
 #define PRIVATE(obj) \
-  (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GTU_TYPE_TEST_SUITE, \
-                                GtuTestSuitePrivate))
-G_DEFINE_TYPE (GtuTestSuite, gtu_test_suite, GTU_TYPE_TEST_OBJECT)
+  ((GtuTestSuitePrivate*) \
+   gtu_test_suite_get_instance_private ((GtuTestSuite*) (obj)))
+G_DEFINE_TYPE_WITH_PRIVATE (GtuTestSuite, gtu_test_suite, GTU_TYPE_TEST_OBJECT)
 
 typedef struct {
   char* domain;
@@ -94,7 +94,6 @@ static void gtu_test_suite_finalize (GtuTestObject* self) {
 }
 
 static void gtu_test_suite_class_init (GtuTestSuiteClass* klass) {
-  g_type_class_add_private (klass, sizeof (GtuTestSuitePrivate));
   GTU_TEST_OBJECT_CLASS (klass)->finalize = gtu_test_suite_finalize;
 }
 

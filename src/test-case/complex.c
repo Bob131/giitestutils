@@ -7,10 +7,12 @@ typedef struct {
 } GtuComplexCasePrivate;
 
 #define PRIVATE(obj) \
-  (G_TYPE_INSTANCE_GET_PRIVATE ((obj),                  \
-                                GTU_TYPE_COMPLEX_CASE,  \
-                                GtuComplexCasePrivate))
-G_DEFINE_ABSTRACT_TYPE (GtuComplexCase, gtu_complex_case, GTU_TYPE_TEST_CASE)
+  ((GtuComplexCasePrivate*) \
+   gtu_complex_case_get_instance_private ((GtuComplexCase*) (obj)))
+
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (GtuComplexCase,
+                                     gtu_complex_case,
+                                     GTU_TYPE_TEST_CASE)
 
 typedef struct {
   GtuComplexCase* self;
@@ -30,7 +32,6 @@ static void gtu_complex_case_finalize (GtuTestObject* self) {
 }
 
 static void gtu_complex_case_class_init (GtuComplexCaseClass* klass) {
-  g_type_class_add_private (klass, sizeof (GtuComplexCasePrivate));
   GTU_TEST_OBJECT_CLASS (klass)->finalize = &gtu_complex_case_finalize;
 }
 

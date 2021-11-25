@@ -58,7 +58,7 @@ static void diag_vprintf (const char* format, va_list args) {
 /* Only one test plan can be executed during the lifetime of a process, so we
  * ignore subsequent calls. */
 static void log_test_plan (unsigned n_tests, bool disable) {
-  static volatile size_t expected_tests__volatile = 0;
+  static size_t expected_tests__volatile = 0;
 
   if (g_once_init_enter (&expected_tests__volatile)) {
     if (disable) {

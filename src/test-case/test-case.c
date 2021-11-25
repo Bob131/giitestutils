@@ -1,7 +1,7 @@
 #include <string.h>
 #include "test-case/priv.h"
 
-G_DEFINE_TYPE (GtuTestCase, gtu_test_case, GTU_TYPE_TEST_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE (GtuTestCase, gtu_test_case, GTU_TYPE_TEST_OBJECT)
 
 void _gtu_test_case_dispose (GtuTestCase* self) {
   GtuTestCasePrivate* priv;
@@ -44,7 +44,6 @@ static void dummy_test_impl (GtuTestCase* self) {
 }
 
 static void gtu_test_case_class_init (GtuTestCaseClass* klass) {
-  g_type_class_add_private (klass, sizeof (GtuTestCasePrivate));
   GTU_TEST_OBJECT_CLASS (klass)->finalize = gtu_test_case_finalize;
   klass->test_impl = dummy_test_impl;
 }

@@ -200,7 +200,7 @@ void gtu_log_hooks_init (bool fatal_warnings,
                          const char* log_domain,
                          void (*abort_handler) (void))
 {
-  static volatile size_t has_initialized = 0;
+  static size_t has_initialized = 0;
 
   if (g_once_init_enter (&has_initialized)) {
     g_assert (_log_domain == NULL);
